@@ -4,14 +4,25 @@ import vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
 import tailwindcss from '@tailwindcss/vite'
 
-import { port } from './script/utils'
+import packageJson from './package.json'
+import { isDev, port, r } from './scripts/utils'
 
 // https://vite.dev/config/
 export default defineConfig(({ command }) => ({
-    plugins: [
-      vue(),
-      tailwindcss(),
-      AutoImport({
+  root: r('src'), // 开发服务器启动和构建时的基础目录
+  resolve: {
+    alias: {
+      '@/': `${r('src')}/`,
+    },
+  },
+  define: {
+    __DEV__: isDev,
+    __NAME__: JSON.stringify(packageJson.name),
+  },
+  plugins: [
+    vue(),
+    tailwindcss(),
+    AutoImport({
       imports: [
         'vue',
         {
@@ -43,10 +54,25 @@ export default defineConfig(({ command }) => ({
     origin: `http://localhost:${port}`,
     proxy: {
       '/api': {
-        target: 'http://wallpaper.xyu.fan/api/v1',
+        target: '',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
     },
   },
+  build: {
+    watch: isDev ? {} : undefined,
+    outDir: r('extension/dist'),
+    emptyOutDir: false,
+    sourcemap: isDev ? 'inline' : false,
+    terserOptions: {
+      mangle: false,
+    },
+    rollupOptions: {
+      input: {
+        popup: r('src/popup/index.html'),
+        newtab: r('src/newtab/index.html'),
+      }
+    }
+  }
 }))
