@@ -18,7 +18,7 @@ async function stubIndexHtml() {
     data = data.replace('"./main.ts"', `"http://localhost:${port}/${view}/main.ts"`)
     // 生成对应的html文件
     await fs.writeFile(r(`extension/dist/${view}/index.html`), data, 'utf-8')
-    log('Vite', `create ${view} stub index.html`)
+    log('Vite', `${view}: dev server started at http://localhost:${port}/${view}/index.html`)
   }
 }
 
