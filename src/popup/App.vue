@@ -2,7 +2,7 @@
 </script>
 
 <template>
-  <div>
+  <div class="p-5">
     popup
   </div>
 </template>
