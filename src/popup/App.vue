@@ -133,21 +133,21 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="w-96 min-h-[500px] bg-gradient-to-br from-green-50 to-green-100 dark:from-gray-800 dark:to-gray-900" style="background: linear-gradient(to bottom right, #fdfffd, #f8fef8)">
+  <div class="w-96 min-h-[500px] bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900" style="background: linear-gradient(to bottom right, #fefefe, #fafafa)">
     <!-- 头部区域 -->
-    <div class="p-4 border-b border-gray-100 dark:border-gray-700">
+    <div class="p-4 border-b border-gray-200 dark:border-gray-700">
       <div class="flex items-center justify-between mb-4">
         <div>
           <div class="flex items-center gap-2 mb-1">
-            <h1 class="text-xl font-bold text-green-600 dark:text-green-300">秋叶标签页</h1>
-            <span class="text-xs bg-gray-50 dark:bg-green-800 text-green-400 dark:text-green-300 px-2 py-1 rounded-full">
+            <h1 class="text-xl font-bold text-gray-600 dark:text-green-300">秋叶标签页</h1>
+            <span class="text-xs bg-gray-100 dark:bg-green-800 text-gray-500 dark:text-green-300 px-2 py-1 rounded-full">
               v{{ appVersion }}
             </span>
           </div>
-          <p class="text-sm text-green-600 dark:text-green-400">{{ currentDate }}</p>
+          <p class="text-sm text-gray-500 dark:text-green-400">{{ currentDate }}</p>
         </div>
         <div class="text-right">
-          <div class="text-2xl font-bold text-green-600 dark:text-green-300">{{ currentTime }}</div>
+          <div class="text-2xl font-bold text-gray-600 dark:text-green-300">{{ currentTime }}</div>
         </div>
       </div>
 
@@ -162,7 +162,7 @@ onMounted(() => {
           @keyup.enter="handleSearch"
           type="text"
           placeholder="搜索网络..."
-          class="w-full pl-10 pr-4 py-3 bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-100 dark:focus:ring-green-500 text-gray-700 dark:text-gray-200 placeholder-gray-400"
+          class="w-full pl-10 pr-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-green-500 text-gray-600 dark:text-gray-200 placeholder-gray-400"
         />
       </div>
     </div>
@@ -175,11 +175,11 @@ onMounted(() => {
           v-for="action in quickActions"
           :key="action.action"
           @click="handleQuickAction(action.action)"
-          class="flex flex-col items-center p-3 bg-white dark:bg-gray-700 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105 border border-gray-100 dark:border-gray-600"
+          class="flex flex-col items-center p-3 bg-white dark:bg-gray-700 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105 border border-gray-200 dark:border-gray-600"
         >
           <Icon 
             :icon="action.icon" 
-            class="text-2xl text-green-300 dark:text-green-400 mb-1" 
+            class="text-2xl text-gray-400 dark:text-green-400 mb-1" 
           />
           <span class="text-xs text-gray-600 dark:text-gray-300 text-center">{{ action.name }}</span>
         </button>
@@ -194,7 +194,7 @@ onMounted(() => {
           v-for="site in recentSites"
           :key="site.url"
           @click="openSite(site.url)"
-          class="w-full flex items-center p-3 bg-white dark:bg-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200 border border-gray-100 dark:border-gray-600"
+          class="w-full flex items-center p-3 bg-white dark:bg-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200 border border-gray-200 dark:border-gray-600"
         >
           <Icon 
             :icon="site.favicon" 
@@ -217,7 +217,7 @@ onMounted(() => {
           v-for="tab in tabs"
           :key="tab.id"
           @click="switchToTab(tab.id)"
-          class="flex items-center p-2 bg-white dark:bg-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200 cursor-pointer border border-gray-100 dark:border-gray-600 group"
+          class="flex items-center p-2 bg-white dark:bg-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200 cursor-pointer border border-gray-200 dark:border-gray-600 group"
         >
           <div class="w-4 h-4 mr-2 flex-shrink-0 flex items-center justify-center">
             <img 
@@ -245,10 +245,10 @@ onMounted(() => {
     </div>
 
     <!-- 底部操作 -->
-    <div class="p-4 border-t border-gray-100 dark:border-gray-700 mt-4">
+    <div class="p-4 border-t border-gray-200 dark:border-gray-700 mt-4">
       <button
         @click="openNewTab"
-        class="w-full flex items-center justify-center p-3 bg-green-300 hover:bg-green-400 text-white rounded-xl transition-colors duration-200 mb-3"
+        class="w-full flex items-center justify-center p-3 bg-gray-400 hover:bg-gray-500 text-white rounded-xl transition-colors duration-200 mb-3"
       >
         <Icon icon="mdi:plus" class="mr-2" />
         新建标签页
@@ -274,11 +274,11 @@ onMounted(() => {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #86efac;
+  background: #d1d5db;
   border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #4ade80;
+  background: #9ca3af;
 }
 </style>
