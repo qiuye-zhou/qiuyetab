@@ -1,0 +1,31 @@
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景圆形 -->
+  <circle cx="64" cy="64" r="60" fill="#22c55e" opacity="0.1"/>
+  <circle cx="64" cy="64" r="50" fill="#16a34a"/>
+  
+  <!-- 叶子图案 -->
+  <g transform="translate(64,64)">
+    <!-- 主叶子 -->
+    <path d="M-12,-25 Q-20,-15 -12,-5 Q-8,8 0,12 Q8,8 12,-5 Q20,-15 12,-25 Q0,-35 -12,-25" 
+          fill="#ffffff" opacity="0.95"/>
+    
+    <!-- 叶脉主干 -->
+    <path d="M0,-20 L0,8" stroke="#16a34a" stroke-width="2.5" opacity="0.8"/>
+    
+    <!-- 叶脉分支 -->
+    <path d="M0,-12 Q-6,-8 -10,-4" stroke="#16a34a" stroke-width="1.5" opacity="0.7"/>
+    <path d="M0,-12 Q6,-8 10,-4" stroke="#16a34a" stroke-width="1.5" opacity="0.7"/>
+    <path d="M0,-4 Q-5,0 -8,3" stroke="#16a34a" stroke-width="1.2" opacity="0.6"/>
+    <path d="M0,-4 Q5,0 8,3" stroke="#16a34a" stroke-width="1.2" opacity="0.6"/>
+    
+    <!-- 小装饰叶子 -->
+    <path d="M16,-8 Q22,-4 18,2 Q14,0 16,-8" fill="#22c55e" opacity="0.8"/>
+    <path d="M-16,5 Q-22,9 -18,15 Q-14,13 -16,5" fill="#22c55e" opacity="0.8"/>
+    
+    <!-- 叶子边缘高光 -->
+    <path d="M-8,-20 Q-12,-12 -8,-8 Q-6,-4 0,0" stroke="#dcfce7" stroke-width="1" opacity="0.6" fill="none"/>
+  </g>
+  
+  <!-- 外边框 -->
+  <circle cx="64" cy="64" r="50" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.4"/>
+</svg> 
