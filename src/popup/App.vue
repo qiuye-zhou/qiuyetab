@@ -30,7 +30,6 @@ const quickActions = ref([
 
 const recentSites = ref([
   { name: 'GitHub', url: 'https://github.com', favicon: 'mdi:github' },
-  { name: 'Vue.js', url: 'https://vuejs.org', favicon: 'mdi:vuejs' },
   { name: 'TypeScript', url: 'https://www.typescriptlang.org', favicon: 'simple-icons:typescript' }
 ])
 
@@ -61,7 +60,7 @@ const updateTime = () => {
 // 搜索功能
 const handleSearch = () => {
   if (searchQuery.value.trim()) {
-    const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(searchQuery.value)}`
+    const searchUrl = `https://www.baidu.com/s?wd=${encodeURIComponent(searchQuery.value)}`
     browser.tabs.create({ url: searchUrl })
     window.close()
   }
