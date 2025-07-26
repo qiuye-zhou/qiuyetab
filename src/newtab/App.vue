@@ -1,12 +1,26 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { Icon } from '@iconify/vue'
+import webExtensionPolyfill from 'webextension-polyfill'
+
+// 使用 browser API
+const browser = webExtensionPolyfill
 
 // 响应式数据
 const searchQuery = ref('')
 const currentTime = ref('')
 const currentDate = ref('')
 const greeting = ref('')
+
+// 搜索引擎配置
+const searchEngines = ref([
+  { name: '百度', value: 'baidu', url: 'https://www.baidu.com/s?wd={query}' },
+  { name: 'Google', value: 'google', url: 'https://www.google.com/search?q={query}' },
+  { name: '必应', value: 'bing', url: 'https://www.bing.com/search?q={query}' },
+  { name: '搜狗', value: 'sogou', url: 'https://www.sogou.com/web?query={query}' },
+  { name: '360搜索', value: '360', url: 'https://www.so.com/s?q={query}' }
+])
+const selectedEngine = ref('baidu')
 
 let timeInterval: ReturnType<typeof setInterval>
 
@@ -47,16 +61,37 @@ const handleSearch = () => {
         : `https://${searchQuery.value}`
       window.open(url, '_self')
     } else {
-      // 使用百度搜索
-      const searchUrl = `https://www.baidu.com/s?wd=${encodeURIComponent(searchQuery.value)}`
-      window.open(searchUrl, '_self')
+      // 使用自定义搜索引擎
+      const engine = searchEngines.value.find(e => e.value === selectedEngine.value)
+      if (engine) {
+        const searchUrl = engine.url.replace('{query}', encodeURIComponent(searchQuery.value))
+        window.open(searchUrl, '_self')
+      }
     }
+  }
+}
+
+// 加载设置
+const loadSettings = async () => {
+  try {
+    // 优先从 local 读取
+    let result = await browser.storage.local.get(['searchEngine'])
+    if (!result.searchEngine) {
+      // local 没有再从 sync 兜底
+      result = await browser.storage.sync.get(['searchEngine'])
+    }
+    if (result.searchEngine && typeof result.searchEngine === 'string') {
+      selectedEngine.value = result.searchEngine
+    }
+  } catch (error) {
+    console.error('加载设置失败:', error)
   }
 }
 
 onMounted(() => {
   updateTime()
   timeInterval = setInterval(updateTime, 1000)
+  loadSettings()
 })
 
 onUnmounted(() => {
