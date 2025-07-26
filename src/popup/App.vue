@@ -138,7 +138,7 @@ onMounted(() => {
       <div class="flex items-center justify-between mb-4">
         <div>
           <div class="flex items-center gap-2 mb-1">
-            <h1 class="text-xl font-bold text-gray-600 dark:text-green-300">秋叶标签页</h1>
+            <h1 class="text-xl font-bold text-gray-600 dark:text-green-300">新标签页</h1>
             <span class="text-xs bg-gray-100 dark:bg-green-800 text-gray-500 dark:text-green-300 px-2 py-1 rounded-full">
               v{{ appVersion }}
             </span>
@@ -185,7 +185,7 @@ onMounted(() => {
       </div>
     </div>
 
-    <!-- 最近访问 -->
+    <!-- 常用 -->
     <div class="px-4">
       <h3 class="text-sm font-medium text-gray-600 dark:text-gray-300 mb-3">常用</h3>
       <div class="space-y-2">
@@ -256,7 +256,9 @@ onMounted(() => {
       <!-- 版本信息 -->
       <div class="flex items-center justify-center text-xs text-gray-500 dark:text-gray-400">
         <Icon icon="mdi:information-outline" class="mr-1" />
-        <span>秋叶标签页 v{{ appVersion }}</span>
+        <span class="flex items-center justify-center cursor-pointer" @click="openSite('https://github.com/qiuye-zhou')"><Icon icon="mdi:github"></Icon>秋叶</span>
+        <span class="mx-2">|</span>
+        <span>新标签页 v{{ appVersion }}</span>
       </div>
     </div>
   </div>
