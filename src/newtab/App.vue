@@ -107,17 +107,17 @@ onUnmounted(() => {
     <main class="w-full max-w-5xl px-6">
       <!-- 时间显示 -->
       <div class="text-center mb-16">
-        <h1 class="text-7xl font-bold text-gray-600 mb-4">{{ currentTime }}</h1>
-        <p class="text-xl text-gray-400 mb-2">{{ currentDate }}</p>
-        <p class="text-lg text-gray-300">{{ greeting }}！</p>
+        <h1 class="text-5xl font-bold text-gray-600 mb-4">{{ currentTime }}</h1>
+        <p class="text-xl text-gray-500 mb-2">{{ currentDate }}</p>
+        <p class="text-lg text-gray-400">{{ greeting }}！</p>
       </div>
 
       <!-- 搜索区域 -->
       <div class="relative mb-8 group max-w-4xl mx-auto">
-        <div class="absolute left-5 top-1/2 transform -translate-y-1/2 transition-all duration-300 group-focus-within:text-gray-500">
+        <div class="absolute left-5 top-1/2 transform -translate-y-1/2 transition-all duration-300 group-focus-within:text-gray-700">
           <Icon 
             icon="mdi:magnify" 
-            class="text-gray-400 text-2xl" 
+            class="text-gray-600 text-2xl" 
           />
         </div>
         <input
@@ -127,14 +127,14 @@ onUnmounted(() => {
           type="text"
           placeholder="搜索或输入网址"
           class="w-full pl-16 pr-8 py-7 text-xl bg-white/90 backdrop-blur-md border-0 rounded-3xl shadow-xl hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-gray-200/50 text-gray-700 placeholder-gray-400 transition-all duration-500 ease-out"
-          style="box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1)"
+          style="box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.4)"
           autofocus
         />
         <div class="absolute inset-0 rounded-3xl bg-gradient-to-r from-blue-50/20 via-purple-50/20 to-pink-50/20 opacity-0 group-focus-within:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
       </div>
 
       <!-- 搜索提示 -->
-      <div class="text-center text-sm text-gray-300 space-y-2">
+      <div class="text-center text-sm text-gray-500 space-y-2">
         <p class="opacity-80">输入关键词搜索，或直接输入网址访问</p>
         <div class="flex items-center justify-center space-x-4 text-xs opacity-60">
           <span class="flex items-center">
