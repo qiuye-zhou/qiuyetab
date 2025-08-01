@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { Icon } from '@iconify/vue'
 import webExtensionPolyfill from 'webextension-polyfill'
 
@@ -21,6 +21,17 @@ interface TabInfo {
 
 const tabs = ref<TabInfo[]>([])
 
+// 防抖函数
+let updateTimeout: ReturnType<typeof setTimeout> | null = null
+const debouncedUpdate = () => {
+    if (updateTimeout) {
+        clearTimeout(updateTimeout)
+    }
+    updateTimeout = setTimeout(() => {
+        getCurrentTabs()
+    }, 100)
+}
+
 // 获取当前标签页信息
 const getCurrentTabs = async () => {
     try {
@@ -28,6 +39,30 @@ const getCurrentTabs = async () => {
         tabs.value = currentTabs.slice(0, 5) // 只显示前5个标签页
     } catch (error) {
         console.error('获取标签页失败:', error)
+    }
+}
+
+// 监听标签页变化
+const setupTabListener = () => {
+    const handleTabRemoved = () => {
+        debouncedUpdate()
+    }
+
+    const handleTabUpdated = () => {
+        debouncedUpdate()
+    }
+
+    browser.tabs.onRemoved.addListener(handleTabRemoved)
+    browser.tabs.onUpdated.addListener(handleTabUpdated)
+
+    // 返回清理函数
+    return () => {
+        try {
+            browser.tabs.onRemoved.removeListener(handleTabRemoved)
+            browser.tabs.onUpdated.removeListener(handleTabUpdated)
+        } catch (error) {
+            console.log(error)
+        }
     }
 }
 
@@ -48,16 +83,33 @@ const switchToTab = (tabId: number | undefined) => {
 }
 
 // 关闭标签页
-const closeTab = (tabId: number | undefined, event: Event) => {
+const closeTab = async (tabId: number | undefined, event: Event) => {
     event.stopPropagation()
     if (tabId) {
-        browser.tabs.remove(tabId)
-        getCurrentTabs()
+        try {
+            await browser.tabs.remove(tabId)
+            // 标签页监听器会自动更新列表，这里不需要手动调用
+        } catch (error) {
+            console.error('关闭标签页失败:', error)
+        }
     }
 }
 
+let cleanupListener: (() => void) | null = null
+
 onMounted(() => {
     getCurrentTabs()
+    cleanupListener = setupTabListener()
+})
+
+onUnmounted(() => {
+    // 清理监听器和定时器
+    if (cleanupListener) {
+        cleanupListener()
+    }
+    if (updateTimeout) {
+        clearTimeout(updateTimeout)
+    }
 })
 </script>
 <template>
