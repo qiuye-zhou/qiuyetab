@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Icon } from '@iconify/vue'
+import webExtensionPolyfill from 'webextension-polyfill'
+
+// 使用 browser API
+const browser = webExtensionPolyfill
 
 const props = defineProps({
     showSettings: Boolean,
