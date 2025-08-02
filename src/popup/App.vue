@@ -5,6 +5,8 @@ import webExtensionPolyfill from 'webextension-polyfill'
 
 import BottomOperation from './components/BottomOperation.vue'
 import CurrentTab from './components/CurrentTab.vue'
+import QuickOperation from './components/QuickOperation.vue'
+
 
 // 使用 browser API
 const browser = webExtensionPolyfill
@@ -17,12 +19,6 @@ const appVersion = __VERSION__
 const searchQuery = ref('')
 const currentTime = ref('')
 const currentDate = ref('')
-const quickActions = ref([
-  { name: '历史记录', icon: 'mdi:history', action: 'history' },
-  { name: '下载', icon: 'mdi:download', action: 'downloads' },
-  { name: '书签', icon: 'mdi:bookmark', action: 'bookmarks' },
-  { name: '设置', icon: 'mdi:settings', action: 'settings' }
-])
 
 const recentSites = ref([
   { id: 1, name: 'GitHub', url: 'https://github.com', favicon: 'mdi:github' },
@@ -68,27 +64,6 @@ const handleSearch = () => {
       browser.tabs.create({ url: searchUrl })
       window.close()
     }
-  }
-}
-
-// 快捷操作
-const handleQuickAction = (action: string) => {
-  switch (action) {
-    case 'history':
-      browser.tabs.create({ url: 'chrome://history/' })
-      break
-    case 'downloads':
-      browser.tabs.create({ url: 'chrome://downloads/' })
-      break
-    case 'bookmarks':
-      browser.tabs.create({ url: 'chrome://bookmarks/' })
-      break
-    case 'settings':
-      showSettings.value = true
-      break
-  }
-  if (action !== 'settings') {
-    window.close()
   }
 }
 
@@ -267,6 +242,10 @@ const initializeDefaultSettings = async () => {
   }
 }
 
+const changeShowSettings = (show: boolean) => {
+  showSettings.value = show
+}
+
 onMounted(async () => {
   updateTime()
   setInterval(updateTime, 1000)
@@ -430,18 +409,10 @@ onMounted(async () => {
     </div>
 
     <!-- 快捷操作 -->
-    <div v-show="!showSettings && !showEditSites" class="p-4">
-      <h3 class="text-sm font-medium text-gray-600 dark:text-gray-300 mb-3">快捷操作</h3>
-      <div class="grid grid-cols-4 gap-3">
-        <button v-for="action in quickActions" :key="action.action" @click="handleQuickAction(action.action)"
-          class="flex flex-col items-center p-3 bg-white dark:bg-gray-700 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105 border border-gray-200 dark:border-gray-600">
-          <Icon :icon="action.icon" class="text-2xl text-gray-400 dark:text-gray-400 mb-1" />
-          <span class="text-xs text-gray-600 dark:text-gray-300 text-center">{{ action.name }}</span>
-        </button>
-      </div>
-    </div>
+    <QuickOperation :show-settings="showSettings" :show-edit-sites="showEditSites"
+      @change-show-settings="changeShowSettings"></QuickOperation>
 
-    <!-- 常用 -->
+    <!-- 常用网站列表 -->
     <div v-show="!showSettings && !showEditSites" class="px-4">
       <h3 class="text-sm font-medium text-gray-600 dark:text-gray-300 mb-3">常用</h3>
       <div class="space-y-2">
