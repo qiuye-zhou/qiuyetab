@@ -12,10 +12,6 @@ import QuickOperation from './components/QuickOperation.vue'
 // 使用 browser API
 const browser = webExtensionPolyfill
 
-// 版本信息 - 从package.json自动获取
-declare const __VERSION__: string
-const appVersion = __VERSION__
-
 const recentSites = ref([
   { id: 1, name: 'GitHub', url: 'https://github.com', favicon: 'mdi:github' },
   { id: 2, name: 'TypeScript', url: 'https://www.typescriptlang.org', favicon: 'simple-icons:typescript' }
@@ -351,8 +347,8 @@ onMounted(async () => {
     </div>
 
     <!-- 头部区域 -->
-    <HeadArea :show-settings="showSettings" :show-edit-sites="showEditSites" :update-settings="updateSettings"
-      :app-version="appVersion"></HeadArea>
+    <HeadArea :show-settings="showSettings" :show-edit-sites="showEditSites" :update-settings="updateSettings">
+    </HeadArea>
 
     <!-- 快捷操作 -->
     <QuickOperation :show-settings="showSettings" :show-edit-sites="showEditSites"
@@ -375,8 +371,8 @@ onMounted(async () => {
     <CurrentTab :show-settings="showSettings" :show-edit-sites="showEditSites"></CurrentTab>
 
     <!-- 底部操作 -->
-    <BottomOperation :show-settings="showSettings" :show-edit-sites="showEditSites" :app-version="appVersion"
-      @open-site="openSite"></BottomOperation>
+    <BottomOperation :show-settings="showSettings" :show-edit-sites="showEditSites" @open-site="openSite">
+    </BottomOperation>
   </div>
 </template>
 

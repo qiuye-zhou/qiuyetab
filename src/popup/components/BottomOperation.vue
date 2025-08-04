@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue'
 import webExtensionPolyfill from 'webextension-polyfill'
+import { useGlobalStore } from '../store/modules/global'
 
 const props = defineProps({
     showSettings: Boolean,
     showEditSites: Boolean,
-    appVersion: String,
 })
 const emit = defineEmits(['openSite'])
+
+const global = useGlobalStore()
 
 // 使用 browser API
 const browser = webExtensionPolyfill
@@ -35,7 +37,7 @@ const openNewTab = () => {
                 <Icon icon="mdi:github"></Icon>秋叶
             </span>
             <span class="mx-2">|</span>
-            <span>新标签页 v{{ props.appVersion }}</span>
+            <span>新标签页 v{{ global.appVersion }}</span>
         </div>
     </div>
 </template>
