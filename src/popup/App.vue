@@ -7,10 +7,16 @@ import BottomOperation from './components/BottomOperation.vue'
 import CurrentTab from './components/CurrentTab.vue'
 import HeadArea from './components/HeadArea.vue'
 import QuickOperation from './components/QuickOperation.vue'
+import { useGlobalStore } from './store/modules/global'
+import { storeToRefs } from 'pinia'
 
 
 // 使用 browser API
 const browser = webExtensionPolyfill
+
+const global = useGlobalStore()
+
+const { showSettings, showEditSites } = storeToRefs(global)
 
 const recentSites = ref([
   { id: 1, name: 'GitHub', url: 'https://github.com', favicon: 'mdi:github' },
@@ -18,12 +24,10 @@ const recentSites = ref([
 ])
 
 // 常用网站编辑相关
-const showEditSites = ref(false)
 const editingSite = ref<{ id?: number; name: string; url: string; favicon: string } | null>(null)
 const isAddingNew = ref(false)
 
 // 设置相关
-const showSettings = ref(false)
 const searchEngines = ref([
   { name: '百度', value: 'baidu', url: 'https://www.baidu.com/s?wd={query}' },
   { name: 'Google', value: 'google', url: 'https://www.google.com/search?q={query}' },
@@ -368,11 +372,10 @@ onMounted(async () => {
     </div>
 
     <!-- 当前标签页 -->
-    <CurrentTab :show-settings="showSettings" :show-edit-sites="showEditSites"></CurrentTab>
+    <CurrentTab></CurrentTab>
 
     <!-- 底部操作 -->
-    <BottomOperation :show-settings="showSettings" :show-edit-sites="showEditSites" @open-site="openSite">
-    </BottomOperation>
+    <BottomOperation @open-site="openSite"></BottomOperation>
   </div>
 </template>
 

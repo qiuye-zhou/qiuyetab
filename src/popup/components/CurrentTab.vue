@@ -2,11 +2,12 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { Icon } from '@iconify/vue'
 import webExtensionPolyfill from 'webextension-polyfill'
+import { useGlobalStore } from '../store/modules/global'
+import { storeToRefs } from 'pinia'
 
-const props = defineProps({
-    showSettings: Boolean,
-    showEditSites: Boolean,
-})
+const global = useGlobalStore()
+
+const { showSettings, showEditSites } = storeToRefs(global)
 
 // 使用 browser API
 const browser = webExtensionPolyfill
@@ -113,7 +114,7 @@ onUnmounted(() => {
 })
 </script>
 <template>
-    <div class="px-4 py-3" v-show="tabs.length > 0 && !props.showSettings && !props.showEditSites">
+    <div class="px-4 py-3" v-show="tabs.length > 0 && !showSettings && !showEditSites">
         <h3 class="text-sm font-medium text-gray-600 dark:text-gray-300 mb-3">当前窗口标签</h3>
         <div class="space-y-2 max-h-32 overflow-y-auto">
             <div v-for="tab in tabs" :key="tab.id" @click="switchToTab(tab.id)"

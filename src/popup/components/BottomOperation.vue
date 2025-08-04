@@ -2,14 +2,14 @@
 import { Icon } from '@iconify/vue'
 import webExtensionPolyfill from 'webextension-polyfill'
 import { useGlobalStore } from '../store/modules/global'
-
-const props = defineProps({
-    showSettings: Boolean,
-    showEditSites: Boolean,
-})
-const emit = defineEmits(['openSite'])
+import { storeToRefs } from 'pinia'
 
 const global = useGlobalStore()
+
+const { appVersion, showSettings, showEditSites } = storeToRefs(global)
+
+const emit = defineEmits(['openSite'])
+
 
 // 使用 browser API
 const browser = webExtensionPolyfill
@@ -21,7 +21,7 @@ const openNewTab = () => {
 }
 </script>
 <template>
-    <div v-show="!props.showSettings && !props.showEditSites"
+    <div v-show="!showSettings && !showEditSites"
         class="p-4 border-t border-gray-200 dark:border-gray-700 mt-4">
         <button @click="openNewTab"
             class="w-full flex items-center justify-center p-3 bg-gray-400 hover:bg-gray-500 text-white rounded-xl transition-colors duration-200 mb-3">
@@ -37,7 +37,7 @@ const openNewTab = () => {
                 <Icon icon="mdi:github"></Icon>秋叶
             </span>
             <span class="mx-2">|</span>
-            <span>新标签页 v{{ global.appVersion }}</span>
+            <span>新标签页 v{{ appVersion }}</span>
         </div>
     </div>
 </template>
