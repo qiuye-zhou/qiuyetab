@@ -3,17 +3,20 @@ import { ref, onMounted, watch } from 'vue'
 import { Icon } from '@iconify/vue'
 import webExtensionPolyfill from 'webextension-polyfill'
 import { useGlobalStore } from '../store/modules/global'
+import { storeToRefs } from 'pinia'
+
+const global = useGlobalStore()
+
+const { appVersion, showSettings, showEditSites } = storeToRefs(global)
+
 
 // 使用 browser API
 const browser = webExtensionPolyfill
 
 const props = defineProps({
-    showSettings: Boolean,
-    showEditSites: Boolean,
     updateSettings: Boolean,
 })
 
-const global = useGlobalStore()
 
 // 响应式数据
 const currentTime = ref('')
@@ -92,14 +95,14 @@ onMounted(async () => {
 })
 </script>
 <template>
-    <div v-show="!props.showSettings && !props.showEditSites" class="p-4 border-b border-gray-200 dark:border-gray-700">
+    <div v-show="!showSettings && !showEditSites" class="p-4 border-b border-gray-200 dark:border-gray-700">
         <div class="flex items-center justify-between mb-4">
             <div>
                 <div class="flex items-center gap-2 mb-1">
                     <h1 class="text-xl font-bold text-gray-600 dark:text-green-300">新标签页</h1>
                     <span
                         class="text-xs bg-gray-100 dark:bg-green-800 text-gray-500 dark:text-green-300 px-2 py-1 rounded-full">
-                        v{{ global.appVersion }}
+                        v{{ appVersion }}
                     </span>
                 </div>
                 <p class="text-sm text-gray-500 dark:text-green-400">{{ currentDate }}</p>

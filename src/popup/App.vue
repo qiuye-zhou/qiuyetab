@@ -216,10 +216,6 @@ const initializeDefaultSettings = async () => {
   }
 }
 
-const changeShowSettings = (show: boolean) => {
-  showSettings.value = show
-}
-
 onMounted(async () => {
   // 先初始化默认设置，再加载设置
   await initializeDefaultSettings()
@@ -351,12 +347,10 @@ onMounted(async () => {
     </div>
 
     <!-- 头部区域 -->
-    <HeadArea :show-settings="showSettings" :show-edit-sites="showEditSites" :update-settings="updateSettings">
-    </HeadArea>
+    <HeadArea :update-settings="updateSettings"></HeadArea>
 
     <!-- 快捷操作 -->
-    <QuickOperation :show-settings="showSettings" :show-edit-sites="showEditSites"
-      @change-show-settings="changeShowSettings"></QuickOperation>
+    <QuickOperation></QuickOperation>
 
     <!-- 常用网站列表 -->
     <div v-show="!showSettings && !showEditSites" class="px-4">
