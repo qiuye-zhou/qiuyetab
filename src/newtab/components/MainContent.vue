@@ -111,17 +111,18 @@ onUnmounted(() => {
 
         <!-- 搜索区域 -->
         <div class="relative mb-8 group max-w-4xl mx-auto">
-            <div
-                class="absolute left-5 top-1/2 transform -translate-y-1/2 transition-all duration-300 group-focus-within:text-gray-700">
+            <div class="absolute left-5 top-1/2 transform -translate-y-1/2 transition-all duration-300">
                 <Icon icon="mdi:magnify" class="text-gray-600 text-2xl" />
             </div>
-            <input v-model="searchQuery" @keyup.enter="handleSearch"
-                @focus="($event.target as HTMLInputElement)?.select()" type="text" placeholder="搜索或输入网址"
-                class="w-full pl-16 pr-8 py-7 text-xl bg-white/90 backdrop-blur-md border-0 rounded-3xl shadow-xl hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-gray-200/50 text-gray-700 placeholder-gray-400 transition-all duration-500 ease-out"
+            <input v-model="searchQuery" @keyup.enter="handleSearch" type="text" placeholder="搜索或输入网址"
+                class="w-full pl-16 pr-16 py-7 text-xl bg-white/90 backdrop-blur-md border-0 rounded-3xl shadow-xl text-gray-700 placeholder-gray-400 transition-all duration-500 ease-out"
                 style="box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.4)" autofocus />
-            <div
-                class="absolute inset-0 rounded-3xl bg-gradient-to-r from-blue-50/20 via-purple-50/20 to-pink-50/20 opacity-0 group-focus-within:opacity-100 transition-opacity duration-500 pointer-events-none">
-            </div>
+
+            <!-- 搜索按钮 -->
+            <button @click="handleSearch"
+                class="absolute cursor-pointer right-5 top-1/2 transform -translate-y-1/2 p-3 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg transition-all duration-300">
+                <Icon icon="mdi:magnify" class="text-xl" />
+            </button>
         </div>
 
         <!-- 搜索提示 -->
@@ -137,46 +138,32 @@ onUnmounted(() => {
     </main>
 </template>
 <style scoped>
-/* 输入框聚焦动画 */
-input:focus {
-  transform: translateY(-4px) scale(1.02);
-  box-shadow: 
-    0 25px 50px -12px rgba(0, 0, 0, 0.15),
-    0 0 0 1px rgba(255, 255, 255, 0.8),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
-}
-
-input:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.12);
-}
-
 /* 搜索框玻璃效果 */
 .group input {
-  background: 
-    linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+    background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    outline: none;
 }
 
-/* 搜索框内部发光效果 */
-.group:focus-within input {
-  background: 
-    linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.92) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+/* 去掉输入框聚焦时的默认边框 */
+.group input:focus {
+    outline: none;
+    border: 1px solid rgba(255, 255, 255, 0.6);
 }
 
 /* 键盘按键样式 */
 kbd {
-  box-shadow: 
-    0 1px 1px rgba(0, 0, 0, 0.1),
-    0 2px 0 0 rgba(255, 255, 255, 0.9),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
+    box-shadow:
+        0 1px 1px rgba(0, 0, 0, 0.1),
+        0 2px 0 0 rgba(255, 255, 255, 0.9),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
 }
 
 /* 时间数字动画 */
 h1 {
-  font-feature-settings: 'tnum';
-  transition: all 0.3s ease;
+    font-feature-settings: 'tnum';
+    transition: all 0.3s ease;
 }
 </style>
