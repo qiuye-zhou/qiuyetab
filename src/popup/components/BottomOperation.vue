@@ -6,7 +6,7 @@ import { storeToRefs } from 'pinia'
 
 const global = useGlobalStore()
 
-const { appVersion, showSettings, showEditSites } = storeToRefs(global)
+const { appVersion, buildTime, showSettings, showEditSites } = storeToRefs(global)
 
 const emit = defineEmits(['openSite'])
 
@@ -38,6 +38,8 @@ const openNewTab = () => {
             </span>
             <span class="mx-2">|</span>
             <span>新标签页 v{{ appVersion }}</span>
+            <span class="mx-2">|</span>
+            <span>构建于 {{ new Date(buildTime).toLocaleString('zh-CN') }}</span>
         </div>
     </div>
 </template>
