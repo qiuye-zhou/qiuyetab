@@ -110,7 +110,7 @@ onUnmounted(() => {
         </div>
 
         <!-- 搜索区域 -->
-        <div class="relative mb-8 group max-w-4xl mx-auto">
+        <div class="relative mb-8 group max-w-3xl mx-auto">
             <div class="absolute left-5 top-1/2 transform -translate-y-1/2 transition-all duration-300">
                 <Icon icon="mdi:magnify" class="text-gray-600 text-2xl" />
             </div>
@@ -120,7 +120,7 @@ onUnmounted(() => {
 
             <!-- 搜索按钮 -->
             <button @click="handleSearch"
-                class="absolute cursor-pointer right-5 top-1/2 transform -translate-y-1/2 p-3 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg transition-all duration-300">
+                class="absolute cursor-pointer right-5 top-1/2 transform -translate-y-1/2 p-3 rounded-full bg-gradient-to-r from-blue-300 to-purple-300 text-white shadow-lg transition-all duration-300">
                 <Icon icon="mdi:magnify" class="text-xl" />
             </button>
         </div>
