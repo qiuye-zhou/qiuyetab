@@ -113,18 +113,18 @@ onUnmounted(() => {
     <main class="w-full max-w-5xl px-6">
         <!-- 时间显示 -->
         <div class="text-center mb-16">
-            <h1 class="text-5xl font-bold text-gray-600 mb-4">{{ currentTime }}</h1>
-            <p class="text-xl text-gray-500 mb-2">{{ currentDate }}</p>
-            <p class="text-lg text-gray-400">{{ greeting }}！</p>
+            <h1 class="text-5xl font-bold text-gray-600 dark:text-gray-300 mb-4">{{ currentTime }}</h1>
+            <p class="text-xl text-gray-500 dark:text-gray-400 mb-2">{{ currentDate }}</p>
+            <p class="text-lg text-gray-400 dark:text-gray-500">{{ greeting }}！</p>
         </div>
 
         <!-- 搜索区域 -->
         <div class="relative mb-8 group max-w-3xl mx-auto">
             <div class="absolute left-5 top-1/2 transform -translate-y-1/2 transition-all duration-300">
-                <Icon icon="mdi:magnify" class="text-gray-600 text-2xl" />
+                <Icon icon="mdi:magnify" class="text-gray-600 dark:text-gray-400 text-2xl" />
             </div>
             <input v-model="searchQuery" @keyup.enter="handleSearch" type="text" placeholder="搜索或输入网址"
-                class="w-full pl-16 pr-16 py-7 text-xl bg-white/90 backdrop-blur-md border-0 rounded-3xl shadow-xl text-gray-700 placeholder-gray-400 transition-all duration-500 ease-out"
+                class="w-full pl-16 pr-16 py-7 text-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-0 rounded-3xl shadow-xl text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 transition-all duration-500 ease-out"
                 style="box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.4)" autofocus />
 
             <!-- 搜索按钮 -->
@@ -135,11 +135,12 @@ onUnmounted(() => {
         </div>
 
         <!-- 搜索提示 -->
-        <div class="text-center text-sm text-gray-500 space-y-2">
+        <div class="text-center text-sm text-gray-500 dark:text-gray-400 space-y-2">
             <p class="opacity-80">输入关键词搜索，或直接输入网址访问</p>
             <div class="flex items-center justify-center space-x-4 text-xs opacity-60">
                 <span class="flex items-center">
-                    <kbd class="px-2 py-1 bg-gray-100/50 rounded text-gray-500 font-mono">Enter</kbd>
+                    <kbd
+                        class="px-2 py-1 bg-gray-100/50 dark:bg-gray-700/50 rounded text-gray-500 dark:text-gray-400 font-mono">Enter</kbd>
                     <span class="ml-1">搜索</span>
                 </span>
             </div>
@@ -156,10 +157,21 @@ onUnmounted(() => {
     outline: none;
 }
 
+/* 深色模式搜索框 */
+.dark .group input {
+    background:
+        linear-gradient(135deg, rgba(31, 41, 55, 0.95) 0%, rgba(31, 41, 55, 0.85) 100%);
+    border: 1px solid rgba(75, 85, 99, 0.3);
+}
+
 /* 去掉输入框聚焦时的默认边框 */
 .group input:focus {
     outline: none;
     border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.dark .group input:focus {
+    border: 1px solid rgba(75, 85, 99, 0.6);
 }
 
 /* 键盘按键样式 */
@@ -168,6 +180,13 @@ kbd {
         0 1px 1px rgba(0, 0, 0, 0.1),
         0 2px 0 0 rgba(255, 255, 255, 0.9),
         inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
+}
+
+.dark kbd {
+    box-shadow:
+        0 1px 1px rgba(0, 0, 0, 0.3),
+        0 2px 0 0 rgba(55, 65, 81, 0.9),
+        inset 0 1px 0 0 rgba(55, 65, 81, 0.9);
 }
 
 /* 时间数字动画 */
