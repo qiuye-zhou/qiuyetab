@@ -1,10 +1,15 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { Icon } from '@iconify/vue'
 import webExtensionPolyfill from 'webextension-polyfill'
+import { useSettingsStore } from '../store/modules/settings'
+import { storeToRefs } from 'pinia'
 
 // 使用 browser API
 const browser = webExtensionPolyfill
+
+const settings = useSettingsStore()
+const { updateSetting } = storeToRefs(settings)
 
 // 响应式数据
 const searchQuery = ref('')
@@ -87,6 +92,10 @@ const loadSettings = async () => {
         console.error('加载设置失败:', error)
     }
 }
+
+watch(updateSetting, async () => {
+    await loadSettings()
+})
 
 onMounted(() => {
     updateTime()

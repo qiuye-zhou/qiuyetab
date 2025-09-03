@@ -1,8 +1,13 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import webExtensionPolyfill from 'webextension-polyfill'
+import { useSettingsStore } from '../../store/modules/settings'
+import { storeToRefs } from 'pinia'
 
 const browser = webExtensionPolyfill
+
+const settings = useSettingsStore()
+const { updateSetting } = storeToRefs(settings)
 
 
 const searchEngines = ref([
@@ -33,6 +38,7 @@ const saveSettings = async () => {
   try {
     await browser.storage.local.set({ searchEngine: selectedEngine.value })
     await browser.storage.sync.set({ searchEngine: selectedEngine.value })
+    updateSetting.value = !updateSetting.value
   } catch (error) {
     console.error('保存设置失败:', error)
   }
