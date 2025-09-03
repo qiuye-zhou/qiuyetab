@@ -11,7 +11,7 @@ export const useSettingsStore = defineStore('settings', () => {
     const isDarkMode = ref(false)
 
     // 背景设置
-    const backgroundType = ref<'default' | 'solid' | 'custom'>('default')
+    const backgroundType = ref<'default' | 'custom'>('default')
     const customBackground = ref('')
 
     // 初始化主题
@@ -23,8 +23,8 @@ export const useSettingsStore = defineStore('settings', () => {
             if (result.theme && typeof result.theme === 'string' && ['light', 'dark', 'auto'].includes(result.theme)) {
                 theme.value = result.theme as 'light' | 'dark' | 'auto'
             }
-            if (result.backgroundType && typeof result.backgroundType === 'string' && ['default', 'solid', 'custom'].includes(result.backgroundType)) {
-                backgroundType.value = result.backgroundType as 'default' | 'solid' | 'custom'
+            if (result.backgroundType && typeof result.backgroundType === 'string' && ['default', 'custom'].includes(result.backgroundType)) {
+                backgroundType.value = result.backgroundType as 'default' | 'custom'
             }
             if (result.customBackground && typeof result.customBackground === 'string') {
                 customBackground.value = result.customBackground
@@ -91,7 +91,7 @@ export const useSettingsStore = defineStore('settings', () => {
     }
 
     // 设置背景
-    const setBackground = async (type: 'default' | 'solid' | 'custom', customUrl?: string) => {
+    const setBackground = async (type: 'default' | 'custom', customUrl?: string) => {
         backgroundType.value = type
         if (customUrl) {
             customBackground.value = customUrl

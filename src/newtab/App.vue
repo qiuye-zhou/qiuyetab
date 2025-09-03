@@ -28,12 +28,6 @@ const backgroundStyle = computed(() => {
     return {
       background: `url(${customBackground.value}) center/cover no-repeat`
     }
-  } else if (backgroundType.value === 'solid') {
-    return {
-      background: isDarkMode.value
-        ? 'linear-gradient(to bottom right, #1f2937, #111827)'
-        : 'linear-gradient(to bottom right, #f3f4f6, #e5e7eb)'
-    }
   } else {
     // 默认背景
     return {
