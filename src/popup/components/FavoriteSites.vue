@@ -9,10 +9,8 @@ const global = useGlobalStore()
 const { showSettings, showEditSites } = storeToRefs(global)
 
 const props = defineProps({
-    updateSettings: Boolean,
+  updateSettings: Boolean,
 })
-
-const emit = defineEmits(['update-settings'])
 
 // 使用 browser API
 const browser = webExtensionPolyfill
@@ -81,4 +79,4 @@ onMounted(() => {
       </button>
     </div>
   </div>
-</template> 
+</template>

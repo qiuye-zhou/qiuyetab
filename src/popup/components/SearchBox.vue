@@ -10,8 +10,6 @@ const props = defineProps({
   updateSettings: Boolean,
 })
 
-const emit = defineEmits(['search'])
-
 // 响应式数据
 const searchQuery = ref('')
 
@@ -73,15 +71,10 @@ onMounted(async () => {
   <!-- 搜索框 -->
   <div class="relative">
     <Icon icon="mdi:magnify" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-    <input 
-      v-model="searchQuery" 
-      @keyup.enter="handleSearch" 
-      type="text" 
-      placeholder="搜索网络..."
-      class="w-full pl-10 pr-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-green-500 text-gray-600 dark:text-gray-200 placeholder-gray-400" 
-    />
+    <input v-model="searchQuery" @keyup.enter="handleSearch" type="text" placeholder="搜索网络..."
+      class="w-full pl-10 pr-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-green-500 text-gray-600 dark:text-gray-200 placeholder-gray-400" />
     <div class="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-gray-400">
-      {{ searchEngines.find(e => e.value === selectedEngine)?.name }}
+      {{searchEngines.find(e => e.value === selectedEngine)?.name}}
     </div>
   </div>
-</template> 
+</template>

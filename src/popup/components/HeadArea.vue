@@ -2,7 +2,7 @@
 import { useGlobalStore } from '../store/modules/global'
 import { storeToRefs } from 'pinia'
 import SearchBox from './SearchBox.vue'
-import Clock from './Clock.vue'
+import TimeClock from './TimeClock.vue'
 
 const global = useGlobalStore()
 const { appVersion, showSettings, showEditSites } = storeToRefs(global)
@@ -23,7 +23,7 @@ const props = defineProps({
                     </span>
                 </div>
             </div>
-            <Clock />
+            <TimeClock />
         </div>
 
         <!-- 搜索框 -->

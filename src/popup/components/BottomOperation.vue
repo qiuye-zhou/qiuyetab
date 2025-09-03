@@ -21,8 +21,7 @@ const openNewTab = () => {
 }
 </script>
 <template>
-    <div v-show="!showSettings && !showEditSites"
-        class="p-4 border-t border-gray-200 dark:border-gray-700 mt-4">
+    <div v-show="!showSettings && !showEditSites" class="p-4 border-t border-gray-200 dark:border-gray-700 mt-4">
         <button @click="openNewTab"
             class="w-full flex items-center justify-center p-3 bg-gray-400 hover:bg-gray-500 text-white rounded-xl transition-colors duration-200 mb-3">
             <Icon icon="mdi:plus" class="mr-2" />

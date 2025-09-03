@@ -38,4 +38,4 @@ onUnmounted(() => {
     <div class="text-2xl font-bold text-gray-600 dark:text-green-300">{{ currentTime }}</div>
     <p class="text-sm text-gray-500 dark:text-green-400">{{ currentDate }}</p>
   </div>
-</template> 
+</template>

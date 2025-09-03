@@ -69,7 +69,7 @@ onMounted(async () => {
     <QuickOperation></QuickOperation>
 
     <!-- 常用网站列表 -->
-    <FavoriteSites :update-settings="updateSettings"  @update-settings="updateSettings = !updateSettings" />
+    <FavoriteSites :update-settings="updateSettings"/>
 
     <!-- 当前标签页 -->
     <CurrentTab></CurrentTab>
