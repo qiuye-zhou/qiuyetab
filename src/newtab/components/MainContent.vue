@@ -126,7 +126,8 @@ onUnmounted(() => {
 
             <!-- 搜索按钮 -->
             <button @click="handleSearch"
-                class="absolute cursor-pointer right-5 top-1/2 transform -translate-y-1/2 p-3 rounded-full bg-gradient-to-r from-blue-300 to-purple-300 text-white shadow-lg transition-all duration-300">
+                class="absolute cursor-pointer right-5 top-1/2 transform -translate-y-1/2 p-2 rounded-full
+                bg-gradient-to-r from-blue-300 to-purple-300 dark:from-blue-400 dark:to-purple-400 text-white shadow-lg transition-all duration-300">
                 <Icon icon="mdi:magnify" class="text-xl" />
             </button>
         </div>

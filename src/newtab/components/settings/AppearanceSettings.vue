@@ -99,7 +99,5 @@ onMounted(() => {
         </p>
       </div>
     </div>
-
-    <!-- 移除开发中提示，因为功能已经实现 -->
   </div>
 </template>
