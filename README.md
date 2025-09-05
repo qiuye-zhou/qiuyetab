@@ -29,7 +29,7 @@
 #### 方式一：从源码构建（推荐）
 ```bash
 # 克隆项目
-git clone https://github.com/your-username/qiuyetab.git
+git clone https://github.com/qiuye-zhou/qiuyetab.git
 cd qiuyetab
 
 # 安装依赖
@@ -40,9 +40,6 @@ pnpm dev
 
 # 构建生产版本
 pnpm build
-
-# 打包扩展
-pnpm pack
 ```
 
 ### 浏览器安装指南
@@ -79,9 +76,6 @@ qiuyetab/
 
 ### 开发命令
 ```bash
-# 开发模式（热重载）
-pnpm dev
-
 # 类型检查
 pnpm typecheck
 
@@ -90,12 +84,6 @@ pnpm lint
 
 # 构建生产版本
 pnpm build
-
-# 打包扩展文件
-pnpm pack
-
-# 预览构建结果
-pnpm preview
 ```
 
 ### 技术栈
