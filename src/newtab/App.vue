@@ -25,8 +25,13 @@ const closeSettings = () => {
 // 计算背景样式
 const backgroundStyle = computed(() => {
   if (backgroundType.value === 'custom' && customBackground.value) {
+    // 自定义背景 + 主题颜色叠加
+    const themeGradient = isDarkMode.value
+      ? 'linear-gradient(to bottom right, rgba(31, 41, 55, 0.8), rgba(17, 24, 39, 0.8))'
+      : 'linear-gradient(to bottom right, rgba(254, 254, 254, 0.8), rgba(248, 249, 250, 0.8))'
+
     return {
-      background: `url(${customBackground.value}) center/cover no-repeat`
+      background: `${themeGradient}, url(${customBackground.value}) center/cover no-repeat`
     }
   } else {
     // 默认背景

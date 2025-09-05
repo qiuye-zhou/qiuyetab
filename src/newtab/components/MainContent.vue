@@ -112,19 +112,16 @@ onUnmounted(() => {
 <template>
     <main class="w-full max-w-5xl px-6">
         <!-- 时间显示 -->
-        <div class="text-center mb-16">
+        <div class="text-center mb-12">
             <h1 class="text-5xl font-bold text-gray-600 dark:text-gray-300 mb-4">{{ currentTime }}</h1>
             <p class="text-xl text-gray-500 dark:text-gray-400 mb-2">{{ currentDate }}</p>
             <p class="text-lg text-gray-400 dark:text-gray-500">{{ greeting }}！</p>
         </div>
 
         <!-- 搜索区域 -->
-        <div class="relative mb-8 group max-w-3xl mx-auto">
-            <div class="absolute left-5 top-1/2 transform -translate-y-1/2 transition-all duration-300">
-                <Icon icon="mdi:magnify" class="text-gray-600 dark:text-gray-400 text-2xl" />
-            </div>
+        <div class="relative mb-8 group max-w-2xl mx-auto">
             <input v-model="searchQuery" @keyup.enter="handleSearch" type="text" placeholder="搜索或输入网址"
-                class="w-full pl-16 pr-16 py-7 text-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-0 rounded-3xl shadow-xl text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 transition-all duration-500 ease-out"
+                class="w-full pl-16 pr-16 py-5 text-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-0 rounded-3xl shadow-xl text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 transition-all duration-500 ease-out"
                 style="box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.4)" autofocus />
 
             <!-- 搜索按钮 -->
