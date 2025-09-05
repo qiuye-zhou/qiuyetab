@@ -27,7 +27,39 @@ function writeManifest() {
   execSync('npx esno ./scripts/manifest.ts', { stdio: 'inherit' })
 }
 
+// 复制public目录下的静态资源到extension目录
+async function copyPublicAssets() {
+  try {
+    // 确保extension目录存在
+    await fs.ensureDir(r('extension'))
+
+    const publicDir = r('public')
+
+    // 检查public目录是否存在
+    const publicExists = await fs.pathExists(publicDir)
+
+    if (publicExists) {
+      const files = await fs.readdir(publicDir)
+
+      // 确保extension/assets目录存在
+      await fs.ensureDir(r('extension/assets'))
+
+      // 复制public目录下的所有文件到extension/assets目录
+      for (const file of files) {
+        const srcPath = r('public', file)
+        const destPath = r('extension/assets', file)
+        await fs.copy(srcPath, destPath, { overwrite: true })
+      }
+
+      log('PRE', 'copied public assets to extension directory')
+    }
+  } catch (error) {
+    console.error('Error copying public assets:', error)
+  }
+}
+
 writeManifest()
+copyPublicAssets()
 
 if (isDev) {
   stubIndexHtml()
@@ -38,5 +70,9 @@ if (isDev) {
   // 监听manifest.ts和package.json变化, 重新生成manifest.json
   chokidar.watch([r('src/manifest.ts'), r('package.json')]).on('change', () => {
     writeManifest()
+  })
+  // 监听public目录变化, 重新复制静态资源
+  chokidar.watch(r('public/**/*')).on('change', () => {
+    copyPublicAssets()
   })
 }

@@ -12,7 +12,6 @@ dist
 dist-ssr
 *.local
 /extension/*
-!/extension/assets
 
 # Editor directories and files
 .vscode/*
