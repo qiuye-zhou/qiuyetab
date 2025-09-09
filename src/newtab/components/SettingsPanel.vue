@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { Icon } from '@iconify/vue'
 import SearchSettings from './settings/SearchSettings.vue'
 import AppearanceSettings from './settings/AppearanceSettings.vue'
+import LayoutSettings from './settings/LayoutSettings.vue'
 import GeneralSettings from './settings/GeneralSettings.vue'
 
 interface Props {
@@ -18,6 +19,7 @@ const emit = defineEmits<{
 const menuItems = ref([
   { id: 'search', name: '搜索引擎', icon: 'mdi:magnify', com: SearchSettings },
   { id: 'appearance', name: '外观', icon: 'mdi:palette', com: AppearanceSettings },
+  { id: 'layout', name: '布局', icon: 'mdi:view-grid', com: LayoutSettings },
   { id: 'general', name: '通用', icon: 'mdi:cog', com: GeneralSettings },
 ])
 

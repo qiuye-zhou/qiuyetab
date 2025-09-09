@@ -9,7 +9,7 @@ import { storeToRefs } from 'pinia'
 const browser = webExtensionPolyfill
 
 const settings = useSettingsStore()
-const { updateSetting } = storeToRefs(settings)
+const { updateSetting, isSettingsLoaded, showTimeDisplay, showSearchHints } = storeToRefs(settings)
 
 // 响应式数据
 const searchQuery = ref('')
@@ -112,7 +112,7 @@ onUnmounted(() => {
 <template>
     <main class="w-full max-w-5xl px-6">
         <!-- 时间显示 -->
-        <div class="text-center mb-12">
+        <div v-if="isSettingsLoaded && showTimeDisplay" class="text-center mb-12">
             <h1 class="text-5xl font-bold text-gray-600 dark:text-gray-300 mb-4">{{ currentTime }}</h1>
             <p class="text-xl text-gray-500 dark:text-gray-400 mb-2">{{ currentDate }}</p>
             <p class="text-lg text-gray-400 dark:text-gray-500">{{ greeting }}！</p>
@@ -133,7 +133,7 @@ onUnmounted(() => {
         </div>
 
         <!-- 搜索提示 -->
-        <div class="text-center text-sm text-gray-500 dark:text-gray-400 space-y-2">
+        <div v-if="isSettingsLoaded && showSearchHints" class="text-center text-sm text-gray-500 dark:text-gray-400 space-y-2">
             <p class="opacity-80">输入关键词搜索，或直接输入网址访问</p>
             <div class="flex items-center justify-center space-x-4 text-xs opacity-60">
                 <span class="flex items-center">

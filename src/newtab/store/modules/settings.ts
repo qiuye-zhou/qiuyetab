@@ -1,10 +1,12 @@
 import { defineStore } from 'pinia'
+import { ref } from 'vue'
 import webExtensionPolyfill from 'webextension-polyfill'
 
 const browser = webExtensionPolyfill
 
 export const useSettingsStore = defineStore('settings', () => {
     const updateSetting = ref(false)
+    const isSettingsLoaded = ref(false)
 
     // 主题设置
     const theme = ref<'light' | 'dark' | 'auto'>('light')
@@ -14,11 +16,15 @@ export const useSettingsStore = defineStore('settings', () => {
     const backgroundType = ref<'default' | 'custom'>('default')
     const customBackground = ref('')
 
+    // 显示设置
+    const showTimeDisplay = ref(true)
+    const showSearchHints = ref(true)
+
     // 初始化主题
     const initTheme = async () => {
         try {
             // 从存储中读取主题设置
-            const result = await browser.storage.local.get(['theme', 'backgroundType', 'customBackground'])
+            const result = await browser.storage.local.get(['theme', 'backgroundType', 'customBackground', 'showTimeDisplay', 'showSearchHints'])
 
             if (result.theme && typeof result.theme === 'string' && ['light', 'dark', 'auto'].includes(result.theme)) {
                 theme.value = result.theme as 'light' | 'dark' | 'auto'
@@ -29,11 +35,22 @@ export const useSettingsStore = defineStore('settings', () => {
             if (result.customBackground && typeof result.customBackground === 'string') {
                 customBackground.value = result.customBackground
             }
+            if (typeof result.showTimeDisplay === 'boolean') {
+                showTimeDisplay.value = result.showTimeDisplay
+            }
+            if (typeof result.showSearchHints === 'boolean') {
+                showSearchHints.value = result.showSearchHints
+            }
 
             // 应用主题
             applyTheme()
+
+            // 设置加载完成
+            isSettingsLoaded.value = true
         } catch (error) {
             console.error('初始化主题失败:', error)
+            // 即使出错也要设置加载完成，避免无限等待
+            isSettingsLoaded.value = true
         }
     }
 
@@ -108,14 +125,42 @@ export const useSettingsStore = defineStore('settings', () => {
         }
     }
 
+    // 设置显示选项
+    const setDisplayOptions = async (options: { showTimeDisplay?: boolean; showSearchHints?: boolean }) => {
+        if (typeof options.showTimeDisplay === 'boolean') {
+            showTimeDisplay.value = options.showTimeDisplay
+        }
+        if (typeof options.showSearchHints === 'boolean') {
+            showSearchHints.value = options.showSearchHints
+        }
+
+        // 保存到存储
+        try {
+            const updateData: Record<string, any> = {}
+            if (typeof options.showTimeDisplay === 'boolean') {
+                updateData.showTimeDisplay = options.showTimeDisplay
+            }
+            if (typeof options.showSearchHints === 'boolean') {
+                updateData.showSearchHints = options.showSearchHints
+            }
+            await browser.storage.local.set(updateData)
+        } catch (error) {
+            console.error('保存显示设置失败:', error)
+        }
+    }
+
     return {
         updateSetting,
+        isSettingsLoaded,
         theme,
         isDarkMode,
         backgroundType,
         customBackground,
+        showTimeDisplay,
+        showSearchHints,
         initTheme,
         setTheme,
-        setBackground
+        setBackground,
+        setDisplayOptions
     }
 })
