@@ -7,7 +7,7 @@ import { useSettingsStore } from './store/modules/settings'
 import { storeToRefs } from 'pinia'
 
 const settingsStore = useSettingsStore()
-const { isDarkMode, backgroundType, customBackground } = storeToRefs(settingsStore)
+const { isDarkMode, backgroundType, customBackground, backgroundOpacity } = storeToRefs(settingsStore)
 
 // 设置面板状态
 const isSettingsOpen = ref(false)
@@ -25,10 +25,11 @@ const closeSettings = () => {
 // 计算背景样式
 const backgroundStyle = computed(() => {
   if (backgroundType.value === 'custom' && customBackground.value) {
-    // 自定义背景 + 主题颜色叠加
+    // 自定义背景 + 主题颜色叠加，使用用户设置的透明度
+    const opacity = backgroundOpacity.value
     const themeGradient = isDarkMode.value
-      ? 'linear-gradient(to bottom right, rgba(31, 41, 55, 0.8), rgba(17, 24, 39, 0.8))'
-      : 'linear-gradient(to bottom right, rgba(254, 254, 254, 0.8), rgba(248, 249, 250, 0.8))'
+      ? `linear-gradient(to bottom right, rgba(31, 41, 55, ${opacity}), rgba(17, 24, 39, ${opacity}))`
+      : `linear-gradient(to bottom right, rgba(254, 254, 254, ${opacity}), rgba(248, 249, 250, ${opacity}))`
 
     return {
       background: `${themeGradient}, url(${customBackground.value}) center/cover no-repeat`

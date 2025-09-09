@@ -15,6 +15,7 @@ export const useSettingsStore = defineStore('settings', () => {
     // 背景设置
     const backgroundType = ref<'default' | 'custom'>('default')
     const customBackground = ref('')
+    const backgroundOpacity = ref(0.8)
 
     // 显示设置
     const showTimeDisplay = ref(true)
@@ -24,7 +25,7 @@ export const useSettingsStore = defineStore('settings', () => {
     const initTheme = async () => {
         try {
             // 从存储中读取主题设置
-            const result = await browser.storage.local.get(['theme', 'backgroundType', 'customBackground', 'showTimeDisplay', 'showSearchHints'])
+            const result = await browser.storage.local.get(['theme', 'backgroundType', 'customBackground', 'backgroundOpacity', 'showTimeDisplay', 'showSearchHints'])
 
             if (result.theme && typeof result.theme === 'string' && ['light', 'dark', 'auto'].includes(result.theme)) {
                 theme.value = result.theme as 'light' | 'dark' | 'auto'
@@ -34,6 +35,9 @@ export const useSettingsStore = defineStore('settings', () => {
             }
             if (result.customBackground && typeof result.customBackground === 'string') {
                 customBackground.value = result.customBackground
+            }
+            if (typeof result.backgroundOpacity === 'number' && result.backgroundOpacity >= 0 && result.backgroundOpacity <= 1) {
+                backgroundOpacity.value = result.backgroundOpacity
             }
             if (typeof result.showTimeDisplay === 'boolean') {
                 showTimeDisplay.value = result.showTimeDisplay
@@ -125,6 +129,22 @@ export const useSettingsStore = defineStore('settings', () => {
         }
     }
 
+    // 设置背景透明度
+    const setBackgroundOpacity = async (opacity: number) => {
+        // 确保透明度在0-1范围内
+        const clampedOpacity = Math.max(0, Math.min(1, opacity))
+        backgroundOpacity.value = clampedOpacity
+
+        // 保存到存储
+        try {
+            await browser.storage.local.set({
+                backgroundOpacity: clampedOpacity
+            })
+        } catch (error) {
+            console.error('保存背景透明度设置失败:', error)
+        }
+    }
+
     // 设置显示选项
     const setDisplayOptions = async (options: { showTimeDisplay?: boolean; showSearchHints?: boolean }) => {
         if (typeof options.showTimeDisplay === 'boolean') {
@@ -156,11 +176,13 @@ export const useSettingsStore = defineStore('settings', () => {
         isDarkMode,
         backgroundType,
         customBackground,
+        backgroundOpacity,
         showTimeDisplay,
         showSearchHints,
         initTheme,
         setTheme,
         setBackground,
+        setBackgroundOpacity,
         setDisplayOptions
     }
 })
