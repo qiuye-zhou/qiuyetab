@@ -1,9 +1,9 @@
 // 为开发环境的入口生成占位 index.html 文件
-import { isDev, r } from './utils';
-import fs from 'fs-extra';
-import { port, log } from './utils';
-import { execSync } from 'node:child_process';
-import chokidar from 'chokidar';
+import { isDev, r } from './utils'
+import fs from 'fs-extra'
+import { port, log } from './utils'
+import { execSync } from 'node:child_process'
+import chokidar from 'chokidar'
 
 // 用于开发环境中 Vite 启动的 index.html 占位文件
 async function stubIndexHtml() {

@@ -12,6 +12,7 @@
     "build:web": "vite build",
     "clear": "rimraf --glob extension/dist extension/manifest.json extension.*",
     "lint": "eslint --cache .",
+    "lint:fix": "eslint --cache --fix .",
     "preview": "vite preview",
     "prepare": "husky",
     "typecheck": "tsc --noEmit"
