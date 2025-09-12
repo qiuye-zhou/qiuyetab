@@ -9,7 +9,7 @@ import { storeToRefs } from 'pinia'
 const browser = webExtensionPolyfill
 
 const settings = useSettingsStore()
-const { updateSetting, isSettingsLoaded, showTimeDisplay, showSearchHints } = storeToRefs(settings)
+const { updateSetting, isSettingsLoaded, showTimeDisplay, showSearchHints, searchBarPositionY } = storeToRefs(settings)
 
 // 响应式数据
 const searchQuery = ref('')
@@ -111,38 +111,44 @@ onUnmounted(() => {
 </script>
 <template>
     <main class="w-full max-w-5xl px-6">
-        <!-- 时间显示 -->
-        <div v-if="isSettingsLoaded && showTimeDisplay" class="text-center mb-12">
-            <h1 class="text-5xl font-bold text-gray-600 dark:text-gray-300 mb-4">{{ currentTime }}</h1>
-            <p class="text-xl text-gray-500 dark:text-gray-400 mb-2">{{ currentDate }}</p>
-            <p class="text-lg text-gray-400 dark:text-gray-500">{{ greeting }}！</p>
-        </div>
 
-        <!-- 搜索区域 -->
-        <div class="relative mb-8 group max-w-2xl mx-auto">
-            <input v-model="searchQuery" @keyup.enter="handleSearch" type="text" placeholder="搜索或输入网址"
-                class="w-full pl-16 pr-16 py-5 text-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-0 rounded-3xl shadow-xl text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 transition-all duration-500 ease-out"
-                style="box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.4)" autofocus />
+        <!-- 搜索区域 - 使用固定定位，X轴居中，Y轴可自定义 -->
+        <Transition name="search-slide" mode="out-in">
+            <div v-if="isSettingsLoaded" class="fixed left-1/2 transform -translate-x-1/2 w-full max-w-2xl px-6 z-10"
+                :style="{ top: `${searchBarPositionY}%`, transform: `translate(0%, -${searchBarPositionY}%)` }">
+                <!-- 时间显示 -->
+                <div v-if="isSettingsLoaded && showTimeDisplay" class="text-center mb-12">
+                    <h1 class="text-5xl font-bold text-gray-600 dark:text-gray-300 mb-4">{{ currentTime }}</h1>
+                    <p class="text-xl text-gray-500 dark:text-gray-400 mb-2">{{ currentDate }}</p>
+                    <p class="text-lg text-gray-400 dark:text-gray-500">{{ greeting }}！</p>
+                </div>
 
-            <!-- 搜索按钮 -->
-            <button @click="handleSearch"
-                class="absolute cursor-pointer right-5 top-1/2 transform -translate-y-1/2 p-2 rounded-full
-                bg-gradient-to-r from-blue-300 to-purple-300 dark:from-blue-400 dark:to-purple-400 text-white shadow-lg transition-all duration-300">
-                <Icon icon="mdi:magnify" class="text-xl" />
-            </button>
-        </div>
+                <div class="relative group">
+                    <input v-model="searchQuery" @keyup.enter="handleSearch" type="text" placeholder="搜索或输入网址"
+                        class="w-full pl-16 pr-16 py-5 text-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-0 rounded-3xl shadow-xl text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 transition-all duration-500 ease-out"
+                        style="box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.4)" autofocus />
 
-        <!-- 搜索提示 -->
-        <div v-if="isSettingsLoaded && showSearchHints" class="text-center text-sm text-gray-500 dark:text-gray-400 space-y-2">
-            <p class="opacity-80">输入关键词搜索，或直接输入网址访问</p>
-            <div class="flex items-center justify-center space-x-4 text-xs opacity-60">
-                <span class="flex items-center">
-                    <kbd
-                        class="px-2 py-1 bg-gray-100/50 dark:bg-gray-700/50 rounded text-gray-500 dark:text-gray-400 font-mono">Enter</kbd>
-                    <span class="ml-1">搜索</span>
-                </span>
+                    <!-- 搜索按钮 -->
+                    <button @click="handleSearch"
+                        class="absolute cursor-pointer right-5 top-1/2 transform -translate-y-1/2 p-2 rounded-full
+                        bg-gradient-to-r from-blue-300 to-purple-300 dark:from-blue-400 dark:to-purple-400 text-white shadow-lg transition-all duration-300">
+                        <Icon icon="mdi:magnify" class="text-xl" />
+                    </button>
+                </div>
+
+                <!-- 搜索提示 -->
+                <div v-if="showSearchHints" class="text-center text-sm text-gray-500 dark:text-gray-400 space-y-2 mt-4">
+                    <p class="opacity-80">输入关键词搜索，或直接输入网址访问</p>
+                    <div class="flex items-center justify-center space-x-4 text-xs opacity-60">
+                        <span class="flex items-center">
+                            <kbd
+                                class="px-2 py-1 bg-gray-100/50 dark:bg-gray-700/50 rounded text-gray-500 dark:text-gray-400 font-mono">Enter</kbd>
+                            <span class="ml-1">搜索</span>
+                        </span>
+                    </div>
+                </div>
             </div>
-        </div>
+        </Transition>
     </main>
 </template>
 <style scoped>
@@ -191,5 +197,33 @@ kbd {
 h1 {
     font-feature-settings: 'tnum';
     transition: all 0.3s ease;
+}
+
+/* 搜索栏位置切换动画 */
+.search-slide-enter-active,
+.search-slide-leave-active {
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.search-slide-enter-from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.95);
+}
+
+.search-slide-leave-to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.95);
+}
+
+.search-slide-enter-to,
+.search-slide-leave-from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+/* 搜索栏位置变化动画 */
+.search-slide-enter-active>div,
+.search-slide-leave-active>div {
+    transition: top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 </style>

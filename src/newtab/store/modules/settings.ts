@@ -21,11 +21,14 @@ export const useSettingsStore = defineStore('settings', () => {
     const showTimeDisplay = ref(true)
     const showSearchHints = ref(true)
 
+    // 布局设置
+    const searchBarPositionY = ref(50) // Y轴位置百分比 (0-100)
+
     // 初始化主题
     const initTheme = async () => {
         try {
             // 从存储中读取主题设置
-            const result = await browser.storage.local.get(['theme', 'backgroundType', 'customBackground', 'backgroundOpacity', 'showTimeDisplay', 'showSearchHints'])
+            const result = await browser.storage.local.get(['theme', 'backgroundType', 'customBackground', 'backgroundOpacity', 'showTimeDisplay', 'showSearchHints', 'searchBarPositionY'])
 
             if (result.theme && typeof result.theme === 'string' && ['light', 'dark', 'auto'].includes(result.theme)) {
                 theme.value = result.theme as 'light' | 'dark' | 'auto'
@@ -44,6 +47,9 @@ export const useSettingsStore = defineStore('settings', () => {
             }
             if (typeof result.showSearchHints === 'boolean') {
                 showSearchHints.value = result.showSearchHints
+            }
+            if (typeof result.searchBarPositionY === 'number' && result.searchBarPositionY >= 0 && result.searchBarPositionY <= 100) {
+                searchBarPositionY.value = result.searchBarPositionY
             }
 
             // 应用主题
@@ -169,6 +175,27 @@ export const useSettingsStore = defineStore('settings', () => {
         }
     }
 
+    // 设置搜索栏Y轴位置
+    const setSearchBarPositionY = async (positionY: number) => {
+        // 确保位置在0-100范围内
+        const clampedPosition = Math.max(0, Math.min(100, positionY))
+        searchBarPositionY.value = clampedPosition
+
+        // 保存到存储
+        try {
+            await browser.storage.local.set({ searchBarPositionY: clampedPosition })
+        } catch (error) {
+            console.error('保存搜索栏位置设置失败:', error)
+        }
+    }
+
+    // 临时更新搜索栏Y轴位置（不保存到存储）
+    const updateSearchBarPositionY = (positionY: number) => {
+        // 确保位置在0-100范围内
+        const clampedPosition = Math.max(0, Math.min(100, positionY))
+        searchBarPositionY.value = clampedPosition
+    }
+
     return {
         updateSetting,
         isSettingsLoaded,
@@ -179,10 +206,13 @@ export const useSettingsStore = defineStore('settings', () => {
         backgroundOpacity,
         showTimeDisplay,
         showSearchHints,
+        searchBarPositionY,
         initTheme,
         setTheme,
         setBackground,
         setBackgroundOpacity,
-        setDisplayOptions
+        setDisplayOptions,
+        setSearchBarPositionY,
+        updateSearchBarPositionY
     }
 })
