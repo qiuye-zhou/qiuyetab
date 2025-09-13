@@ -116,7 +116,7 @@ onMounted(() => {
             背景透明度
           </label>
           <div class="flex items-center space-x-3">
-            <Icon icon="mdi:eye" class="text-gray-400 text-sm" />
+            <Icon icon="mdi:eye-off" class="text-gray-400 text-sm" />
             <input
               v-model="localOpacity"
               @input="handleOpacityChange(Number(localOpacity))"
@@ -126,13 +126,13 @@ onMounted(() => {
               step="0.1"
               class="flex-1 h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
             />
-            <Icon icon="mdi:eye-off" class="text-gray-400 text-sm" />
+            <Icon icon="mdi:eye" class="text-gray-400 text-sm" />
             <span class="text-sm text-gray-600 dark:text-gray-400 w-8 text-center">
               {{ Math.round(localOpacity * 100) }}%
             </span>
           </div>
           <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            调整背景的透明度，0%为完全看到背景图片，100%为完全看不到背景图片
+            调整背景的透明度，0%为完全看不到背景图片，100%为能完全看到背景图片
           </p>
         </div>
       </div>

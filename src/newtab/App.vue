@@ -24,24 +24,24 @@ const closeSettings = () => {
 
 // 计算背景样式
 const backgroundStyle = computed(() => {
-  if (backgroundType.value === 'custom' && customBackground.value) {
-    // 自定义背景 + 主题颜色叠加，使用用户设置的透明度
-    const opacity = backgroundOpacity.value
-    const themeGradient = isDarkMode.value
-      ? `linear-gradient(to bottom right, rgba(31, 41, 55, ${opacity}), rgba(17, 24, 39, ${opacity}))`
-      : `linear-gradient(to bottom right, rgba(254, 254, 254, ${opacity}), rgba(248, 249, 250, ${opacity}))`
-
-    return {
-      background: `${themeGradient}, url(${customBackground.value}) center/cover no-repeat`
-    }
-  } else {
-    // 默认背景
-    return {
-      background: isDarkMode.value
-        ? 'linear-gradient(to bottom right, #1f2937, #111827)'
-        : 'linear-gradient(to bottom right, #fefefe, #f8f9fa)'
-    }
+  // 始终使用主题背景颜色作为基础
+  return {
+    background: isDarkMode.value
+      ? 'linear-gradient(to bottom right, #1f2937, #111827)'
+      : 'linear-gradient(to bottom right, #fefefe, #f8f9fa)'
   }
+})
+
+// 计算背景图片URL和透明度（用于CSS变量）
+const backgroundImageUrl = computed(() => {
+  if (backgroundType.value === 'custom' && customBackground.value) {
+    return `url(${customBackground.value})`
+  }
+  return 'none'
+})
+
+const backgroundImageOpacity = computed(() => {
+  return backgroundOpacity.value
 })
 
 // 初始化主题
@@ -52,7 +52,9 @@ onMounted(async () => {
 
 <template>
   <div class="min-h-screen flex flex-col items-center justify-center relative transition-colors duration-300"
-    :class="isDarkMode ? 'dark' : ''" :style="backgroundStyle">
+    :class="isDarkMode ? 'dark' : ''"
+    :style="{ ...backgroundStyle, '--bg-image': backgroundImageUrl, '--bg-opacity': backgroundImageOpacity }"
+    :data-has-bg="backgroundImageUrl ? 'true' : 'false'">
     <!-- 设置按钮 -->
     <button @click="toggleSettings"
       class="fixed top-2 right-2 z-50 p-3 transition-all duration-300 hover:scale-105 cursor-pointer">
@@ -68,8 +70,24 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+/* 自定义背景图片 - 使用伪元素 */
+.min-h-screen[data-has-bg="true"]::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: var(--bg-image);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: var(--bg-opacity);
+  z-index: 1;
+  pointer-events: none;
+}
 /* 背景装饰 - 仅在默认背景时显示 */
-.min-h-screen:not([style*="url("])::before {
+.min-h-screen[data-has-bg="false"]::before {
   content: '';
   position: absolute;
   top: 0;
@@ -84,7 +102,7 @@ onMounted(async () => {
 }
 
 /* 深色模式下的背景装饰 */
-.dark .min-h-screen:not([style*="url("])::before {
+.dark .min-h-screen[data-has-bg="false"]::before {
   background:
     radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
     radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.1) 0%, transparent 50%),
