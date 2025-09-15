@@ -142,7 +142,7 @@ onUnmounted(() => {
                     <div class="flex items-center justify-center space-x-4 text-xs opacity-60">
                         <span class="flex items-center">
                             <kbd
-                                class="px-2 py-1 bg-gray-100/50 dark:bg-gray-700/50 rounded text-gray-500 dark:text-gray-400 font-mono">Enter</kbd>
+                                class="px-2 py-1 bg-gray-100/50 dark:bg-gray-700/90 rounded text-gray-500 dark:text-gray-400 font-mono">Enter</kbd>
                             <span class="ml-1">搜索</span>
                         </span>
                     </div>
