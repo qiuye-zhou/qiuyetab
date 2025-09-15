@@ -13,8 +13,9 @@ export const useSettingsStore = defineStore('settings', () => {
     const isDarkMode = ref(false)
 
     // 背景设置
-    const backgroundType = ref<'default' | 'custom'>('default')
+    const backgroundType = ref<'default' | 'custom' | 'local'>('default')
     const customBackground = ref('')
+    const localBackground = ref('') // 本地背景文件的base64编码
     const backgroundOpacity = ref(0.8)
 
     // 显示设置
@@ -28,16 +29,19 @@ export const useSettingsStore = defineStore('settings', () => {
     const initTheme = async () => {
         try {
             // 从存储中读取主题设置
-            const result = await browser.storage.local.get(['theme', 'backgroundType', 'customBackground', 'backgroundOpacity', 'showTimeDisplay', 'showSearchHints', 'searchBarPositionY'])
+            const result = await browser.storage.local.get(['theme', 'backgroundType', 'customBackground', 'localBackground', 'backgroundOpacity', 'showTimeDisplay', 'showSearchHints', 'searchBarPositionY'])
 
             if (result.theme && typeof result.theme === 'string' && ['light', 'dark', 'auto'].includes(result.theme)) {
                 theme.value = result.theme as 'light' | 'dark' | 'auto'
             }
-            if (result.backgroundType && typeof result.backgroundType === 'string' && ['default', 'custom'].includes(result.backgroundType)) {
-                backgroundType.value = result.backgroundType as 'default' | 'custom'
+            if (result.backgroundType && typeof result.backgroundType === 'string' && ['default', 'custom', 'local'].includes(result.backgroundType)) {
+                backgroundType.value = result.backgroundType as 'default' | 'custom' | 'local'
             }
             if (result.customBackground && typeof result.customBackground === 'string') {
                 customBackground.value = result.customBackground
+            }
+            if (result.localBackground && typeof result.localBackground === 'string') {
+                localBackground.value = result.localBackground
             }
             if (typeof result.backgroundOpacity === 'number' && result.backgroundOpacity >= 0 && result.backgroundOpacity <= 1) {
                 backgroundOpacity.value = result.backgroundOpacity
@@ -118,18 +122,36 @@ export const useSettingsStore = defineStore('settings', () => {
     }
 
     // 设置背景
-    const setBackground = async (type: 'default' | 'custom', customUrl?: string) => {
+    const setBackground = async (type: 'default' | 'custom' | 'local', customUrl?: string, localFile?: string) => {
         backgroundType.value = type
-        if (customUrl) {
+
+        // 处理自定义背景URL
+        if (customUrl !== undefined) {
             customBackground.value = customUrl
+        }
+
+        // 处理本地背景文件
+        if (localFile !== undefined) {
+            localBackground.value = localFile
         }
 
         // 保存到存储
         try {
-            await browser.storage.local.set({
-                backgroundType: type,
-                customBackground: customUrl || customBackground.value
-            })
+            const updateData: Record<string, any> = {
+                backgroundType: type
+            }
+
+            // 总是保存customBackground，即使是空字符串也要保存（用于清除）
+            if (customUrl !== undefined) {
+                updateData.customBackground = customUrl
+            }
+
+            // 总是保存localBackground，即使是空字符串也要保存（用于清除）
+            if (localFile !== undefined) {
+                updateData.localBackground = localFile
+            }
+
+            await browser.storage.local.set(updateData)
         } catch (error) {
             console.error('保存背景设置失败:', error)
         }
@@ -203,6 +225,7 @@ export const useSettingsStore = defineStore('settings', () => {
         isDarkMode,
         backgroundType,
         customBackground,
+        localBackground,
         backgroundOpacity,
         showTimeDisplay,
         showSearchHints,

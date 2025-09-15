@@ -7,7 +7,7 @@ import { useSettingsStore } from './store/modules/settings'
 import { storeToRefs } from 'pinia'
 
 const settingsStore = useSettingsStore()
-const { isDarkMode, backgroundType, customBackground, backgroundOpacity } = storeToRefs(settingsStore)
+const { isDarkMode, backgroundType, customBackground, localBackground, backgroundOpacity } = storeToRefs(settingsStore)
 
 // 设置面板状态
 const isSettingsOpen = ref(false)
@@ -36,6 +36,9 @@ const backgroundStyle = computed(() => {
 const backgroundImageUrl = computed(() => {
   if (backgroundType.value === 'custom' && customBackground.value) {
     return `url(${customBackground.value})`
+  }
+  if (backgroundType.value === 'local' && localBackground.value) {
+    return `url(${localBackground.value})`
   }
   return 'none'
 })
