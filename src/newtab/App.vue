@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { Icon } from '@iconify/vue'
 import MainContent from './components/MainContent.vue'
 import SettingsPanel from './components/SettingsPanel.vue'
@@ -7,7 +7,7 @@ import { useSettingsStore } from './store/modules/settings'
 import { storeToRefs } from 'pinia'
 
 const settingsStore = useSettingsStore()
-const { isDarkMode, backgroundType, customBackground, localBackground, backgroundOpacity } = storeToRefs(settingsStore)
+const { isDarkMode, backgroundType, customBackground, localBackgrounds, backgroundOpacity } = storeToRefs(settingsStore)
 
 // 设置面板状态
 const isSettingsOpen = ref(false)
@@ -32,13 +32,17 @@ const backgroundStyle = computed(() => {
   }
 })
 
+// 当前背景索引（用于强制更新）
+const currentBackgroundIndex = ref(0)
+const currentLocalBackground = ref<string | null>(null)
+
 // 计算背景图片URL和透明度（用于CSS变量）
 const backgroundImageUrl = computed(() => {
   if (backgroundType.value === 'custom' && customBackground.value) {
     return `url(${customBackground.value})`
   }
-  if (backgroundType.value === 'local' && localBackground.value) {
-    return `url(${localBackground.value})`
+  if (backgroundType.value === 'local' && currentLocalBackground.value) {
+    return `url(${currentLocalBackground.value})`
   }
   return 'none'
 })
@@ -47,9 +51,77 @@ const backgroundImageOpacity = computed(() => {
   return backgroundOpacity.value
 })
 
+// 定时切换背景
+let backgroundTimer: number | null = null
+
+const updateLocalBackground = () => {
+  if (backgroundType.value === 'local') {
+    const randomBackground = settingsStore.getRandomLocalBackground()
+    currentLocalBackground.value = randomBackground
+  } else {
+    currentLocalBackground.value = null
+  }
+}
+
+const startBackgroundRotation = () => {
+  if (backgroundTimer) {
+    clearInterval(backgroundTimer)
+  }
+
+  // 立即设置一次背景
+  updateLocalBackground()
+
+  if (backgroundType.value === 'local' && localBackgrounds.value.filter(bg => bg.enabled).length > 1) {
+    backgroundTimer = setInterval(() => {
+      currentBackgroundIndex.value++
+      updateLocalBackground()
+    }, 1000 * 60)as unknown as number // 显式断言为 number
+  }
+}
+
+const stopBackgroundRotation = () => {
+  if (backgroundTimer) {
+    clearInterval(backgroundTimer)
+    backgroundTimer = null
+  }
+}
+
+// 监听背景类型变化
+watch(backgroundType, (newType) => {
+  if (newType === 'local') {
+    startBackgroundRotation()
+  } else {
+    stopBackgroundRotation()
+  }
+})
+
+// 监听背景列表变化
+watch(localBackgrounds, () => {
+  if (backgroundType.value === 'local') {
+    startBackgroundRotation()
+  }
+}, { deep: true })
+
+// 监听当前背景索引变化
+watch(currentBackgroundIndex, () => {
+  if (backgroundType.value === 'local') {
+    updateLocalBackground()
+  }
+})
+
 // 初始化主题
 onMounted(async () => {
   await settingsStore.initTheme()
+
+  // 如果当前是本地背景模式，启动定时切换
+  if (backgroundType.value === 'local') {
+    startBackgroundRotation()
+  }
+})
+
+// 组件卸载时清理定时器
+onUnmounted(() => {
+  stopBackgroundRotation()
 })
 </script>
 
@@ -57,7 +129,8 @@ onMounted(async () => {
   <div class="min-h-screen flex flex-col items-center justify-center relative transition-colors duration-300"
     :class="isDarkMode ? 'dark' : ''"
     :style="{ ...backgroundStyle, '--bg-image': backgroundImageUrl, '--bg-opacity': backgroundImageOpacity }"
-    :data-has-bg="backgroundImageUrl ? 'true' : 'false'">
+    :data-has-bg="backgroundImageUrl ? 'true' : 'false'"
+    :key="currentBackgroundIndex">
     <!-- 设置按钮 -->
     <button @click="toggleSettings"
       class="fixed top-2 right-2 z-50 p-3 transition-all duration-300 hover:scale-105 cursor-pointer">

@@ -6,7 +6,7 @@ import { storeToRefs } from 'pinia'
 import { compressImage, checkStorageSpace, getStorageInfo, formatBytes } from '../../../utils'
 
 const settingsStore = useSettingsStore()
-const { theme, backgroundType, customBackground, localBackground, backgroundOpacity } = storeToRefs(settingsStore)
+const { theme, backgroundType, customBackground, localBackgrounds, backgroundOpacity } = storeToRefs(settingsStore)
 
 // 主题设置
 const themes = ref([
@@ -27,7 +27,7 @@ const customBgUrl = ref('')
 
 // 本地背景文件
 const localBgFile = ref<File | null>(null)
-const localBgPreview = ref('')
+const localBgName = ref('')
 
 // 本地透明度值（用于滑块）
 const localOpacity = ref(0.8)
@@ -45,7 +45,7 @@ const handleThemeChange = async (newTheme: 'light' | 'dark' | 'auto') => {
 const handleBackgroundChange = async (newBackground: 'default' | 'custom' | 'local') => {
   if (newBackground === 'local' && localBgFile.value) {
     const blobUrl = URL.createObjectURL(localBgFile.value)
-    await settingsStore.setBackground(newBackground, undefined, blobUrl)
+    await settingsStore.setBackground(newBackground, blobUrl)
   } else {
     await settingsStore.setBackground(newBackground, customBgUrl.value)
   }
@@ -83,6 +83,7 @@ const handleLocalFileUpload = async (event: Event) => {
     }
 
     localBgFile.value = file
+    localBgName.value = file.name.replace(/\.[^/.]+$/, '') // 移除文件扩展名
     isCompressing.value = true
 
     try {
@@ -96,12 +97,13 @@ const handleLocalFileUpload = async (event: Event) => {
         return
       }
 
-      localBgPreview.value = compressedBase64
+      // 添加到背景列表
+      await settingsStore.addLocalBackground(localBgName.value, compressedBase64)
 
-      // 如果当前已经是本地背景模式，立即应用
-      if (backgroundType.value === 'local') {
-        await settingsStore.setBackground('local', undefined, compressedBase64)
-      }
+      // 清空输入
+      localBgFile.value = null
+      localBgName.value = ''
+      target.value = '' // 清空文件输入
 
       // 更新存储信息
       await updateStorageInfo()
@@ -123,15 +125,24 @@ const updateStorageInfo = async () => {
   }
 }
 
-// 清除本地背景
-const clearLocalBackground = async () => {
-  localBgFile.value = null
-  localBgPreview.value = ''
-  if (backgroundType.value === 'local') {
-    // 清除本地背景数据并切换到默认背景
-    await settingsStore.setBackground('default', undefined, '')
-    // 更新存储信息
+// 删除背景
+const removeBackground = async (id: string) => {
+  try {
+    await settingsStore.removeLocalBackground(id)
     await updateStorageInfo()
+  } catch (error) {
+    console.error('删除背景失败:', error)
+    alert('删除背景失败，请重试')
+  }
+}
+
+// 切换背景启用状态
+const toggleBackground = async (id: string) => {
+  try {
+    await settingsStore.toggleLocalBackground(id)
+  } catch (error) {
+    console.error('切换背景状态失败:', error)
+    alert('切换背景状态失败，请重试')
   }
 }
 
@@ -139,11 +150,6 @@ const clearLocalBackground = async () => {
 onMounted(async () => {
   customBgUrl.value = customBackground.value
   localOpacity.value = backgroundOpacity.value
-
-  // 如果有本地背景，设置预览
-  if (localBackground.value) {
-    localBgPreview.value = localBackground.value
-  }
 
   // 更新存储信息
   await updateStorageInfo()
@@ -225,11 +231,11 @@ onMounted(async () => {
         </div>
       </div>
 
-      <!-- 本地动态背景设置 -->
+      <!-- 多背景随机切换设置 -->
       <div v-if="backgroundType === 'local'" class="mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            选择本地背景图片
+            添加背景图片
           </label>
           <div class="space-y-3">
              <!-- 文件上传 -->
@@ -239,13 +245,8 @@ onMounted(async () => {
                  class="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 cursor-pointer transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                  :class="{ 'opacity-50 cursor-not-allowed': isCompressing }">
                  <Icon :icon="isCompressing ? 'mdi:loading' : 'mdi:upload'" class="text-lg" :class="{ 'animate-spin': isCompressing }" />
-                 <span>{{ isCompressing ? '压缩中...' : '选择图片' }}</span>
+                 <span>{{ isCompressing ? '压缩中...' : '添加图片' }}</span>
                </label>
-               <button v-if="localBgPreview && !isCompressing" @click="clearLocalBackground"
-                 class="flex items-center space-x-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200">
-                 <Icon icon="mdi:delete" class="text-lg" />
-                 <span>清除</span>
-               </button>
              </div>
 
              <!-- 存储信息 -->
@@ -265,18 +266,56 @@ onMounted(async () => {
                </p>
              </div>
 
-            <!-- 预览 -->
-            <div v-if="localBgPreview" class="space-y-2">
-              <p class="text-sm text-gray-600 dark:text-gray-400">预览：</p>
-              <div class="relative w-full h-32 rounded-lg overflow-hidden border border-gray-300 dark:border-gray-600">
-                <img :src="localBgPreview" alt="背景预览" class="w-full h-full object-cover" />
-              </div>
-            </div>
-
              <p class="text-xs text-gray-500 dark:text-gray-400">
                支持 jpg、png、gif 等格式的图片文件，文件大小不超过10MB（会自动压缩优化）
              </p>
           </div>
+        </div>
+
+        <!-- 背景列表 -->
+        <div v-if="localBackgrounds.length > 0">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            背景图片列表 ({{ localBackgrounds.filter(bg => bg.enabled).length }}/{{ localBackgrounds.length }} 已启用)
+          </label>
+          <div class="space-y-2">
+            <div v-for="background in localBackgrounds" :key="background.id"
+              class="flex items-center p-3 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+              <!-- 预览图 -->
+              <div class="w-16 h-12 rounded overflow-hidden border border-gray-300 dark:border-gray-600 flex-shrink-0">
+                <img :src="background.data" :alt="background.name" class="w-full h-full object-cover" />
+              </div>
+
+              <!-- 背景信息 -->
+              <div class="flex-1 ml-3">
+                <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ background.name }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">
+                  添加时间: {{ new Date(background.createdAt).toLocaleDateString() }}
+                </p>
+              </div>
+
+              <!-- 操作按钮 -->
+              <div class="flex items-center space-x-2">
+                <!-- 启用/禁用切换 -->
+                <button @click="toggleBackground(background.id)"
+                  class="p-2 rounded-lg transition-colors duration-200"
+                  :class="background.enabled
+                    ? 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-800' 
+                    : 'bg-gray-100 dark:bg-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-500'">
+                  <Icon :icon="background.enabled ? 'mdi:eye' : 'mdi:eye-off'" class="text-lg" />
+                </button>
+
+                <!-- 删除按钮 -->
+                <button @click="removeBackground(background.id)"
+                  class="p-2 bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-200 dark:hover:bg-red-800 transition-colors duration-200">
+                  <Icon icon="mdi:delete" class="text-lg" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+            💡 只有启用状态的背景图片会参与随机切换
+          </p>
         </div>
 
         <!-- 背景透明度控制 -->

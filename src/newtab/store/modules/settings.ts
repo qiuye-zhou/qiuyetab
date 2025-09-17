@@ -4,6 +4,21 @@ import webExtensionPolyfill from 'webextension-polyfill'
 
 const browser = webExtensionPolyfill
 
+const isValidLocalBackground = (item: any): item is {
+    id: string
+    name: string
+    data: string
+    enabled: boolean
+    createdAt: number
+} => {
+    return item &&
+        typeof item.id === 'string' &&
+        typeof item.name === 'string' &&
+        typeof item.data === 'string' &&
+        typeof item.enabled === 'boolean' &&
+        typeof item.createdAt === 'number'
+}
+
 export const useSettingsStore = defineStore('settings', () => {
     const updateSetting = ref(false)
     const isSettingsLoaded = ref(false)
@@ -15,7 +30,13 @@ export const useSettingsStore = defineStore('settings', () => {
     // 背景设置
     const backgroundType = ref<'default' | 'custom' | 'local'>('default')
     const customBackground = ref('')
-    const localBackground = ref('') // 本地背景文件的base64编码
+    const localBackgrounds = ref<Array<{
+      id: string
+      name: string
+      data: string // base64编码
+      enabled: boolean
+      createdAt: number
+    }>>([]) // 多个本地背景图片
     const backgroundOpacity = ref(0.8)
 
     // 显示设置
@@ -29,7 +50,7 @@ export const useSettingsStore = defineStore('settings', () => {
     const initTheme = async () => {
         try {
             // 从存储中读取主题设置
-            const result = await browser.storage.local.get(['theme', 'backgroundType', 'customBackground', 'localBackground', 'backgroundOpacity', 'showTimeDisplay', 'showSearchHints', 'searchBarPositionY'])
+            const result = await browser.storage.local.get(['theme', 'backgroundType', 'customBackground', 'localBackgrounds', 'backgroundOpacity', 'showTimeDisplay', 'showSearchHints', 'searchBarPositionY'])
 
             if (result.theme && typeof result.theme === 'string' && ['light', 'dark', 'auto'].includes(result.theme)) {
                 theme.value = result.theme as 'light' | 'dark' | 'auto'
@@ -40,8 +61,20 @@ export const useSettingsStore = defineStore('settings', () => {
             if (result.customBackground && typeof result.customBackground === 'string') {
                 customBackground.value = result.customBackground
             }
-            if (result.localBackground && typeof result.localBackground === 'string') {
-                localBackground.value = result.localBackground
+            if (result.localBackgrounds) {
+                if (Array.isArray(result.localBackgrounds)) {
+                    // 直接是数组格式
+                    const isValidBackgroundArray = result.localBackgrounds.every(isValidLocalBackground)
+                    if (isValidBackgroundArray) {
+                        localBackgrounds.value = result.localBackgrounds
+                    }
+                } else if (typeof result.localBackgrounds === 'object' && result.localBackgrounds !== null) {
+                    // 可能是对象格式，尝试转换为数组
+                    const backgroundArray = Object.values(result.localBackgrounds)
+                    if (Array.isArray(backgroundArray) && backgroundArray.every(isValidLocalBackground)) {
+                        localBackgrounds.value = backgroundArray
+                    }
+                }
             }
             if (typeof result.backgroundOpacity === 'number' && result.backgroundOpacity >= 0 && result.backgroundOpacity <= 1) {
                 backgroundOpacity.value = result.backgroundOpacity
@@ -122,17 +155,12 @@ export const useSettingsStore = defineStore('settings', () => {
     }
 
     // 设置背景
-    const setBackground = async (type: 'default' | 'custom' | 'local', customUrl?: string, localFile?: string) => {
+    const setBackground = async (type: 'default' | 'custom' | 'local', customUrl?: string) => {
         backgroundType.value = type
 
         // 处理自定义背景URL
         if (customUrl !== undefined) {
             customBackground.value = customUrl
-        }
-
-        // 处理本地背景文件
-        if (localFile !== undefined) {
-            localBackground.value = localFile
         }
 
         // 保存到存储
@@ -144,11 +172,6 @@ export const useSettingsStore = defineStore('settings', () => {
             // 总是保存customBackground，即使是空字符串也要保存（用于清除）
             if (customUrl !== undefined) {
                 updateData.customBackground = customUrl
-            }
-
-            // 总是保存localBackground，即使是空字符串也要保存（用于清除）
-            if (localFile !== undefined) {
-                updateData.localBackground = localFile
             }
 
             await browser.storage.local.set(updateData)
@@ -171,6 +194,78 @@ export const useSettingsStore = defineStore('settings', () => {
         } catch (error) {
             console.error('保存背景透明度设置失败:', error)
         }
+    }
+
+    // 添加本地背景
+    const addLocalBackground = async (name: string, data: string) => {
+        const newBackground = {
+            id: Date.now().toString(),
+            name,
+            data,
+            enabled: true,
+            createdAt: Date.now()
+        }
+
+        localBackgrounds.value.push(newBackground)
+
+        // 保存到存储
+        try {
+            const saveData = {
+                localBackgrounds: localBackgrounds.value
+            }
+            await browser.storage.local.set(saveData)
+        } catch (error) {
+            // 如果保存失败，回滚
+            localBackgrounds.value.pop()
+            throw error
+        }
+    }
+
+    // 删除本地背景
+    const removeLocalBackground = async (id: string) => {
+        const index = localBackgrounds.value.findIndex(bg => bg.id === id)
+        if (index === -1) return
+
+        localBackgrounds.value.splice(index, 1)
+
+        // 保存到存储
+        try {
+            await browser.storage.local.set({
+                localBackgrounds: localBackgrounds.value
+            })
+        } catch (error) {
+            // 如果保存失败，回滚
+            localBackgrounds.value.splice(index, 0, localBackgrounds.value[index])
+            throw error
+        }
+    }
+
+    // 切换背景启用状态
+    const toggleLocalBackground = async (id: string) => {
+        const background = localBackgrounds.value.find(bg => bg.id === id)
+        if (!background) return
+
+        background.enabled = !background.enabled
+
+        // 保存到存储
+        try {
+            await browser.storage.local.set({
+                localBackgrounds: localBackgrounds.value
+            })
+        } catch (error) {
+            // 如果保存失败，回滚
+            background.enabled = !background.enabled
+            throw error
+        }
+    }
+
+    // 获取随机启用的背景
+    const getRandomLocalBackground = (): string | null => {
+        const enabledBackgrounds = localBackgrounds.value.filter(bg => bg.enabled)
+        if (enabledBackgrounds.length === 0) return null
+
+        const randomIndex = Math.floor(Math.random() * enabledBackgrounds.length)
+        return enabledBackgrounds[randomIndex].data
     }
 
     // 设置显示选项
@@ -225,7 +320,7 @@ export const useSettingsStore = defineStore('settings', () => {
         isDarkMode,
         backgroundType,
         customBackground,
-        localBackground,
+        localBackgrounds,
         backgroundOpacity,
         showTimeDisplay,
         showSearchHints,
@@ -234,6 +329,10 @@ export const useSettingsStore = defineStore('settings', () => {
         setTheme,
         setBackground,
         setBackgroundOpacity,
+        addLocalBackground,
+        removeLocalBackground,
+        toggleLocalBackground,
+        getRandomLocalBackground,
         setDisplayOptions,
         setSearchBarPositionY,
         updateSearchBarPositionY
