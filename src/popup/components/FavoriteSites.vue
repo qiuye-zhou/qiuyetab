@@ -17,7 +17,7 @@ const browser = webExtensionPolyfill
 
 const recentSites = ref([
   { id: 1, name: 'GitHub', url: 'https://github.com', favicon: 'mdi:github' },
-  { id: 2, name: 'TypeScript', url: 'https://www.typescriptlang.org', favicon: 'simple-icons:typescript' }
+  { id: 2, name: 'TypeScript', url: 'https://www.typescriptlang.org', favicon: 'simple-icons:typescript' },
 ])
 
 // 打开网站
@@ -57,9 +57,12 @@ const loadFavoriteSites = async () => {
 }
 
 // 监听设置更新
-watch(() => props.updateSettings, () => {
-  loadFavoriteSites()
-})
+watch(
+  () => props.updateSettings,
+  () => {
+    loadFavoriteSites()
+  },
+)
 
 onMounted(() => {
   loadFavoriteSites()
@@ -71,8 +74,12 @@ onMounted(() => {
   <div v-show="!showSettings && !showEditSites" class="px-4">
     <h3 class="text-sm font-medium text-gray-600 dark:text-gray-300 mb-3">常用</h3>
     <div class="space-y-2">
-      <button v-for="site in recentSites" :key="site.id" @click="openSite(site.url)"
-        class="w-full flex items-center p-3 bg-white dark:bg-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200 border border-gray-200 dark:border-gray-600">
+      <button
+        v-for="site in recentSites"
+        :key="site.id"
+        @click="openSite(site.url)"
+        class="w-full flex items-center p-3 bg-white dark:bg-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200 border border-gray-200 dark:border-gray-600"
+      >
         <Icon :icon="site.favicon" class="text-lg text-gray-500 dark:text-gray-400 mr-3" />
         <span class="text-sm text-gray-700 dark:text-gray-200">{{ site.name }}</span>
         <Icon icon="mdi:open-in-new" class="text-sm text-gray-400 ml-auto" />

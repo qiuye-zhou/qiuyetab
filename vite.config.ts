@@ -42,10 +42,7 @@ export default defineConfig(({ command }) => ({
     },
   ],
   optimizeDeps: {
-    include: [
-      'vue',
-      'webextension-polyfill',
-    ],
+    include: ['vue', 'webextension-polyfill'],
   },
   base: command === 'serve' ? `http://localhost:${port}/` : '/dist/',
   server: {
@@ -74,7 +71,7 @@ export default defineConfig(({ command }) => ({
       input: {
         popup: r('src/popup/index.html'),
         newtab: r('src/newtab/index.html'),
-      }
-    }
-  }
+      },
+    },
+  },
 }))

@@ -67,14 +67,19 @@ const updatePositionPreview = (positionY: number) => {
               <label class="text-sm font-medium text-gray-700 dark:text-gray-300">显示时间</label>
               <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">显示当前时间和日期信息</p>
             </div>
-            <button @click="updateTimeDisplay(!localShowTimeDisplay)" :class="[
-              'relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
-              localShowTimeDisplay ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-600'
-            ]">
-              <span :class="[
-                'inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out',
-                localShowTimeDisplay ? 'translate-x-6' : 'translate-x-1'
-              ]" />
+            <button
+              @click="updateTimeDisplay(!localShowTimeDisplay)"
+              :class="[
+                'relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
+                localShowTimeDisplay ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-600',
+              ]"
+            >
+              <span
+                :class="[
+                  'inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out',
+                  localShowTimeDisplay ? 'translate-x-6' : 'translate-x-1',
+                ]"
+              />
             </button>
           </div>
 
@@ -84,14 +89,19 @@ const updatePositionPreview = (positionY: number) => {
               <label class="text-sm font-medium text-gray-700 dark:text-gray-300">显示搜索提示</label>
               <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">显示搜索框下方的使用提示</p>
             </div>
-            <button @click="updateSearchHints(!localShowSearchHints)" :class="[
-              'relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
-              localShowSearchHints ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-600'
-            ]">
-              <span :class="[
-                'inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out',
-                localShowSearchHints ? 'translate-x-6' : 'translate-x-1'
-              ]" />
+            <button
+              @click="updateSearchHints(!localShowSearchHints)"
+              :class="[
+                'relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
+                localShowSearchHints ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-600',
+              ]"
+            >
+              <span
+                :class="[
+                  'inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out',
+                  localShowSearchHints ? 'translate-x-6' : 'translate-x-1',
+                ]"
+              />
             </button>
           </div>
         </div>
@@ -108,7 +118,8 @@ const updatePositionPreview = (positionY: number) => {
           <div class="flex items-center justify-between">
             <div class="flex-1">
               <label class="text-sm font-medium text-gray-700 dark:text-gray-300">垂直位置</label>
-              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">调整搜索栏在页面中的垂直位置 ({{ localSearchBarPositionY }}%)
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                调整搜索栏在页面中的垂直位置 ({{ localSearchBarPositionY }}%)
               </p>
             </div>
           </div>
@@ -121,13 +132,20 @@ const updatePositionPreview = (positionY: number) => {
                 <!-- 滑块进度 -->
                 <div
                   class="absolute top-0 h-2 bg-gradient-to-r from-blue-400 to-blue-200 rounded-full transition-all duration-200"
-                  :style="{ width: `${localSearchBarPositionY}%` }"></div>
+                  :style="{ width: `${localSearchBarPositionY}%` }"
+                ></div>
 
                 <!-- 滑块控制点 -->
-                <input type="range" min="0" max="100" step="1" :value="localSearchBarPositionY"
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="1"
+                  :value="localSearchBarPositionY"
                   @input="updatePositionPreview(Number(($event.target as HTMLInputElement).value))"
                   @change="updateSearchBarPositionY(Number(($event.target as HTMLInputElement).value))"
-                  class="absolute top-0 w-full h-2 bg-transparent cursor-pointer appearance-none slider" />
+                  class="absolute top-0 w-full h-2 bg-transparent cursor-pointer appearance-none slider"
+                />
               </div>
 
               <!-- 位置标签 -->
@@ -140,28 +158,37 @@ const updatePositionPreview = (positionY: number) => {
 
           <!-- 快速位置按钮 -->
           <div class="grid grid-cols-3 gap-2 mt-4">
-            <button @click="updateSearchBarPositionY(10)" :class="[
-              'px-3 py-2 text-xs rounded-lg border transition-all duration-200',
-              localSearchBarPositionY <= 15
-                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
-                : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-500'
-            ]">
+            <button
+              @click="updateSearchBarPositionY(10)"
+              :class="[
+                'px-3 py-2 text-xs rounded-lg border transition-all duration-200',
+                localSearchBarPositionY <= 15
+                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
+                  : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-500',
+              ]"
+            >
               顶部
             </button>
-            <button @click="updateSearchBarPositionY(50)" :class="[
-              'px-3 py-2 text-xs rounded-lg border transition-all duration-200',
-              localSearchBarPositionY >= 45 && localSearchBarPositionY <= 55
-                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
-                : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-500'
-            ]">
+            <button
+              @click="updateSearchBarPositionY(50)"
+              :class="[
+                'px-3 py-2 text-xs rounded-lg border transition-all duration-200',
+                localSearchBarPositionY >= 45 && localSearchBarPositionY <= 55
+                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
+                  : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-500',
+              ]"
+            >
               居中
             </button>
-            <button @click="updateSearchBarPositionY(90)" :class="[
-              'px-3 py-2 text-xs rounded-lg border transition-all duration-200',
-              localSearchBarPositionY >= 85
-                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
-                : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-500'
-            ]">
+            <button
+              @click="updateSearchBarPositionY(90)"
+              :class="[
+                'px-3 py-2 text-xs rounded-lg border transition-all duration-200',
+                localSearchBarPositionY >= 85
+                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
+                  : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-500',
+              ]"
+            >
               底部
             </button>
           </div>

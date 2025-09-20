@@ -18,14 +18,14 @@ const searchEngines = ref([
   { name: 'Google', value: 'google', url: 'https://www.google.com/search?q={query}' },
   { name: '必应', value: 'bing', url: 'https://www.bing.com/search?q={query}' },
   { name: '搜狗', value: 'sogou', url: 'https://www.sogou.com/web?query={query}' },
-  { name: '360搜索', value: '360', url: 'https://www.so.com/s?q={query}' }
+  { name: '360搜索', value: '360', url: 'https://www.so.com/s?q={query}' },
 ])
 const selectedEngine = ref('baidu')
 
 // 搜索功能
 const handleSearch = () => {
   if (searchQuery.value.trim()) {
-    const engine = searchEngines.value.find(e => e.value === selectedEngine.value)
+    const engine = searchEngines.value.find((e) => e.value === selectedEngine.value)
     if (engine) {
       const searchUrl = engine.url.replace('{query}', encodeURIComponent(searchQuery.value))
       browser.tabs.create({ url: searchUrl })
@@ -58,9 +58,12 @@ const loadSettings = async () => {
 }
 
 // 监听设置更新
-watch(() => props.updateSettings, async () => {
-  await loadSettings()
-})
+watch(
+  () => props.updateSettings,
+  async () => {
+    await loadSettings()
+  },
+)
 
 onMounted(async () => {
   await loadSettings()
@@ -71,10 +74,15 @@ onMounted(async () => {
   <!-- 搜索框 -->
   <div class="relative">
     <Icon icon="mdi:magnify" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-    <input v-model="searchQuery" @keyup.enter="handleSearch" type="text" placeholder="搜索网络..."
-      class="w-full pl-10 pr-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-green-500 text-gray-600 dark:text-gray-200 placeholder-gray-400" />
+    <input
+      v-model="searchQuery"
+      @keyup.enter="handleSearch"
+      type="text"
+      placeholder="搜索网络..."
+      class="w-full pl-10 pr-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-green-500 text-gray-600 dark:text-gray-200 placeholder-gray-400"
+    />
     <div class="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-gray-400">
-      {{searchEngines.find(e => e.value === selectedEngine)?.name}}
+      {{ searchEngines.find((e) => e.value === selectedEngine)?.name }}
     </div>
   </div>
 </template>

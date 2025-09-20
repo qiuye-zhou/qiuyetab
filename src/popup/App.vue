@@ -9,7 +9,6 @@ import QuickOperation from './components/QuickOperation.vue'
 import SettingsPanel from './components/SettingsPanel.vue'
 import FavoriteSites from './components/FavoriteSites.vue'
 
-
 // 使用 browser API
 const browser = webExtensionPolyfill
 
@@ -32,15 +31,18 @@ const initializeDefaultSettings = async () => {
     const syncResult = await browser.storage.sync.get(['searchEngine', 'favoriteSites'])
 
     // 如果两个存储都没有数据，设置默认值到local存储
-    if (!localResult.searchEngine && !localResult.favoriteSites &&
-      !syncResult.searchEngine && !syncResult.favoriteSites) {
-
+    if (
+      !localResult.searchEngine &&
+      !localResult.favoriteSites &&
+      !syncResult.searchEngine &&
+      !syncResult.favoriteSites
+    ) {
       const defaultData = {
         searchEngine: 'baidu',
         favoriteSites: [
           { id: 1, name: 'GitHub', url: 'https://github.com', favicon: 'mdi:github' },
-          { id: 2, name: 'TypeScript', url: 'https://www.typescriptlang.org', favicon: 'simple-icons:typescript' }
-        ]
+          { id: 2, name: 'TypeScript', url: 'https://www.typescriptlang.org', favicon: 'simple-icons:typescript' },
+        ],
       }
 
       await browser.storage.local.set(defaultData)
@@ -57,8 +59,10 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="w-96 min-h-[500px] bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900"
-    style="background: linear-gradient(to bottom right, #fefefe, #f8f9fa)">
+  <div
+    class="w-96 min-h-[500px] bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900"
+    style="background: linear-gradient(to bottom right, #fefefe, #f8f9fa)"
+  >
     <!-- 设置面板 -->
     <SettingsPanel @update-settings="updateSettings = !updateSettings" />
 
@@ -69,7 +73,7 @@ onMounted(async () => {
     <QuickOperation></QuickOperation>
 
     <!-- 常用网站列表 -->
-    <FavoriteSites :update-settings="updateSettings"/>
+    <FavoriteSites :update-settings="updateSettings" />
 
     <!-- 当前标签页 -->
     <CurrentTab></CurrentTab>

@@ -28,7 +28,7 @@ const backgroundStyle = computed(() => {
   return {
     background: isDarkMode.value
       ? 'linear-gradient(to bottom right, #1f2937, #111827)'
-      : 'linear-gradient(to bottom right, #fefefe, #f8f9fa)'
+      : 'linear-gradient(to bottom right, #fefefe, #f8f9fa)',
   }
 })
 
@@ -71,11 +71,11 @@ const startBackgroundRotation = () => {
   // 立即设置一次背景
   updateLocalBackground()
 
-  if (backgroundType.value === 'local' && localBackgrounds.value.filter(bg => bg.enabled).length > 1) {
+  if (backgroundType.value === 'local' && localBackgrounds.value.filter((bg) => bg.enabled).length > 1) {
     backgroundTimer = setInterval(() => {
       currentBackgroundIndex.value++
       updateLocalBackground()
-    }, 1000 * 60)as unknown as number // 显式断言为 number
+    }, 1000 * 60) as unknown as number // 显式断言为 number
   }
 }
 
@@ -96,11 +96,15 @@ watch(backgroundType, (newType) => {
 })
 
 // 监听背景列表变化
-watch(localBackgrounds, () => {
-  if (backgroundType.value === 'local') {
-    startBackgroundRotation()
-  }
-}, { deep: true })
+watch(
+  localBackgrounds,
+  () => {
+    if (backgroundType.value === 'local') {
+      startBackgroundRotation()
+    }
+  },
+  { deep: true },
+)
 
 // 监听当前背景索引变化
 watch(currentBackgroundIndex, () => {
@@ -126,14 +130,18 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col items-center justify-center relative transition-colors duration-300"
+  <div
+    class="min-h-screen flex flex-col items-center justify-center relative transition-colors duration-300"
     :class="isDarkMode ? 'dark' : ''"
     :style="{ ...backgroundStyle, '--bg-image': backgroundImageUrl, '--bg-opacity': backgroundImageOpacity }"
     :data-has-bg="backgroundImageUrl ? 'true' : 'false'"
-    :key="currentBackgroundIndex">
+    :key="currentBackgroundIndex"
+  >
     <!-- 设置按钮 -->
-    <button @click="toggleSettings"
-      class="fixed top-2 right-2 z-50 p-3 transition-all duration-300 hover:scale-105 cursor-pointer">
+    <button
+      @click="toggleSettings"
+      class="fixed top-2 right-2 z-50 p-3 transition-all duration-300 hover:scale-105 cursor-pointer"
+    >
       <Icon icon="mdi:cog" class="text-2xl text-gray-600 dark:text-gray-300" />
     </button>
 
@@ -147,7 +155,7 @@ onUnmounted(() => {
 
 <style scoped>
 /* 自定义背景图片 - 使用伪元素 */
-.min-h-screen[data-has-bg="true"]::before {
+.min-h-screen[data-has-bg='true']::before {
   content: '';
   position: fixed;
   top: 0;
@@ -163,7 +171,7 @@ onUnmounted(() => {
   pointer-events: none;
 }
 /* 背景装饰 - 仅在默认背景时显示 */
-.min-h-screen[data-has-bg="false"]::before {
+.min-h-screen[data-has-bg='false']::before {
   content: '';
   position: absolute;
   top: 0;
@@ -178,7 +186,7 @@ onUnmounted(() => {
 }
 
 /* 深色模式下的背景装饰 */
-.dark .min-h-screen[data-has-bg="false"]::before {
+.dark .min-h-screen[data-has-bg='false']::before {
   background:
     radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
     radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.1) 0%, transparent 50%),

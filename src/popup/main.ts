@@ -3,7 +3,6 @@ import App from './App.vue'
 import store from './store/index'
 import '../style/main.css'
 
-
 const app = createApp(App)
 
 app.use(store)

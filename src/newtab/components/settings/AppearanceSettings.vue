@@ -12,14 +12,14 @@ const { theme, backgroundType, customBackground, localBackgrounds, backgroundOpa
 const themes = ref([
   { name: '浅色主题', value: 'light', icon: 'mdi:weather-sunny' },
   { name: '深色主题', value: 'dark', icon: 'mdi:weather-night' },
-  { name: '自动', value: 'auto', icon: 'mdi:theme-light-dark' }
+  { name: '自动', value: 'auto', icon: 'mdi:theme-light-dark' },
 ])
 
 // 背景设置
 const backgroundOptions = ref([
   { name: '默认背景', value: 'default' },
   { name: '自定义URL背景', value: 'custom' },
-  { name: '自定义本地背景', value: 'local' }
+  { name: '自定义本地背景', value: 'local' },
 ])
 
 // 自定义背景URL输入
@@ -161,14 +161,26 @@ onMounted(async () => {
     <div>
       <h3 class="text-lg font-medium text-gray-800 dark:text-gray-200 mb-4">主题设置</h3>
       <div class="space-y-3">
-        <label v-for="themeOption in themes" :key="themeOption.value"
+        <label
+          v-for="themeOption in themes"
+          :key="themeOption.value"
           class="flex items-center p-3 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors duration-200"
-          :class="{ 'border-blue-300 dark:border-blue-500 bg-blue-50 dark:bg-blue-900/30': theme === themeOption.value }">
-          <input type="radio" :value="themeOption.value" :checked="theme === themeOption.value"
-            @change="handleThemeChange(themeOption.value as 'light' | 'dark' | 'auto')" class="sr-only" />
+          :class="{
+            'border-blue-300 dark:border-blue-500 bg-blue-50 dark:bg-blue-900/30': theme === themeOption.value,
+          }"
+        >
+          <input
+            type="radio"
+            :value="themeOption.value"
+            :checked="theme === themeOption.value"
+            @change="handleThemeChange(themeOption.value as 'light' | 'dark' | 'auto')"
+            class="sr-only"
+          />
           <div class="flex items-center space-x-3">
-            <div class="w-4 h-4 rounded-full border-2 flex items-center justify-center"
-              :class="theme === themeOption.value ? 'border-blue-500' : 'border-gray-300 dark:border-gray-500'">
+            <div
+              class="w-4 h-4 rounded-full border-2 flex items-center justify-center"
+              :class="theme === themeOption.value ? 'border-blue-500' : 'border-gray-300 dark:border-gray-500'"
+            >
               <div v-if="theme === themeOption.value" class="w-2 h-2 rounded-full bg-blue-500"></div>
             </div>
             <Icon :icon="themeOption.icon" class="text-lg text-gray-600 dark:text-gray-300" />
@@ -181,14 +193,26 @@ onMounted(async () => {
     <div>
       <h3 class="text-lg font-medium text-gray-800 dark:text-gray-200 mb-4">背景设置</h3>
       <div class="space-y-3">
-        <label v-for="bg in backgroundOptions" :key="bg.value"
+        <label
+          v-for="bg in backgroundOptions"
+          :key="bg.value"
           class="flex items-center p-3 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors duration-200"
-          :class="{ 'border-blue-300 dark:border-blue-500 bg-blue-50 dark:bg-blue-900/30': backgroundType === bg.value }">
-          <input type="radio" :value="bg.value" :checked="backgroundType === bg.value"
-            @change="handleBackgroundChange(bg.value as 'default' | 'custom' | 'local')" class="sr-only" />
+          :class="{
+            'border-blue-300 dark:border-blue-500 bg-blue-50 dark:bg-blue-900/30': backgroundType === bg.value,
+          }"
+        >
+          <input
+            type="radio"
+            :value="bg.value"
+            :checked="backgroundType === bg.value"
+            @change="handleBackgroundChange(bg.value as 'default' | 'custom' | 'local')"
+            class="sr-only"
+          />
           <div class="flex items-center space-x-3">
-            <div class="w-4 h-4 rounded-full border-2 flex items-center justify-center"
-              :class="backgroundType === bg.value ? 'border-blue-500' : 'border-gray-300 dark:border-gray-500'">
+            <div
+              class="w-4 h-4 rounded-full border-2 flex items-center justify-center"
+              :class="backgroundType === bg.value ? 'border-blue-500' : 'border-gray-300 dark:border-gray-500'"
+            >
               <div v-if="backgroundType === bg.value" class="w-2 h-2 rounded-full bg-blue-500"></div>
             </div>
             <span class="text-gray-700 dark:text-gray-300">{{ bg.name }}</span>
@@ -199,27 +223,32 @@ onMounted(async () => {
       <!-- 自定义背景URL输入 -->
       <div v-if="backgroundType === 'custom'" class="mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg space-y-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            自定义背景图片URL
-          </label>
-          <input v-model="customBgUrl" @blur="handleCustomBgChange" @keyup.enter="handleCustomBgChange" type="url"
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">自定义背景图片URL</label>
+          <input
+            v-model="customBgUrl"
+            @blur="handleCustomBgChange"
+            @keyup.enter="handleCustomBgChange"
+            type="url"
             placeholder="请输入图片URL"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            支持 jpg、png、gif 等格式的图片链接
-          </p>
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">支持 jpg、png、gif 等格式的图片链接</p>
         </div>
 
         <!-- 背景透明度控制 -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            背景透明度
-          </label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">背景透明度</label>
           <div class="flex items-center space-x-3">
             <Icon icon="mdi:eye-off" class="text-gray-400 text-sm" />
-            <input v-model="localOpacity" @input="handleOpacityChange(Number(localOpacity))" type="range" min="0"
-              max="1" step="0.1"
-              class="flex-1 h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer slider" />
+            <input
+              v-model="localOpacity"
+              @input="handleOpacityChange(Number(localOpacity))"
+              type="range"
+              min="0"
+              max="1"
+              step="0.1"
+              class="flex-1 h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
+            />
             <Icon icon="mdi:eye" class="text-gray-400 text-sm" />
             <span class="text-sm text-gray-600 dark:text-gray-400 w-8 text-center">
               {{ Math.round(localOpacity * 100) }}%
@@ -234,52 +263,70 @@ onMounted(async () => {
       <!-- 多背景随机切换设置 -->
       <div v-if="backgroundType === 'local'" class="mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg space-y-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            添加背景图片
-          </label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">添加背景图片</label>
           <div class="space-y-3">
-             <!-- 文件上传 -->
-             <div class="flex items-center space-x-3">
-               <input type="file" accept="image/*" @change="handleLocalFileUpload" class="hidden" id="local-bg-upload" :disabled="isCompressing" />
-               <label for="local-bg-upload"
-                 class="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 cursor-pointer transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                 :class="{ 'opacity-50 cursor-not-allowed': isCompressing }">
-                 <Icon :icon="isCompressing ? 'mdi:loading' : 'mdi:upload'" class="text-lg" :class="{ 'animate-spin': isCompressing }" />
-                 <span>{{ isCompressing ? '压缩中...' : '添加图片' }}</span>
-               </label>
-             </div>
+            <!-- 文件上传 -->
+            <div class="flex items-center space-x-3">
+              <input
+                type="file"
+                accept="image/*"
+                @change="handleLocalFileUpload"
+                class="hidden"
+                id="local-bg-upload"
+                :disabled="isCompressing"
+              />
+              <label
+                for="local-bg-upload"
+                class="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 cursor-pointer transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                :class="{ 'opacity-50 cursor-not-allowed': isCompressing }"
+              >
+                <Icon
+                  :icon="isCompressing ? 'mdi:loading' : 'mdi:upload'"
+                  class="text-lg"
+                  :class="{ 'animate-spin': isCompressing }"
+                />
+                <span>{{ isCompressing ? '压缩中...' : '添加图片' }}</span>
+              </label>
+            </div>
 
-             <!-- 存储信息 -->
-             <div class="mt-2 p-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
-               <div class="flex items-center justify-between text-sm">
-                 <span class="text-gray-600 dark:text-gray-400">存储使用量</span>
-                 <span class="text-gray-800 dark:text-gray-200">{{ formatBytes(storageInfo.used) }} / {{ formatBytes(storageInfo.total) }}</span>
-               </div>
-               <div class="mt-2 w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
-                 <div class="bg-blue-500 h-2 rounded-full transition-all duration-300" 
-                      :style="{ width: storageInfo.percentage + '%' }"
-                      :class="{ 'bg-red-500': storageInfo.percentage > 80 }"></div>
-               </div>
-               <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                 {{ storageInfo.percentage }}% 已使用
-                 <span v-if="storageInfo.percentage > 80" class="text-red-500"> - 存储空间不足</span>
-               </p>
-             </div>
+            <!-- 存储信息 -->
+            <div class="mt-2 p-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-gray-600 dark:text-gray-400">存储使用量</span>
+                <span class="text-gray-800 dark:text-gray-200">
+                  {{ formatBytes(storageInfo.used) }} / {{ formatBytes(storageInfo.total) }}
+                </span>
+              </div>
+              <div class="mt-2 w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
+                <div
+                  class="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                  :style="{ width: storageInfo.percentage + '%' }"
+                  :class="{ 'bg-red-500': storageInfo.percentage > 80 }"
+                ></div>
+              </div>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                {{ storageInfo.percentage }}% 已使用
+                <span v-if="storageInfo.percentage > 80" class="text-red-500">- 存储空间不足</span>
+              </p>
+            </div>
 
-             <p class="text-xs text-gray-500 dark:text-gray-400">
-               支持 jpg、png、gif 等格式的图片文件，文件大小不超过10MB（会自动压缩优化）
-             </p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              支持 jpg、png、gif 等格式的图片文件，文件大小不超过10MB（会自动压缩优化）
+            </p>
           </div>
         </div>
 
         <!-- 背景列表 -->
         <div v-if="localBackgrounds.length > 0">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            背景图片列表 ({{ localBackgrounds.filter(bg => bg.enabled).length }}/{{ localBackgrounds.length }} 已启用)
+            背景图片列表 ({{ localBackgrounds.filter((bg) => bg.enabled).length }}/{{ localBackgrounds.length }} 已启用)
           </label>
           <div class="space-y-2">
-            <div v-for="background in localBackgrounds" :key="background.id"
-              class="flex items-center p-3 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+            <div
+              v-for="background in localBackgrounds"
+              :key="background.id"
+              class="flex items-center p-3 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600"
+            >
               <!-- 预览图 -->
               <div class="w-16 h-12 rounded overflow-hidden border border-gray-300 dark:border-gray-600 flex-shrink-0">
                 <img :src="background.data" :alt="background.name" class="w-full h-full object-cover" />
@@ -296,38 +343,46 @@ onMounted(async () => {
               <!-- 操作按钮 -->
               <div class="flex items-center space-x-2">
                 <!-- 启用/禁用切换 -->
-                <button @click="toggleBackground(background.id)"
+                <button
+                  @click="toggleBackground(background.id)"
                   class="p-2 rounded-lg transition-colors duration-200"
-                  :class="background.enabled
-                    ? 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-800' 
-                    : 'bg-gray-100 dark:bg-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-500'">
+                  :class="
+                    background.enabled
+                      ? 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-800'
+                      : 'bg-gray-100 dark:bg-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-500'
+                  "
+                >
                   <Icon :icon="background.enabled ? 'mdi:eye' : 'mdi:eye-off'" class="text-lg" />
                 </button>
 
                 <!-- 删除按钮 -->
-                <button @click="removeBackground(background.id)"
-                  class="p-2 bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-200 dark:hover:bg-red-800 transition-colors duration-200">
+                <button
+                  @click="removeBackground(background.id)"
+                  class="p-2 bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-200 dark:hover:bg-red-800 transition-colors duration-200"
+                >
                   <Icon icon="mdi:delete" class="text-lg" />
                 </button>
               </div>
             </div>
           </div>
 
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
-            💡 只有启用状态的背景图片会参与随机切换
-          </p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">💡 只有启用状态的背景图片会参与随机切换</p>
         </div>
 
         <!-- 背景透明度控制 -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            背景透明度
-          </label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">背景透明度</label>
           <div class="flex items-center space-x-3">
             <Icon icon="mdi:eye-off" class="text-gray-400 text-sm" />
-            <input v-model="localOpacity" @input="handleOpacityChange(Number(localOpacity))" type="range" min="0"
-              max="1" step="0.1"
-              class="flex-1 h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer slider" />
+            <input
+              v-model="localOpacity"
+              @input="handleOpacityChange(Number(localOpacity))"
+              type="range"
+              min="0"
+              max="1"
+              step="0.1"
+              class="flex-1 h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
+            />
             <Icon icon="mdi:eye" class="text-gray-400 text-sm" />
             <span class="text-sm text-gray-600 dark:text-gray-400 w-8 text-center">
               {{ Math.round(localOpacity * 100) }}%

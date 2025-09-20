@@ -14,7 +14,7 @@ export const compressImage = (
   file: File,
   maxWidth: number = 1920,
   maxHeight: number = 1080,
-  quality: number = 0.8
+  quality: number = 0.8,
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
     const canvas = document.createElement('canvas')
@@ -79,7 +79,7 @@ export const checkStorageSpace = async (requiredBytes: number): Promise<boolean>
     const currentUsage = await browser.local.getBytesInUse()
     const totalQuota = 5 * 1024 * 1024 // 5MB 是大多数浏览器的扩展存储限制
 
-    return (currentUsage + requiredBytes) <= totalQuota
+    return currentUsage + requiredBytes <= totalQuota
   } catch (error) {
     console.error('检查存储空间失败:', error)
     return true

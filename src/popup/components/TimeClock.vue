@@ -12,12 +12,12 @@ const updateTime = () => {
   const now = new Date()
   currentTime.value = now.toLocaleTimeString('zh-CN', {
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   })
   currentDate.value = now.toLocaleDateString('zh-CN', {
     month: 'short',
     day: 'numeric',
-    weekday: 'short'
+    weekday: 'short',
   })
 }
 
