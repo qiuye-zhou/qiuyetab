@@ -4,8 +4,10 @@ import tseslint from 'typescript-eslint'
 import pluginVue from 'eslint-plugin-vue'
 import prettier from 'eslint-plugin-prettier'
 import prettierConfig from 'eslint-config-prettier'
+import qiuyeConfig from 'eslint-config-qiuye'
 
 export default [
+  ...qiuyeConfig,
   // JavaScript 推荐规则
   {
     files: ['**/*.{js,mjs,cjs,ts,mts,cts,vue}'],

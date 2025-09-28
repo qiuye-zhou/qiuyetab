@@ -38,6 +38,8 @@ const handleQuickAction = (action: string) => {
     case 'settings':
       changeShowSettings(true)
       break
+    default:
+      break
   }
   if (action !== 'settings') {
     window.close()
