@@ -68,10 +68,13 @@ export const estimateBase64Size = (base64: string): number => {
  * @param requiredBytes 需要的字节数
  * @returns Promise<boolean> 是否有足够空间
  */
-export const checkStorageSpace = async (requiredBytes: number): Promise<boolean> => {
+export const checkStorageSpace = async (
+  requiredBytes: number,
+): Promise<boolean> => {
   try {
     // 获取当前存储使用量
-    const browser = (window as any).chrome?.storage || (window as any).browser?.storage
+    const browser =
+      (window as any).chrome?.storage || (window as any).browser?.storage
     if (!browser?.local?.getBytesInUse) {
       return true // 如果无法检查，假设有足够空间
     }
@@ -96,7 +99,8 @@ export const getStorageInfo = async (): Promise<{
   percentage: number
 }> => {
   try {
-    const browser = (window as any).chrome?.storage || (window as any).browser?.storage
+    const browser =
+      (window as any).chrome?.storage || (window as any).browser?.storage
     if (!browser?.local?.getBytesInUse) {
       return { used: 0, total: 5 * 1024 * 1024, percentage: 0 }
     }

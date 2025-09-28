@@ -25,10 +25,16 @@ const updateSettings = ref(false)
 const initializeDefaultSettings = async () => {
   try {
     // 检查local存储
-    const localResult = await browser.storage.local.get(['searchEngine', 'favoriteSites'])
+    const localResult = await browser.storage.local.get([
+      'searchEngine',
+      'favoriteSites',
+    ])
 
     // 检查sync存储
-    const syncResult = await browser.storage.sync.get(['searchEngine', 'favoriteSites'])
+    const syncResult = await browser.storage.sync.get([
+      'searchEngine',
+      'favoriteSites',
+    ])
 
     // 如果两个存储都没有数据，设置默认值到local存储
     if (
@@ -40,8 +46,18 @@ const initializeDefaultSettings = async () => {
       const defaultData = {
         searchEngine: 'baidu',
         favoriteSites: [
-          { id: 1, name: 'GitHub', url: 'https://github.com', favicon: 'mdi:github' },
-          { id: 2, name: 'TypeScript', url: 'https://www.typescriptlang.org', favicon: 'simple-icons:typescript' },
+          {
+            id: 1,
+            name: 'GitHub',
+            url: 'https://github.com',
+            favicon: 'mdi:github',
+          },
+          {
+            id: 2,
+            name: 'TypeScript',
+            url: 'https://www.typescriptlang.org',
+            favicon: 'simple-icons:typescript',
+          },
         ],
       }
 

@@ -1,6 +1,9 @@
 export default {
-  singleQuote: true,
+  tabWidth: 2,
+  printWidth: 80,
   semi: false,
-  htmlWhitespaceSensitivity: 'ignore',
-  printWidth: 120,
+  singleQuote: true,
+  trailingComma: 'all',
+  arrowParens: 'always',
+  endOfLine: 'lf',
 }

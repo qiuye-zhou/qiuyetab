@@ -6,7 +6,8 @@ import { storeToRefs } from 'pinia'
 
 const global = useGlobalStore()
 
-const { appVersion, buildTime, showSettings, showEditSites } = storeToRefs(global)
+const { appVersion, buildTime, showSettings, showEditSites } =
+  storeToRefs(global)
 
 const emit = defineEmits(['openSite'])
 
@@ -20,7 +21,10 @@ const openNewTab = () => {
 }
 </script>
 <template>
-  <div v-show="!showSettings && !showEditSites" class="p-4 border-t border-gray-200 dark:border-gray-700 mt-4">
+  <div
+    v-show="!showSettings && !showEditSites"
+    class="p-4 border-t border-gray-200 dark:border-gray-700 mt-4"
+  >
     <button
       @click="openNewTab"
       class="w-full flex items-center justify-center p-3 bg-gray-400 hover:bg-gray-500 text-white rounded-xl transition-colors duration-200 mb-3"
@@ -30,7 +34,9 @@ const openNewTab = () => {
     </button>
 
     <!-- 版本信息 -->
-    <div class="flex items-center justify-center text-xs text-gray-500 dark:text-gray-400">
+    <div
+      class="flex items-center justify-center text-xs text-gray-500 dark:text-gray-400"
+    >
       <Icon icon="mdi:information-outline" class="mr-1" />
       <span
         class="flex items-center justify-center cursor-pointer"

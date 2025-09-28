@@ -9,7 +9,13 @@ import { storeToRefs } from 'pinia'
 const browser = webExtensionPolyfill
 
 const settings = useSettingsStore()
-const { updateSetting, isSettingsLoaded, showTimeDisplay, showSearchHints, searchBarPositionY } = storeToRefs(settings)
+const {
+  updateSetting,
+  isSettingsLoaded,
+  showTimeDisplay,
+  showSearchHints,
+  searchBarPositionY,
+} = storeToRefs(settings)
 
 // 响应式数据
 const searchQuery = ref('')
@@ -20,9 +26,17 @@ const greeting = ref('')
 // 搜索引擎配置
 const searchEngines = ref([
   { name: '百度', value: 'baidu', url: 'https://www.baidu.com/s?wd={query}' },
-  { name: 'Google', value: 'google', url: 'https://www.google.com/search?q={query}' },
+  {
+    name: 'Google',
+    value: 'google',
+    url: 'https://www.google.com/search?q={query}',
+  },
   { name: '必应', value: 'bing', url: 'https://www.bing.com/search?q={query}' },
-  { name: '搜狗', value: 'sogou', url: 'https://www.sogou.com/web?query={query}' },
+  {
+    name: '搜狗',
+    value: 'sogou',
+    url: 'https://www.sogou.com/web?query={query}',
+  },
   { name: '360搜索', value: '360', url: 'https://www.so.com/s?q={query}' },
 ])
 const selectedEngine = ref('baidu')
@@ -61,13 +75,20 @@ const handleSearch = () => {
   if (searchQuery.value.trim()) {
     // 检查是否是URL
     if (searchQuery.value.includes('.') && !searchQuery.value.includes(' ')) {
-      const url = searchQuery.value.startsWith('http') ? searchQuery.value : `https://${searchQuery.value}`
+      const url = searchQuery.value.startsWith('http')
+        ? searchQuery.value
+        : `https://${searchQuery.value}`
       window.open(url, '_self')
     } else {
       // 使用自定义搜索引擎
-      const engine = searchEngines.value.find((e) => e.value === selectedEngine.value)
+      const engine = searchEngines.value.find(
+        (e) => e.value === selectedEngine.value,
+      )
       if (engine) {
-        const searchUrl = engine.url.replace('{query}', encodeURIComponent(searchQuery.value))
+        const searchUrl = engine.url.replace(
+          '{query}',
+          encodeURIComponent(searchQuery.value),
+        )
         window.open(searchUrl, '_self')
       }
     }
@@ -114,13 +135,25 @@ onUnmounted(() => {
       <div
         v-if="isSettingsLoaded"
         class="fixed left-1/2 transform -translate-x-1/2 w-full max-w-2xl px-6 z-10"
-        :style="{ top: `${searchBarPositionY}%`, transform: `translate(0%, -${searchBarPositionY}%)` }"
+        :style="{
+          top: `${searchBarPositionY}%`,
+          transform: `translate(0%, -${searchBarPositionY}%)`,
+        }"
       >
         <!-- 时间显示 -->
-        <div v-if="isSettingsLoaded && showTimeDisplay" class="text-center mb-12">
-          <h1 class="text-5xl font-bold text-gray-600 dark:text-gray-300 mb-4">{{ currentTime }}</h1>
-          <p class="text-xl text-gray-500 dark:text-gray-400 mb-2">{{ currentDate }}</p>
-          <p class="text-lg text-gray-400 dark:text-gray-500">{{ greeting }}！</p>
+        <div
+          v-if="isSettingsLoaded && showTimeDisplay"
+          class="text-center mb-12"
+        >
+          <h1 class="text-5xl font-bold text-gray-600 dark:text-gray-300 mb-4">
+            {{ currentTime }}
+          </h1>
+          <p class="text-xl text-gray-500 dark:text-gray-400 mb-2">
+            {{ currentDate }}
+          </p>
+          <p class="text-lg text-gray-400 dark:text-gray-500">
+            {{ greeting }}！
+          </p>
         </div>
 
         <div class="relative group">
@@ -144,9 +177,14 @@ onUnmounted(() => {
         </div>
 
         <!-- 搜索提示 -->
-        <div v-if="showSearchHints" class="text-center text-sm text-gray-500 dark:text-gray-400 space-y-2 mt-4">
+        <div
+          v-if="showSearchHints"
+          class="text-center text-sm text-gray-500 dark:text-gray-400 space-y-2 mt-4"
+        >
           <p class="opacity-80">输入关键词搜索，或直接输入网址访问</p>
-          <div class="flex items-center justify-center space-x-4 text-xs opacity-60">
+          <div
+            class="flex items-center justify-center space-x-4 text-xs opacity-60"
+          >
             <span class="flex items-center">
               <kbd
                 class="px-2 py-1 bg-gray-100/50 dark:bg-gray-700/90 rounded text-gray-500 dark:text-gray-400 font-mono"
@@ -164,7 +202,11 @@ onUnmounted(() => {
 <style scoped>
 /* 搜索框玻璃效果 */
 .group input {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(255, 255, 255, 0.85) 100%
+  );
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.3);
   outline: none;
@@ -172,7 +214,11 @@ onUnmounted(() => {
 
 /* 深色模式搜索框 */
 .dark .group input {
-  background: linear-gradient(135deg, rgba(31, 41, 55, 0.95) 0%, rgba(31, 41, 55, 0.85) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(31, 41, 55, 0.95) 0%,
+    rgba(31, 41, 55, 0.85) 100%
+  );
   border: 1px solid rgba(75, 85, 99, 0.3);
 }
 

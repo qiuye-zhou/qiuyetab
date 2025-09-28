@@ -5,7 +5,8 @@ import { useSettingsStore } from '../../store/modules/settings'
 import { storeToRefs } from 'pinia'
 
 const settingsStore = useSettingsStore()
-const { showTimeDisplay, showSearchHints, searchBarPositionY } = storeToRefs(settingsStore)
+const { showTimeDisplay, showSearchHints, searchBarPositionY } =
+  storeToRefs(settingsStore)
 
 // 本地状态
 const localShowTimeDisplay = ref(true)
@@ -48,15 +49,26 @@ const updatePositionPreview = (positionY: number) => {
   <div class="space-y-8">
     <!-- 页面标题 -->
     <div>
-      <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">布局设置</h3>
-      <p class="text-sm text-gray-600 dark:text-gray-400">自定义新标签页的布局和显示选项</p>
+      <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">
+        布局设置
+      </h3>
+      <p class="text-sm text-gray-600 dark:text-gray-400">
+        自定义新标签页的布局和显示选项
+      </p>
     </div>
 
     <!-- 显示设置 -->
     <div class="space-y-6">
-      <div class="bg-white dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 p-6">
-        <h4 class="text-base font-medium text-gray-800 dark:text-gray-200 mb-4 flex items-center">
-          <Icon icon="mdi:eye" class="text-lg mr-2 text-blue-600 dark:text-blue-400" />
+      <div
+        class="bg-white dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 p-6"
+      >
+        <h4
+          class="text-base font-medium text-gray-800 dark:text-gray-200 mb-4 flex items-center"
+        >
+          <Icon
+            icon="mdi:eye"
+            class="text-lg mr-2 text-blue-600 dark:text-blue-400"
+          />
           显示选项
         </h4>
 
@@ -64,14 +76,21 @@ const updatePositionPreview = (positionY: number) => {
           <!-- 时间显示开关 -->
           <div class="flex items-center justify-between">
             <div class="flex-1">
-              <label class="text-sm font-medium text-gray-700 dark:text-gray-300">显示时间</label>
-              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">显示当前时间和日期信息</p>
+              <label
+                class="text-sm font-medium text-gray-700 dark:text-gray-300"
+                >显示时间</label
+              >
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                显示当前时间和日期信息
+              </p>
             </div>
             <button
               @click="updateTimeDisplay(!localShowTimeDisplay)"
               :class="[
                 'relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
-                localShowTimeDisplay ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-600',
+                localShowTimeDisplay
+                  ? 'bg-blue-600'
+                  : 'bg-gray-200 dark:bg-gray-600',
               ]"
             >
               <span
@@ -86,14 +105,21 @@ const updatePositionPreview = (positionY: number) => {
           <!-- 搜索提示开关 -->
           <div class="flex items-center justify-between">
             <div class="flex-1">
-              <label class="text-sm font-medium text-gray-700 dark:text-gray-300">显示搜索提示</label>
-              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">显示搜索框下方的使用提示</p>
+              <label
+                class="text-sm font-medium text-gray-700 dark:text-gray-300"
+                >显示搜索提示</label
+              >
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                显示搜索框下方的使用提示
+              </p>
             </div>
             <button
               @click="updateSearchHints(!localShowSearchHints)"
               :class="[
                 'relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
-                localShowSearchHints ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-600',
+                localShowSearchHints
+                  ? 'bg-blue-600'
+                  : 'bg-gray-200 dark:bg-gray-600',
               ]"
             >
               <span
@@ -108,16 +134,26 @@ const updatePositionPreview = (positionY: number) => {
       </div>
 
       <!-- 搜索栏位置设置 -->
-      <div class="bg-white dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 p-6">
-        <h4 class="text-base font-medium text-gray-800 dark:text-gray-200 mb-4 flex items-center">
-          <Icon icon="mdi:layout" class="text-lg mr-2 text-blue-600 dark:text-blue-400" />
+      <div
+        class="bg-white dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 p-6"
+      >
+        <h4
+          class="text-base font-medium text-gray-800 dark:text-gray-200 mb-4 flex items-center"
+        >
+          <Icon
+            icon="mdi:layout"
+            class="text-lg mr-2 text-blue-600 dark:text-blue-400"
+          />
           搜索栏位置
         </h4>
 
         <div class="space-y-4">
           <div class="flex items-center justify-between">
             <div class="flex-1">
-              <label class="text-sm font-medium text-gray-700 dark:text-gray-300">垂直位置</label>
+              <label
+                class="text-sm font-medium text-gray-700 dark:text-gray-300"
+                >垂直位置</label
+              >
               <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 调整搜索栏在页面中的垂直位置 ({{ localSearchBarPositionY }}%)
               </p>
@@ -128,7 +164,9 @@ const updatePositionPreview = (positionY: number) => {
           <div class="mt-4">
             <div class="relative">
               <!-- 滑块轨道 -->
-              <div class="h-2 bg-gray-200 dark:bg-gray-600 rounded-full relative">
+              <div
+                class="h-2 bg-gray-200 dark:bg-gray-600 rounded-full relative"
+              >
                 <!-- 滑块进度 -->
                 <div
                   class="absolute top-0 h-2 bg-gradient-to-r from-blue-400 to-blue-200 rounded-full transition-all duration-200"
@@ -142,14 +180,24 @@ const updatePositionPreview = (positionY: number) => {
                   max="100"
                   step="1"
                   :value="localSearchBarPositionY"
-                  @input="updatePositionPreview(Number(($event.target as HTMLInputElement).value))"
-                  @change="updateSearchBarPositionY(Number(($event.target as HTMLInputElement).value))"
+                  @input="
+                    updatePositionPreview(
+                      Number(($event.target as HTMLInputElement).value),
+                    )
+                  "
+                  @change="
+                    updateSearchBarPositionY(
+                      Number(($event.target as HTMLInputElement).value),
+                    )
+                  "
                   class="absolute top-0 w-full h-2 bg-transparent cursor-pointer appearance-none slider"
                 />
               </div>
 
               <!-- 位置标签 -->
-              <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2">
+              <div
+                class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2"
+              >
                 <span>顶部 (0%)</span>
                 <span>底部 (100%)</span>
               </div>

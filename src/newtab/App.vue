@@ -7,7 +7,13 @@ import { useSettingsStore } from './store/modules/settings'
 import { storeToRefs } from 'pinia'
 
 const settingsStore = useSettingsStore()
-const { isDarkMode, backgroundType, customBackground, localBackgrounds, backgroundOpacity } = storeToRefs(settingsStore)
+const {
+  isDarkMode,
+  backgroundType,
+  customBackground,
+  localBackgrounds,
+  backgroundOpacity,
+} = storeToRefs(settingsStore)
 
 // 设置面板状态
 const isSettingsOpen = ref(false)
@@ -71,7 +77,10 @@ const startBackgroundRotation = () => {
   // 立即设置一次背景
   updateLocalBackground()
 
-  if (backgroundType.value === 'local' && localBackgrounds.value.filter((bg) => bg.enabled).length > 1) {
+  if (
+    backgroundType.value === 'local' &&
+    localBackgrounds.value.filter((bg) => bg.enabled).length > 1
+  ) {
     backgroundTimer = setInterval(() => {
       currentBackgroundIndex.value++
       updateLocalBackground()
@@ -133,7 +142,11 @@ onUnmounted(() => {
   <div
     class="min-h-screen flex flex-col items-center justify-center relative transition-colors duration-300"
     :class="isDarkMode ? 'dark' : ''"
-    :style="{ ...backgroundStyle, '--bg-image': backgroundImageUrl, '--bg-opacity': backgroundImageOpacity }"
+    :style="{
+      ...backgroundStyle,
+      '--bg-image': backgroundImageUrl,
+      '--bg-opacity': backgroundImageOpacity,
+    }"
     :data-has-bg="backgroundImageUrl ? 'true' : 'false'"
     :key="currentBackgroundIndex"
   >
@@ -179,18 +192,42 @@ onUnmounted(() => {
   right: 0;
   bottom: 0;
   background:
-    radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(120, 200, 198, 0.05) 0%, transparent 50%);
+    radial-gradient(
+      circle at 20% 80%,
+      rgba(120, 119, 198, 0.05) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 80% 20%,
+      rgba(255, 119, 198, 0.05) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 40% 40%,
+      rgba(120, 200, 198, 0.05) 0%,
+      transparent 50%
+    );
   pointer-events: none;
 }
 
 /* 深色模式下的背景装饰 */
 .dark .min-h-screen[data-has-bg='false']::before {
   background:
-    radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(120, 200, 198, 0.1) 0%, transparent 50%);
+    radial-gradient(
+      circle at 20% 80%,
+      rgba(120, 119, 198, 0.1) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 80% 20%,
+      rgba(255, 119, 198, 0.1) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 40% 40%,
+      rgba(120, 200, 198, 0.1) 0%,
+      transparent 50%
+    );
 }
 
 /* 滚动条样式 */

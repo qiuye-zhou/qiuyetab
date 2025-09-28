@@ -67,7 +67,11 @@ export const useSettingsStore = defineStore('settings', () => {
         'searchBarPositionY',
       ])
 
-      if (result.theme && typeof result.theme === 'string' && ['light', 'dark', 'auto'].includes(result.theme)) {
+      if (
+        result.theme &&
+        typeof result.theme === 'string' &&
+        ['light', 'dark', 'auto'].includes(result.theme)
+      ) {
         theme.value = result.theme as 'light' | 'dark' | 'auto'
       }
       if (
@@ -75,22 +79,36 @@ export const useSettingsStore = defineStore('settings', () => {
         typeof result.backgroundType === 'string' &&
         ['default', 'custom', 'local'].includes(result.backgroundType)
       ) {
-        backgroundType.value = result.backgroundType as 'default' | 'custom' | 'local'
+        backgroundType.value = result.backgroundType as
+          | 'default'
+          | 'custom'
+          | 'local'
       }
-      if (result.customBackground && typeof result.customBackground === 'string') {
+      if (
+        result.customBackground &&
+        typeof result.customBackground === 'string'
+      ) {
         customBackground.value = result.customBackground
       }
       if (result.localBackgrounds) {
         if (Array.isArray(result.localBackgrounds)) {
           // 直接是数组格式
-          const isValidBackgroundArray = result.localBackgrounds.every(isValidLocalBackground)
+          const isValidBackgroundArray = result.localBackgrounds.every(
+            isValidLocalBackground,
+          )
           if (isValidBackgroundArray) {
             localBackgrounds.value = result.localBackgrounds
           }
-        } else if (typeof result.localBackgrounds === 'object' && result.localBackgrounds !== null) {
+        } else if (
+          typeof result.localBackgrounds === 'object' &&
+          result.localBackgrounds !== null
+        ) {
           // 可能是对象格式，尝试转换为数组
           const backgroundArray = Object.values(result.localBackgrounds)
-          if (Array.isArray(backgroundArray) && backgroundArray.every(isValidLocalBackground)) {
+          if (
+            Array.isArray(backgroundArray) &&
+            backgroundArray.every(isValidLocalBackground)
+          ) {
             localBackgrounds.value = backgroundArray
           }
         }
@@ -134,7 +152,9 @@ export const useSettingsStore = defineStore('settings', () => {
 
     if (theme.value === 'auto') {
       // 自动模式：根据系统偏好设置
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+      const prefersDark = window.matchMedia(
+        '(prefers-color-scheme: dark)',
+      ).matches
       isDarkMode.value = prefersDark
     } else {
       isDarkMode.value = theme.value === 'dark'
@@ -182,7 +202,10 @@ export const useSettingsStore = defineStore('settings', () => {
   }
 
   // 设置背景
-  const setBackground = async (type: 'default' | 'custom' | 'local', customUrl?: string) => {
+  const setBackground = async (
+    type: 'default' | 'custom' | 'local',
+    customUrl?: string,
+  ) => {
     backgroundType.value = type
 
     // 处理自定义背景URL
@@ -296,7 +319,10 @@ export const useSettingsStore = defineStore('settings', () => {
   }
 
   // 设置显示选项
-  const setDisplayOptions = async (options: { showTimeDisplay?: boolean; showSearchHints?: boolean }) => {
+  const setDisplayOptions = async (options: {
+    showTimeDisplay?: boolean
+    showSearchHints?: boolean
+  }) => {
     if (typeof options.showTimeDisplay === 'boolean') {
       showTimeDisplay.value = options.showTimeDisplay
     }

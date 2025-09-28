@@ -18,7 +18,12 @@ const emit = defineEmits<{
 // 设置菜单项
 const menuItems = ref([
   { id: 'search', name: '搜索引擎', icon: 'mdi:magnify', com: SearchSettings },
-  { id: 'appearance', name: '外观', icon: 'mdi:palette', com: AppearanceSettings },
+  {
+    id: 'appearance',
+    name: '外观',
+    icon: 'mdi:palette',
+    com: AppearanceSettings,
+  },
   { id: 'layout', name: '布局', icon: 'mdi:view-grid', com: LayoutSettings },
   { id: 'general', name: '通用', icon: 'mdi:cog', com: GeneralSettings },
 ])
@@ -26,7 +31,9 @@ const menuItems = ref([
 // 当前选中的设置页面
 const currentPage = ref('search')
 
-const currentComponent = computed(() => menuItems.value.find((item) => item.id === currentPage.value)?.com)
+const currentComponent = computed(
+  () => menuItems.value.find((item) => item.id === currentPage.value)?.com,
+)
 
 const handleClose = () => {
   emit('close')
@@ -51,7 +58,11 @@ const switchPage = (pageId: string) => {
     leave-from-class="opacity-100"
     leave-to-class="opacity-0"
   >
-    <div v-if="isOpen" @click="handleClose" class="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"></div>
+    <div
+      v-if="isOpen"
+      @click="handleClose"
+      class="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
+    ></div>
   </Transition>
 
   <Transition
@@ -68,15 +79,22 @@ const switchPage = (pageId: string) => {
       class="fixed top-0 right-0 h-full w-[600px] bg-white/95 dark:bg-gray-800/95 backdrop-blur-md shadow-2xl z-50 flex"
     >
       <!-- 左侧菜单 -->
-      <div class="w-48 bg-gray-50/80 dark:bg-gray-700/80 border-r border-gray-200 dark:border-gray-600 flex flex-col">
+      <div
+        class="w-48 bg-gray-50/80 dark:bg-gray-700/80 border-r border-gray-200 dark:border-gray-600 flex flex-col"
+      >
         <div class="p-4 border-b border-gray-200 dark:border-gray-600">
           <div class="flex items-center justify-between">
-            <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">设置</h2>
+            <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">
+              设置
+            </h2>
             <button
               @click="handleClose"
               class="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer transition-colors duration-200"
             >
-              <Icon icon="mdi:close" class="text-lg text-gray-600 dark:text-gray-300" />
+              <Icon
+                icon="mdi:close"
+                class="text-lg text-gray-600 dark:text-gray-300"
+              />
             </button>
           </div>
         </div>

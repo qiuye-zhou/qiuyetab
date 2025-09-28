@@ -15,10 +15,16 @@ async function stubIndexHtml() {
     let data = await fs.readFile(r(`src/${view}/index.html`), 'utf-8')
     // 将 index.html 中的 "./main.ts" 替换为开发服务器地址
     // 这样做可以通过vite的热更新加载入口文件
-    data = data.replace('"./main.ts"', `"http://localhost:${port}/${view}/main.ts"`)
+    data = data.replace(
+      '"./main.ts"',
+      `"http://localhost:${port}/${view}/main.ts"`,
+    )
     // 生成对应的html文件
     await fs.writeFile(r(`extension/dist/${view}/index.html`), data, 'utf-8')
-    log('Vite', `${view}: dev server started at http://localhost:${port}/${view}/index.html`)
+    log(
+      'Vite',
+      `${view}: dev server started at http://localhost:${port}/${view}/index.html`,
+    )
   }
 }
 

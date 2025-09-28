@@ -2,26 +2,6 @@
 
 一个简约而功能丰富的浏览器新标签页插件，基于 Vue 3 + TypeScript + Tailwind CSS 构建，提供优雅的用户体验和强大的自定义功能。
 
-## ✨ 功能特性
-
-### 🎯 核心功能
-- **智能搜索**: 支持多搜索引擎切换（百度、Google、必应、搜狗、360搜索）
-- **实时时钟**: 显示当前时间和日期，问候语
-- **快捷操作**: 快速访问历史记录、下载、书签、设置等
-- **常用网站**: 可自定义的快速访问网站列表
-- **标签页管理**: 查看和管理当前打开的标签页
-
-### 🎨 界面设计
-- **简约风格**: 清爽的界面设计，减少视觉干扰
-- **响应式布局**: 适配不同屏幕尺寸
-- **动画效果**: 流畅的交互动画
-
-### ⚙️ 技术特性
-- **现代化技术栈**: Vue 3 + TypeScript + Vite
-- **跨浏览器兼容**: 支持 Chrome、Firefox、Edge 等主流浏览器
-- **本地存储**: 使用浏览器存储API保存用户设置
-- **模块化架构**: 清晰的代码结构，易于维护和扩展
-
 ## 🚀 快速开始
 
 ### 安装方式
@@ -106,23 +86,6 @@ pnpm build
 - `storage`: 保存用户设置
 - `activeTab`: 访问当前活动标签页
 
-## 🤝 贡献指南
-
-欢迎提交 Issue 和 Pull Request！
-
-### 开发流程
-1. Fork 本仓库
-2. 创建功能分支 (`git checkout -b feature/amazing-feature`)
-3. 提交更改 (`git commit -m 'Add some amazing feature'`)
-4. 推送到分支 (`git push origin feature/amazing-feature`)
-5. 创建 Pull Request
-
-### 代码规范
-- 使用 TypeScript 进行类型检查
-- 遵循 ESLint 规则
-- 提交前运行 `pnpm lint` 和 `pnpm typecheck`
-
 ## 📄 许可证
 
 本项目基于 [MIT License](LICENSE) 开源。
-
