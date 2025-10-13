@@ -54,18 +54,6 @@ qiuyetab/
 └── public/              # 静态资源
 ```
 
-### 开发命令
-```bash
-# 类型检查
-pnpm typecheck
-
-# 代码检查
-pnpm lint
-
-# 构建生产版本
-pnpm build
-```
-
 ### 技术栈
 - **前端框架**: Vue 3 (Composition API)
 - **开发语言**: TypeScript
