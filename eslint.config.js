@@ -23,8 +23,6 @@ export default [
       prettier: prettier,
     },
   },
-  // TypeScript 推荐规则
-  ...tseslint.configs.recommended,
   // Vue 推荐规则
   ...pluginVue.configs['flat/essential'],
   // Vue 文件解析器设置
