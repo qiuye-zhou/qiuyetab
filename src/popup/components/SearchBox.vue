@@ -2,6 +2,8 @@
 import { ref, onMounted, watch } from 'vue'
 import { Icon } from '@iconify/vue'
 import webExtensionPolyfill from 'webextension-polyfill'
+import { searchEngines, getSearchUrl } from '@/config/searchEngines'
+import { getStorageValue } from '@/utils'
 
 // 使用 browser API
 const browser = webExtensionPolyfill
@@ -12,58 +14,24 @@ const props = defineProps({
 
 // 响应式数据
 const searchQuery = ref('')
-
-const searchEngines = ref([
-  { name: '百度', value: 'baidu', url: 'https://www.baidu.com/s?wd={query}' },
-  {
-    name: 'Google',
-    value: 'google',
-    url: 'https://www.google.com/search?q={query}',
-  },
-  { name: '必应', value: 'bing', url: 'https://www.bing.com/search?q={query}' },
-  {
-    name: '搜狗',
-    value: 'sogou',
-    url: 'https://www.sogou.com/web?query={query}',
-  },
-  { name: '360搜索', value: '360', url: 'https://www.so.com/s?q={query}' },
-])
 const selectedEngine = ref('baidu')
 
 // 搜索功能
 const handleSearch = () => {
   if (searchQuery.value.trim()) {
-    const engine = searchEngines.value.find(
-      (e) => e.value === selectedEngine.value,
-    )
-    if (engine) {
-      const searchUrl = engine.url.replace(
-        '{query}',
-        encodeURIComponent(searchQuery.value),
-      )
-      browser.tabs.create({ url: searchUrl })
-      window.close()
-    }
+    const searchUrl = getSearchUrl(selectedEngine.value, searchQuery.value)
+    browser.tabs.create({ url: searchUrl })
+    window.close()
   }
 }
 
 // 加载设置
 const loadSettings = async () => {
   try {
-    // 先尝试从local存储加载
-    let result = await browser.storage.local.get(['searchEngine'])
-
-    // 如果local存储没有数据，尝试从sync存储加载
-    if (!result.searchEngine) {
-      result = await browser.storage.sync.get(['searchEngine'])
-    }
-
-    // 加载搜索引擎设置
-    if (result.searchEngine && typeof result.searchEngine === 'string') {
-      selectedEngine.value = result.searchEngine
-    } else {
-      selectedEngine.value = 'baidu'
-    }
+    selectedEngine.value = await getStorageValue<string>(
+      'searchEngine',
+      'baidu',
+    )
   } catch (error) {
     console.error('加载搜索设置失败:', error)
     selectedEngine.value = 'baidu'

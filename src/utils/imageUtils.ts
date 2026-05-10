@@ -1,6 +1,6 @@
-/**
- * 图片处理工具函数
- */
+import webExtensionPolyfill from 'webextension-polyfill'
+
+const browser = webExtensionPolyfill
 
 /**
  * 压缩图片
@@ -22,7 +22,6 @@ export const compressImage = (
     const img = new Image()
 
     img.onload = () => {
-      // 计算压缩后的尺寸
       let { width, height } = img
 
       if (width > maxWidth || height > maxHeight) {
@@ -31,14 +30,11 @@ export const compressImage = (
         height *= ratio
       }
 
-      // 设置canvas尺寸
       canvas.width = width
       canvas.height = height
 
-      // 绘制压缩后的图片
       ctx?.drawImage(img, 0, 0, width, height)
 
-      // 转换为base64
       const compressedBase64 = canvas.toDataURL('image/jpeg', quality)
       resolve(compressedBase64)
     }
@@ -57,8 +53,6 @@ export const compressImage = (
  * @returns 字节大小
  */
 export const estimateBase64Size = (base64: string): number => {
-  // base64编码会增加约33%的大小
-  // 减去data:image/jpeg;base64,前缀
   const base64Data = base64.split(',')[1]
   return Math.floor(base64Data.length * 0.75)
 }
@@ -72,15 +66,12 @@ export const checkStorageSpace = async (
   requiredBytes: number,
 ): Promise<boolean> => {
   try {
-    // 获取当前存储使用量
-    const browser =
-      (window as any).chrome?.storage || (window as any).browser?.storage
-    if (!browser?.local?.getBytesInUse) {
-      return true // 如果无法检查，假设有足够空间
+    if (!browser?.storage?.local?.getBytesInUse) {
+      return true
     }
 
-    const currentUsage = await browser.local.getBytesInUse()
-    const totalQuota = 5 * 1024 * 1024 // 5MB 是大多数浏览器的扩展存储限制
+    const currentUsage = await browser.storage.local.getBytesInUse()
+    const totalQuota = 5 * 1024 * 1024
 
     return currentUsage + requiredBytes <= totalQuota
   } catch (error) {
@@ -99,14 +90,12 @@ export const getStorageInfo = async (): Promise<{
   percentage: number
 }> => {
   try {
-    const browser =
-      (window as any).chrome?.storage || (window as any).browser?.storage
-    if (!browser?.local?.getBytesInUse) {
+    if (!browser?.storage?.local?.getBytesInUse) {
       return { used: 0, total: 5 * 1024 * 1024, percentage: 0 }
     }
 
-    const used = await browser.local.getBytesInUse()
-    const total = 5 * 1024 * 1024 // 5MB
+    const used = await browser.storage.local.getBytesInUse()
+    const total = 5 * 1024 * 1024
     const percentage = Math.round((used / total) * 100)
 
     return { used, total, percentage }

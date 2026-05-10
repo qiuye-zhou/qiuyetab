@@ -24,7 +24,6 @@ const isValidLocalBackground = (
 }
 
 export const useSettingsStore = defineStore('settings', () => {
-  const updateSetting = ref(false)
   const isSettingsLoaded = ref(false)
 
   // 主题设置
@@ -285,7 +284,10 @@ export const useSettingsStore = defineStore('settings', () => {
       })
     } catch (error) {
       // 如果保存失败，回滚
-      localBackgrounds.value.splice(index, 0, localBackgrounds.value[index])
+      const removedBackground = localBackgrounds.value[index]
+      if (removedBackground) {
+        localBackgrounds.value.splice(index, 0, removedBackground)
+      }
       throw error
     }
   }
@@ -315,7 +317,8 @@ export const useSettingsStore = defineStore('settings', () => {
     if (enabledBackgrounds.length === 0) return null
 
     const randomIndex = Math.floor(Math.random() * enabledBackgrounds.length)
-    return enabledBackgrounds[randomIndex].data
+    const selectedBackground = enabledBackgrounds[randomIndex]
+    return selectedBackground?.data ?? null
   }
 
   // 设置显示选项
@@ -367,7 +370,6 @@ export const useSettingsStore = defineStore('settings', () => {
   }
 
   return {
-    updateSetting,
     isSettingsLoaded,
     theme,
     isDarkMode,

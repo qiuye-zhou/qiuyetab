@@ -169,7 +169,7 @@ const updatePositionPreview = (positionY: number) => {
               >
                 <!-- 滑块进度 -->
                 <div
-                  class="absolute top-0 h-2 bg-gradient-to-r from-blue-400 to-blue-200 rounded-full transition-all duration-200"
+                  class="absolute top-0 h-2 bg-linear-to-r from-blue-400 to-blue-200 rounded-full transition-all duration-200"
                   :style="{ width: `${localSearchBarPositionY}%` }"
                 ></div>
 

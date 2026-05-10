@@ -100,48 +100,6 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-/* 滚动条样式 */
-::-webkit-scrollbar {
-  width: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f5f9;
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-
-/* 深色模式滚动条 */
-.dark ::-webkit-scrollbar-track {
-  background: #374151;
-}
-
-.dark ::-webkit-scrollbar-thumb {
-  background: #6b7280;
-}
-
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
-}
-
-/* Firefox 滚动条样式 */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 #f1f5f9;
-}
-
-.dark * {
-  scrollbar-color: #6b7280 #374151;
-}
-
 /* 确保设置面板的滚动条样式 */
 .overflow-y-auto {
   scrollbar-gutter: stable;

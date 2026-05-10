@@ -1,16 +1,13 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { Icon } from '@iconify/vue'
-import webExtensionPolyfill from 'webextension-polyfill'
 import { useSettingsStore } from '../store/modules/settings'
 import { storeToRefs } from 'pinia'
-
-// 使用 browser API
-const browser = webExtensionPolyfill
+import { getSearchUrl } from '@/config/searchEngines'
+import { getStorageValue } from '@/utils'
 
 const settings = useSettingsStore()
 const {
-  updateSetting,
   isSettingsLoaded,
   showTimeDisplay,
   showSearchHints,
@@ -22,23 +19,6 @@ const searchQuery = ref('')
 const currentTime = ref('')
 const currentDate = ref('')
 const greeting = ref('')
-
-// 搜索引擎配置
-const searchEngines = ref([
-  { name: '百度', value: 'baidu', url: 'https://www.baidu.com/s?wd={query}' },
-  {
-    name: 'Google',
-    value: 'google',
-    url: 'https://www.google.com/search?q={query}',
-  },
-  { name: '必应', value: 'bing', url: 'https://www.bing.com/search?q={query}' },
-  {
-    name: '搜狗',
-    value: 'sogou',
-    url: 'https://www.sogou.com/web?query={query}',
-  },
-  { name: '360搜索', value: '360', url: 'https://www.so.com/s?q={query}' },
-])
 const selectedEngine = ref('baidu')
 
 let timeInterval: ReturnType<typeof setInterval>
@@ -81,16 +61,8 @@ const handleSearch = () => {
       window.open(url, '_self')
     } else {
       // 使用自定义搜索引擎
-      const engine = searchEngines.value.find(
-        (e) => e.value === selectedEngine.value,
-      )
-      if (engine) {
-        const searchUrl = engine.url.replace(
-          '{query}',
-          encodeURIComponent(searchQuery.value),
-        )
-        window.open(searchUrl, '_self')
-      }
+      const searchUrl = getSearchUrl(selectedEngine.value, searchQuery.value)
+      window.open(searchUrl, '_self')
     }
   }
 }
@@ -98,22 +70,18 @@ const handleSearch = () => {
 // 加载设置
 const loadSettings = async () => {
   try {
-    // 优先从 local 读取
-    let result = await browser.storage.local.get(['searchEngine'])
-    if (!result.searchEngine) {
-      // local 没有再从 sync 兜底
-      result = await browser.storage.sync.get(['searchEngine'])
-    }
-    if (result.searchEngine && typeof result.searchEngine === 'string') {
-      selectedEngine.value = result.searchEngine
-    }
+    selectedEngine.value = await getStorageValue<string>(
+      'searchEngine',
+      'baidu',
+    )
   } catch (error) {
     console.error('加载设置失败:', error)
   }
 }
 
-watch(updateSetting, async () => {
-  await loadSettings()
+// 监听设置更新（通过 settingsStore 的响应式）
+const unwatch = settings.$subscribe(() => {
+  loadSettings()
 })
 
 onMounted(() => {
@@ -126,6 +94,7 @@ onUnmounted(() => {
   if (timeInterval) {
     clearInterval(timeInterval)
   }
+  unwatch()
 })
 </script>
 <template>
@@ -148,10 +117,10 @@ onUnmounted(() => {
           <h1 class="text-5xl font-bold text-gray-600 dark:text-gray-300 mb-4">
             {{ currentTime }}
           </h1>
-          <p class="text-xl text-gray-500 dark:text-gray-400 mb-2">
+          <p class="text-xl text-gray-600 dark:text-gray-300 mb-2">
             {{ currentDate }}
           </p>
-          <p class="text-lg text-gray-400 dark:text-gray-500">
+          <p class="text-lg text-gray-600 dark:text-gray-300">
             {{ greeting }}！
           </p>
         </div>
@@ -170,7 +139,7 @@ onUnmounted(() => {
           <!-- 搜索按钮 -->
           <button
             @click="handleSearch"
-            class="absolute cursor-pointer right-5 top-1/2 transform -translate-y-1/2 p-2 rounded-full bg-gradient-to-r from-blue-300 to-purple-300 dark:from-blue-400 dark:to-purple-400 text-white shadow-lg transition-all duration-300"
+            class="absolute cursor-pointer right-5 top-1/2 transform -translate-y-1/2 p-2 rounded-full bg-linear-to-r from-blue-300 to-purple-300 dark:from-blue-400 dark:to-purple-400 text-white shadow-lg transition-all duration-300"
           >
             <Icon icon="mdi:magnify" class="text-xl" />
           </button>
