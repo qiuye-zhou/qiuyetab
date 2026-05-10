@@ -1,41 +1,19 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import webExtensionPolyfill from 'webextension-polyfill'
-import { useSettingsStore } from '../../store/modules/settings'
-import { storeToRefs } from 'pinia'
+import { searchEngines } from '@/config/searchEngines'
+import { setStorageValue, getStorageValue } from '@/utils'
 
 const browser = webExtensionPolyfill
-
-const settings = useSettingsStore()
-const { updateSetting } = storeToRefs(settings)
-
-const searchEngines = ref([
-  { name: '百度', value: 'baidu', url: 'https://www.baidu.com/s?wd={query}' },
-  {
-    name: 'Google',
-    value: 'google',
-    url: 'https://www.google.com/search?q={query}',
-  },
-  { name: '必应', value: 'bing', url: 'https://www.bing.com/search?q={query}' },
-  {
-    name: '搜狗',
-    value: 'sogou',
-    url: 'https://www.sogou.com/web?query={query}',
-  },
-  { name: '360搜索', value: '360', url: 'https://www.so.com/s?q={query}' },
-])
 
 const selectedEngine = ref('baidu')
 
 const loadSettings = async () => {
   try {
-    let result = await browser.storage.local.get(['searchEngine'])
-    if (!result.searchEngine) {
-      result = await browser.storage.sync.get(['searchEngine'])
-    }
-    if (result.searchEngine && typeof result.searchEngine === 'string') {
-      selectedEngine.value = result.searchEngine
-    }
+    selectedEngine.value = await getStorageValue<string>(
+      'searchEngine',
+      'baidu',
+    )
   } catch (error) {
     console.error('加载设置失败:', error)
   }
@@ -43,9 +21,8 @@ const loadSettings = async () => {
 
 const saveSettings = async () => {
   try {
-    await browser.storage.local.set({ searchEngine: selectedEngine.value })
+    await setStorageValue('searchEngine', selectedEngine.value)
     await browser.storage.sync.set({ searchEngine: selectedEngine.value })
-    updateSetting.value = !updateSetting.value
   } catch (error) {
     console.error('保存设置失败:', error)
   }
