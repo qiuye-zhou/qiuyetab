@@ -54,7 +54,7 @@ export const compressImage = (
  */
 export const estimateBase64Size = (base64: string): number => {
   const base64Data = base64.split(',')[1]
-  return Math.floor(base64Data.length * 0.75)
+  return Math.floor((base64Data?.length || 0) * 0.75)
 }
 
 /**

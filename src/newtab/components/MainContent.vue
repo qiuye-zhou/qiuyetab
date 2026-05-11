@@ -254,7 +254,7 @@ onUnmounted(() => {
           <Transition name="suggestions">
             <div
               v-if="showSuggestions"
-              class="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden z-20 border border-gray-100 dark:border-gray-700 max-h-72"
+              class="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden z-20 border border-gray-100 dark:border-gray-700 max-h-72"
             >
               <div class="p-2 overflow-y-auto max-h-62">
                 <button
@@ -262,7 +262,7 @@ onUnmounted(() => {
                   :key="suggestion.text"
                   @click="handleSearch(suggestion.text)"
                   @mouseenter="selectedSuggestionIndex = index"
-                  class="w-full flex items-center px-4 py-3 rounded-xl text-left transition-all duration-200"
+                  class="w-full flex items-center px-3 py-2 rounded-xl text-left transition-all duration-200"
                   :class="[
                     selectedSuggestionIndex === index
                       ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
