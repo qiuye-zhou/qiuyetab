@@ -87,7 +87,9 @@ const handleSearch = async (query?: string) => {
       : `https://${searchText}`
     window.open(url, '_self')
   } else {
-    const searchUrl = getSearchUrl(selectedEngine.value, searchText)
+    // 搜索时实时获取最新的搜索引擎设置
+    const engine = await getStorageValue<string>('searchEngine', 'baidu')
+    const searchUrl = getSearchUrl(engine, searchText)
     window.open(searchUrl, '_self')
   }
 
