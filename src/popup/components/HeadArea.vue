@@ -1,22 +1,14 @@
 <script setup lang="ts">
 import { useGlobalStore } from '../store/modules/global'
 import { storeToRefs } from 'pinia'
-import SearchBox from './SearchBox.vue'
 import TimeClock from './TimeClock.vue'
 
 const global = useGlobalStore()
-const { appVersion, showSettings, showEditSites } = storeToRefs(global)
-
-const props = defineProps({
-  updateSettings: Boolean,
-})
+const { appVersion } = storeToRefs(global)
 </script>
 <template>
-  <div
-    v-show="!showSettings && !showEditSites"
-    class="p-4 border-b border-gray-200 dark:border-gray-700"
-  >
-    <div class="flex items-center justify-between mb-4">
+  <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+    <div class="flex items-center justify-between">
       <div>
         <div class="flex items-center gap-2 mb-1">
           <h1 class="text-xl font-bold text-gray-600 dark:text-green-300">
@@ -31,8 +23,5 @@ const props = defineProps({
       </div>
       <TimeClock />
     </div>
-
-    <!-- 搜索框 -->
-    <SearchBox :update-settings="props.updateSettings" />
   </div>
 </template>

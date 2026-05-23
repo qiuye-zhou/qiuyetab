@@ -4,7 +4,9 @@ import { Icon } from '@iconify/vue'
 import SearchSettings from './settings/SearchSettings.vue'
 import AppearanceSettings from './settings/AppearanceSettings.vue'
 import LayoutSettings from './settings/LayoutSettings.vue'
-import GeneralSettings from './settings/GeneralSettings.vue'
+import FavoriteSitesSettings from './settings/FavoriteSitesSettings.vue'
+import QuickActionsSettings from './settings/QuickActionsSettings.vue'
+import TabsManagementSettings from './settings/TabsManagementSettings.vue'
 
 interface Props {
   isOpen: boolean
@@ -25,7 +27,24 @@ const menuItems = ref([
     com: AppearanceSettings,
   },
   { id: 'layout', name: '布局', icon: 'mdi:view-grid', com: LayoutSettings },
-  { id: 'general', name: '通用', icon: 'mdi:cog', com: GeneralSettings },
+  {
+    id: 'favorites',
+    name: '常用网站',
+    icon: 'mdi:bookmark-outline',
+    com: FavoriteSitesSettings,
+  },
+  {
+    id: 'quick-actions',
+    name: '快捷操作',
+    icon: 'mdi:lightning-bolt',
+    com: QuickActionsSettings,
+  },
+  {
+    id: 'tabs',
+    name: '标签页',
+    icon: 'mdi:tab',
+    com: TabsManagementSettings,
+  },
 ])
 
 // 当前选中的设置页面
