@@ -10,6 +10,7 @@ import {
   getSearchSuggestions,
   addSearchHistory,
   removeSearchHistory,
+  isFaviconUrl,
 } from '@/utils'
 import type { SearchSuggestion } from '@/utils'
 import webExtensionPolyfill from 'webextension-polyfill'
@@ -356,9 +357,19 @@ onUnmounted(() => {
             class="flex flex-col items-center gap-2 group/site cursor-pointer"
           >
             <div
-              class="w-12 h-12 rounded-xl bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-600/50 flex items-center justify-center shadow-md group-hover/site:shadow-lg group-hover/site:scale-110 group-hover/site:border-gray-300 dark:group-hover/site:border-gray-500 transition-all duration-200"
+              class="w-12 h-12 rounded-xl bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-600/50 flex items-center justify-center shadow-md group-hover/site:shadow-lg group-hover/site:scale-110 group-hover/site:border-gray-300 dark:group-hover/site:border-gray-500 transition-all duration-200 overflow-hidden"
             >
+              <img
+                v-if="isFaviconUrl(site.favicon)"
+                :src="site.favicon"
+                :alt="site.name"
+                class="w-6 h-6"
+                @error="
+                  ($event.target as HTMLImageElement).style.display = 'none'
+                "
+              />
               <Icon
+                v-else
                 :icon="site.favicon"
                 class="text-xl text-gray-600 dark:text-gray-300"
               />

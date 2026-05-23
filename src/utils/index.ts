@@ -4,3 +4,5 @@ export * from './imageUtils'
 export * from './storage'
 // 导出搜索推荐工具
 export * from './searchSuggestions'
+// 导出 favicon 工具
+export * from './favicon'

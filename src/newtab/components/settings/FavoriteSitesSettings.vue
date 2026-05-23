@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { Icon } from '@iconify/vue'
 import webExtensionPolyfill from 'webextension-polyfill'
 import { defaultFavoriteSites, type FavoriteSite } from '@/config/defaultSites'
+import { fetchFavicon, isFaviconUrl } from '@/utils/favicon'
 
 const browser = webExtensionPolyfill
 
@@ -86,6 +87,21 @@ const cancelEdit = () => {
   isAddingNew.value = false
 }
 
+// 自动获取网站 favicon
+const fetchingFavicon = ref(false)
+const autoFetchFavicon = async () => {
+  if (!editingSite.value?.url) return
+  fetchingFavicon.value = true
+  try {
+    const faviconUrl = await fetchFavicon(editingSite.value.url)
+    if (faviconUrl) {
+      editingSite.value.favicon = faviconUrl
+    }
+  } finally {
+    fetchingFavicon.value = false
+  }
+}
+
 onMounted(() => {
   loadSites()
 })
@@ -110,9 +126,16 @@ onMounted(() => {
         class="flex items-center p-3 bg-white dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600"
       >
         <div
-          class="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-600 flex items-center justify-center flex-shrink-0"
+          class="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-600 flex items-center justify-center flex-shrink-0 overflow-hidden"
         >
+          <img
+            v-if="isFaviconUrl(site.favicon)"
+            :src="site.favicon"
+            :alt="site.name"
+            class="w-5 h-5"
+          />
           <Icon
+            v-else
             :icon="site.favicon"
             class="text-lg text-gray-600 dark:text-gray-300"
           />
@@ -201,14 +224,23 @@ onMounted(() => {
           class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1"
           >图标</label
         >
-        <input
-          v-model="editingSite.favicon"
-          type="text"
-          placeholder="mdi:web"
-          class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+        <div class="flex gap-2">
+          <input
+            v-model="editingSite.favicon"
+            type="text"
+            placeholder="mdi:web 或自动获取"
+            class="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            @click="autoFetchFavicon"
+            :disabled="!editingSite.url || fetchingFavicon"
+            class="px-3 py-2 text-sm bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-lg transition-colors whitespace-nowrap"
+          >
+            {{ fetchingFavicon ? '获取中...' : '自动获取' }}
+          </button>
+        </div>
         <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
-          使用 Material Design Icons 图标名称，如 mdi:github
+          输入图标名称(如 mdi:github) 或点击"自动获取"通过网址获取网站图标
         </p>
       </div>
 
