@@ -36,10 +36,6 @@ const backgroundOptions = ref([
 // 自定义背景URL输入
 const customBgUrl = ref('')
 
-// 本地背景文件
-const localBgFile = ref<File | null>(null)
-const localBgName = ref('')
-
 // 本地透明度值（用于滑块）
 const localOpacity = ref(0.8)
 
@@ -56,12 +52,7 @@ const handleThemeChange = async (newTheme: 'light' | 'dark' | 'auto') => {
 const handleBackgroundChange = async (
   newBackground: 'default' | 'custom' | 'local',
 ) => {
-  if (newBackground === 'local' && localBgFile.value) {
-    const blobUrl = URL.createObjectURL(localBgFile.value)
-    await settingsStore.setBackground(newBackground, blobUrl)
-  } else {
-    await settingsStore.setBackground(newBackground, customBgUrl.value)
-  }
+  await settingsStore.setBackground(newBackground, customBgUrl.value)
 }
 
 // 处理自定义背景URL变化
@@ -95,8 +86,6 @@ const handleLocalFileUpload = async (event: Event) => {
       return
     }
 
-    localBgFile.value = file
-    localBgName.value = file.name.replace(/\.[^/.]+$/, '') // 移除文件扩展名
     isCompressing.value = true
 
     try {
@@ -111,15 +100,11 @@ const handleLocalFileUpload = async (event: Event) => {
       }
 
       // 添加到背景列表
-      await settingsStore.addLocalBackground(
-        localBgName.value,
-        compressedBase64,
-      )
+      const fileName = file.name.replace(/\.[^/.]+$/, '')
+      await settingsStore.addLocalBackground(fileName, compressedBase64)
 
-      // 清空输入
-      localBgFile.value = null
-      localBgName.value = ''
-      target.value = '' // 清空文件输入
+      // 清空文件输入
+      target.value = ''
 
       // 更新存储信息
       await updateStorageInfo()
@@ -287,35 +272,6 @@ onMounted(async () => {
             支持 jpg、png、gif 等格式的图片链接
           </p>
         </div>
-
-        <!-- 背景透明度控制 -->
-        <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-            >背景透明度</label
-          >
-          <div class="flex items-center space-x-3">
-            <Icon icon="mdi:eye-off" class="text-gray-400 text-sm" />
-            <input
-              v-model="localOpacity"
-              @input="handleOpacityChange(Number(localOpacity))"
-              type="range"
-              min="0"
-              max="1"
-              step="0.1"
-              class="flex-1 h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
-            />
-            <Icon icon="mdi:eye" class="text-gray-400 text-sm" />
-            <span
-              class="text-sm text-gray-600 dark:text-gray-400 w-8 text-center"
-            >
-              {{ Math.round(localOpacity * 100) }}%
-            </span>
-          </div>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            调整背景的透明度，0%为完全看不到背景图片，100%为能完全看到背景图片
-          </p>
-        </div>
       </div>
 
       <!-- 多背景随机切换设置 -->
@@ -456,35 +412,38 @@ onMounted(async () => {
             💡 只有启用状态的背景图片会参与随机切换
           </p>
         </div>
+      </div>
 
-        <!-- 背景透明度控制 -->
-        <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-            >背景透明度</label
+      <!-- 背景透明度控制（自定义URL和本地背景共用） -->
+      <div
+        v-if="backgroundType === 'custom' || backgroundType === 'local'"
+        class="mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg"
+      >
+        <label
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >背景透明度</label
+        >
+        <div class="flex items-center space-x-3">
+          <Icon icon="mdi:eye-off" class="text-gray-400 text-sm" />
+          <input
+            v-model="localOpacity"
+            @input="handleOpacityChange(Number(localOpacity))"
+            type="range"
+            min="0"
+            max="1"
+            step="0.1"
+            class="flex-1 h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
+          />
+          <Icon icon="mdi:eye" class="text-gray-400 text-sm" />
+          <span
+            class="text-sm text-gray-600 dark:text-gray-400 w-8 text-center"
           >
-          <div class="flex items-center space-x-3">
-            <Icon icon="mdi:eye-off" class="text-gray-400 text-sm" />
-            <input
-              v-model="localOpacity"
-              @input="handleOpacityChange(Number(localOpacity))"
-              type="range"
-              min="0"
-              max="1"
-              step="0.1"
-              class="flex-1 h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
-            />
-            <Icon icon="mdi:eye" class="text-gray-400 text-sm" />
-            <span
-              class="text-sm text-gray-600 dark:text-gray-400 w-8 text-center"
-            >
-              {{ Math.round(localOpacity * 100) }}%
-            </span>
-          </div>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            调整背景的透明度，0%为完全看不到背景图片，100%为能完全看到背景图片
-          </p>
+            {{ Math.round(localOpacity * 100) }}%
+          </span>
         </div>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          调整背景的透明度，0%为完全看不到背景图片，100%为能完全看到背景图片
+        </p>
       </div>
     </div>
   </div>

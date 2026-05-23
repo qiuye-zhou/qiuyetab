@@ -4,6 +4,8 @@ import { Icon } from '@iconify/vue'
 import webExtensionPolyfill from 'webextension-polyfill'
 import { useGlobalStore } from '../store/modules/global'
 import { storeToRefs } from 'pinia'
+import { searchEngines } from '@/config/searchEngines'
+import { defaultFavoriteSites, type FavoriteSite } from '@/config/defaultSites'
 
 const global = useGlobalStore()
 const { showSettings, showEditSites } = storeToRefs(global)
@@ -14,41 +16,13 @@ const emit = defineEmits(['update-settings'])
 const browser = webExtensionPolyfill
 
 // 设置相关
-const searchEngines = ref([
-  { name: '百度', value: 'baidu', url: 'https://www.baidu.com/s?wd={query}' },
-  {
-    name: 'Google',
-    value: 'google',
-    url: 'https://www.google.com/search?q={query}',
-  },
-  { name: '必应', value: 'bing', url: 'https://www.bing.com/search?q={query}' },
-  {
-    name: '搜狗',
-    value: 'sogou',
-    url: 'https://www.sogou.com/web?query={query}',
-  },
-  { name: '360搜索', value: '360', url: 'https://www.so.com/s?q={query}' },
-])
 const selectedEngine = ref('baidu')
 
 // 常用网站编辑相关
-const editingSite = ref<{
-  id?: number
-  name: string
-  url: string
-  favicon: string
-} | null>(null)
+const editingSite = ref<FavoriteSite | null>(null)
 const isAddingNew = ref(false)
 
-const recentSites = ref([
-  { id: 1, name: 'GitHub', url: 'https://github.com', favicon: 'mdi:github' },
-  {
-    id: 2,
-    name: 'TypeScript',
-    url: 'https://www.typescriptlang.org',
-    favicon: 'simple-icons:typescript',
-  },
-])
+const recentSites = ref<FavoriteSite[]>([...defaultFavoriteSites])
 
 // 加载设置
 const loadSettings = async () => {
@@ -117,12 +91,7 @@ const addNewSite = () => {
 }
 
 // 编辑网站
-const editSite = (site: {
-  id: number
-  name: string
-  url: string
-  favicon: string
-}) => {
+const editSite = (site: FavoriteSite) => {
   isAddingNew.value = false
   editingSite.value = { ...site }
   showEditSites.value = true
@@ -152,7 +121,7 @@ const saveEditedSite = async () => {
     recentSites.value.push({
       ...editingSite.value,
       id: newId,
-    } as { id: number; name: string; url: string; favicon: string })
+    } as FavoriteSite)
   } else {
     // 更新现有网站
     const index = recentSites.value.findIndex(

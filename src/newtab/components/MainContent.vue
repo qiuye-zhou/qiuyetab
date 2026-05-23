@@ -208,10 +208,10 @@ onUnmounted(() => {
     <Transition name="search-slide" mode="out-in">
       <div
         v-if="isSettingsLoaded"
-        class="fixed left-1/2 transform -translate-x-1/2 w-full max-w-2xl px-6 z-10"
+        class="fixed left-1/2 w-full max-w-2xl px-6 z-10"
         :style="{
           top: `${searchBarPositionY}%`,
-          transform: `translate(0%, -${searchBarPositionY}%)`,
+          transform: `translate(-50%, -${searchBarPositionY}%)`,
         }"
       >
         <!-- 时间显示 -->
@@ -232,7 +232,6 @@ onUnmounted(() => {
 
         <div class="search-container relative group">
           <input
-            ref="searchInputRef"
             v-model="searchQuery"
             @keydown="handleKeydown"
             type="text"
@@ -380,29 +379,12 @@ h1 {
 /* 搜索栏位置切换动画 */
 .search-slide-enter-active,
 .search-slide-leave-active {
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.search-slide-enter-from {
-  opacity: 0;
-  transform: translate(-50%, -50%) scale(0.95);
-}
-
+.search-slide-enter-from,
 .search-slide-leave-to {
   opacity: 0;
-  transform: translate(-50%, -50%) scale(0.95);
-}
-
-.search-slide-enter-to,
-.search-slide-leave-from {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
-}
-
-/* 搜索栏位置变化动画 */
-.search-slide-enter-active > div,
-.search-slide-leave-active > div {
-  transition: top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* 搜索推荐下拉列表动画 */

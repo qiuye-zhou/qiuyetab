@@ -2,6 +2,10 @@
  * 搜索推荐预测工具
  */
 
+import webExtensionPolyfill from 'webextension-polyfill'
+
+const browser = webExtensionPolyfill
+
 // 热门搜索词（模拟数据，实际应用中可以从API获取）
 const hotSearchKeywords: string[] = []
 
@@ -69,7 +73,6 @@ export const getSearchSuggestions = async (
  */
 export const getSearchHistory = async (): Promise<string[]> => {
   try {
-    // eslint-disable-next-line no-undef
     const result = await browser.storage.local.get([SEARCH_HISTORY_KEY])
     return (result[SEARCH_HISTORY_KEY] as string[]) || []
   } catch (error) {
@@ -97,7 +100,6 @@ export const addSearchHistory = async (query: string): Promise<void> => {
     filtered.unshift(trimmedQuery)
     // 限制数量
     const limited = filtered.slice(0, MAX_HISTORY_COUNT)
-    // eslint-disable-next-line no-undef
     await browser.storage.local.set({ [SEARCH_HISTORY_KEY]: limited })
   } catch (error) {
     console.error('保存搜索历史失败:', error)
@@ -112,7 +114,6 @@ export const removeSearchHistory = async (query: string): Promise<void> => {
   try {
     const history = await getSearchHistory()
     const filtered = history.filter((item) => item !== query)
-    // eslint-disable-next-line no-undef
     await browser.storage.local.set({ [SEARCH_HISTORY_KEY]: filtered })
   } catch (error) {
     console.error('删除搜索历史失败:', error)
@@ -124,7 +125,6 @@ export const removeSearchHistory = async (query: string): Promise<void> => {
  */
 export const clearSearchHistory = async (): Promise<void> => {
   try {
-    // eslint-disable-next-line no-undef
     await browser.storage.local.remove(SEARCH_HISTORY_KEY)
   } catch (error) {
     console.error('清除搜索历史失败:', error)

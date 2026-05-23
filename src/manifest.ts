@@ -25,7 +25,6 @@ export async function getManifest() {
       128: './assets/logo.png',
     },
     permissions: ['tabs', 'storage', 'activeTab', 'sidePanel'],
-    host_permissions: ['*://*/*'],
     content_security_policy: {
       extension_pages: isDev
         ? // 开发模式下，允许加载未经验证的内容脚本，以方便调试

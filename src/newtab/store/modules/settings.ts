@@ -30,6 +30,9 @@ export const useSettingsStore = defineStore('settings', () => {
   const theme = ref<'light' | 'dark' | 'auto'>('light')
   const isDarkMode = ref(false)
 
+  // 系统主题变化监听器引用（用于清理）
+  let mediaQueryCleanup: (() => void) | null = null
+
   // 背景设置
   const backgroundType = ref<'default' | 'custom' | 'local'>('default')
   const customBackground = ref('')
@@ -149,6 +152,12 @@ export const useSettingsStore = defineStore('settings', () => {
   const applyTheme = () => {
     const root = document.documentElement
 
+    // 先清理之前的系统主题监听器
+    if (mediaQueryCleanup) {
+      mediaQueryCleanup()
+      mediaQueryCleanup = null
+    }
+
     if (theme.value === 'auto') {
       // 自动模式：根据系统偏好设置
       const prefersDark = window.matchMedia(
@@ -178,10 +187,10 @@ export const useSettingsStore = defineStore('settings', () => {
         }
       }
 
-      // 移除旧的监听器
-      mediaQuery.removeEventListener('change', handleChange)
-      // 添加新的监听器
       mediaQuery.addEventListener('change', handleChange)
+      // 保存清理函数以便下次移除
+      mediaQueryCleanup = () =>
+        mediaQuery.removeEventListener('change', handleChange)
     }
   }
 

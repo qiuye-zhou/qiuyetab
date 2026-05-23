@@ -54,13 +54,7 @@ export default defineConfig(({ command }) => ({
       host: 'localhost',
     },
     origin: `http://localhost:${port}`,
-    proxy: {
-      '/api': {
-        target: '',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
-      },
-    },
+    proxy: {},
   },
   build: {
     watch: isDev ? {} : undefined,

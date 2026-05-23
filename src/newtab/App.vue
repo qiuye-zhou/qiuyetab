@@ -180,7 +180,7 @@ onUnmounted(() => {
   background-position: center;
   background-repeat: no-repeat;
   opacity: var(--bg-opacity);
-  z-index: 1;
+  z-index: 0;
   pointer-events: none;
 }
 /* 背景装饰 - 仅在默认背景时显示 */

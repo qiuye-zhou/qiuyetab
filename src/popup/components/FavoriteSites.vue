@@ -4,6 +4,7 @@ import { Icon } from '@iconify/vue'
 import webExtensionPolyfill from 'webextension-polyfill'
 import { useGlobalStore } from '../store/modules/global'
 import { storeToRefs } from 'pinia'
+import { defaultFavoriteSites, type FavoriteSite } from '@/config/defaultSites'
 
 const global = useGlobalStore()
 const { showSettings, showEditSites } = storeToRefs(global)
@@ -15,15 +16,7 @@ const props = defineProps({
 // 使用 browser API
 const browser = webExtensionPolyfill
 
-const recentSites = ref([
-  { id: 1, name: 'GitHub', url: 'https://github.com', favicon: 'mdi:github' },
-  {
-    id: 2,
-    name: 'TypeScript',
-    url: 'https://www.typescriptlang.org',
-    favicon: 'simple-icons:typescript',
-  },
-])
+const recentSites = ref<FavoriteSite[]>([...defaultFavoriteSites])
 
 // 打开网站
 const openSite = (url: string) => {

@@ -8,6 +8,7 @@ import HeadArea from './components/HeadArea.vue'
 import QuickOperation from './components/QuickOperation.vue'
 import SettingsPanel from './components/SettingsPanel.vue'
 import FavoriteSites from './components/FavoriteSites.vue'
+import { defaultFavoriteSites } from '@/config/defaultSites'
 
 // 使用 browser API
 const browser = webExtensionPolyfill
@@ -43,25 +44,10 @@ const initializeDefaultSettings = async () => {
       !syncResult.searchEngine &&
       !syncResult.favoriteSites
     ) {
-      const defaultData = {
+      await browser.storage.local.set({
         searchEngine: 'baidu',
-        favoriteSites: [
-          {
-            id: 1,
-            name: 'GitHub',
-            url: 'https://github.com',
-            favicon: 'mdi:github',
-          },
-          {
-            id: 2,
-            name: 'TypeScript',
-            url: 'https://www.typescriptlang.org',
-            favicon: 'simple-icons:typescript',
-          },
-        ],
-      }
-
-      await browser.storage.local.set(defaultData)
+        favoriteSites: defaultFavoriteSites,
+      })
     }
   } catch (error) {
     console.error('初始化默认设置失败:', error)
