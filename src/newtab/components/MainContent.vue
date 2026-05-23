@@ -4,6 +4,7 @@ import { Icon } from '@iconify/vue'
 import { useSettingsStore } from '../store/modules/settings'
 import { storeToRefs } from 'pinia'
 import { getSearchUrl } from '@/config/searchEngines'
+import { defaultFavoriteSites, type FavoriteSite } from '@/config/defaultSites'
 import {
   getStorageValue,
   getSearchSuggestions,
@@ -11,14 +12,13 @@ import {
   removeSearchHistory,
 } from '@/utils'
 import type { SearchSuggestion } from '@/utils'
+import webExtensionPolyfill from 'webextension-polyfill'
+
+const browser = webExtensionPolyfill
 
 const settings = useSettingsStore()
-const {
-  isSettingsLoaded,
-  showTimeDisplay,
-  showSearchHints,
-  searchBarPositionY,
-} = storeToRefs(settings)
+const { isSettingsLoaded, showTimeDisplay, searchBarPositionY } =
+  storeToRefs(settings)
 
 // 响应式数据
 const searchQuery = ref('')
@@ -29,6 +29,9 @@ const selectedEngine = ref('baidu')
 const suggestions = ref<SearchSuggestion[]>([])
 const showSuggestions = ref(false)
 const selectedSuggestionIndex = ref(-1)
+
+// 常用网站
+const favoriteSites = ref<FavoriteSite[]>([...defaultFavoriteSites])
 
 let timeInterval: ReturnType<typeof setInterval>
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
@@ -174,6 +177,45 @@ const loadSettings = async () => {
   }
 }
 
+// 加载常用网站
+const loadFavoriteSites = async () => {
+  try {
+    const result = await browser.storage.local.get(['favoriteSites'])
+    let sites = result.favoriteSites
+
+    // 如果 local 没有，尝试 sync
+    if (!sites) {
+      const syncResult = await browser.storage.sync.get(['favoriteSites'])
+      sites = syncResult.favoriteSites
+    }
+
+    if (Array.isArray(sites)) {
+      favoriteSites.value = sites.length > 0 ? sites : [...defaultFavoriteSites]
+    } else if (sites && typeof sites === 'object') {
+      // 对象格式转数组
+      const arr = Object.values(sites)
+      favoriteSites.value =
+        arr.length > 0 ? (arr as FavoriteSite[]) : [...defaultFavoriteSites]
+    }
+  } catch (error) {
+    console.error('加载常用网站失败:', error)
+  }
+}
+
+// 监听 storage 变化，实时同步设置
+const handleStorageChange = (
+  changes: Record<string, { newValue?: unknown }>,
+) => {
+  if (changes.favoriteSites) {
+    loadFavoriteSites()
+  }
+}
+
+// 打开常用网站
+const openSite = (url: string) => {
+  window.open(url, '_self')
+}
+
 // 监听搜索词变化
 watch(searchQuery, (newQuery) => {
   fetchSuggestions(newQuery)
@@ -188,7 +230,9 @@ onMounted(() => {
   updateTime()
   timeInterval = setInterval(updateTime, 1000)
   loadSettings()
+  loadFavoriteSites()
   document.addEventListener('click', handleClickOutside)
+  browser.storage.onChanged.addListener(handleStorageChange)
 })
 
 onUnmounted(() => {
@@ -200,6 +244,7 @@ onUnmounted(() => {
   }
   unwatch()
   document.removeEventListener('click', handleClickOutside)
+  browser.storage.onChanged.removeListener(handleStorageChange)
 })
 </script>
 <template>
@@ -299,24 +344,31 @@ onUnmounted(() => {
           </Transition>
         </div>
 
-        <!-- 搜索提示 -->
+        <!-- 常用网站快捷方式 -->
         <div
-          v-if="showSearchHints"
-          class="text-center text-sm text-gray-500 dark:text-gray-400 space-y-2 mt-4"
+          v-if="favoriteSites.length > 0"
+          class="flex items-center justify-center gap-4 mt-8 flex-wrap"
         >
-          <p class="opacity-80">输入关键词搜索，或直接输入网址访问</p>
-          <div
-            class="flex items-center justify-center space-x-4 text-xs opacity-60"
+          <button
+            v-for="site in favoriteSites"
+            :key="site.id"
+            @click="openSite(site.url)"
+            class="flex flex-col items-center gap-2 group/site cursor-pointer"
           >
-            <span class="flex items-center">
-              <kbd
-                class="px-2 py-1 bg-gray-100/50 dark:bg-gray-700/90 rounded text-gray-500 dark:text-gray-400 font-mono"
-              >
-                Enter
-              </kbd>
-              <span class="ml-1">搜索</span>
+            <div
+              class="w-12 h-12 rounded-xl bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-600/50 flex items-center justify-center shadow-md group-hover/site:shadow-lg group-hover/site:scale-110 group-hover/site:border-gray-300 dark:group-hover/site:border-gray-500 transition-all duration-200"
+            >
+              <Icon
+                :icon="site.favicon"
+                class="text-xl text-gray-600 dark:text-gray-300"
+              />
+            </div>
+            <span
+              class="text-xs text-gray-500 dark:text-gray-400 group-hover/site:text-gray-700 dark:group-hover/site:text-gray-200 transition-colors duration-200 max-w-14 truncate"
+            >
+              {{ site.name }}
             </span>
-          </div>
+          </button>
         </div>
       </div>
     </Transition>
