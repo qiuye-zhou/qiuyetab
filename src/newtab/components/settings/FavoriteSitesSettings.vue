@@ -184,81 +184,111 @@ onMounted(() => {
       <span class="text-sm">添加网站</span>
     </button>
 
-    <!-- 编辑/添加 表单 -->
-    <div
-      v-if="editingSite"
-      class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 space-y-4"
-    >
-      <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">
-        {{ isAddingNew ? '添加网站' : '编辑网站' }}
-      </h4>
-
-      <div>
-        <label
-          class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1"
-          >网站名称</label
+    <!-- 编辑/添加 弹窗 -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div
+          v-if="editingSite"
+          class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          @click.self="cancelEdit"
+          @keyup.escape="cancelEdit"
         >
-        <input
-          v-model="editingSite.name"
-          type="text"
-          placeholder="输入网站名称"
-          class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
-
-      <div>
-        <label
-          class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1"
-          >网站地址</label
-        >
-        <input
-          v-model="editingSite.url"
-          type="text"
-          placeholder="https://example.com"
-          class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
-
-      <div>
-        <label
-          class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1"
-          >图标</label
-        >
-        <div class="flex gap-2">
-          <input
-            v-model="editingSite.favicon"
-            type="text"
-            placeholder="mdi:web 或自动获取"
-            class="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button
-            @click="autoFetchFavicon"
-            :disabled="!editingSite.url || fetchingFavicon"
-            class="px-3 py-2 text-sm bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-lg transition-colors whitespace-nowrap"
+          <div
+            class="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 w-full max-w-md space-y-4"
+            @click.stop
           >
-            {{ fetchingFavicon ? '获取中...' : '自动获取' }}
-          </button>
-        </div>
-        <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
-          输入图标名称(如 mdi:github) 或点击"自动获取"通过网址获取网站图标
-        </p>
-      </div>
+            <h4 class="text-base font-semibold text-gray-800 dark:text-gray-200">
+              {{ isAddingNew ? '添加网站' : '编辑网站' }}
+            </h4>
 
-      <div class="flex space-x-3">
-        <button
-          @click="saveEditedSite"
-          :disabled="!editingSite.name || !editingSite.url"
-          class="flex-1 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-2 px-4 rounded-lg text-sm transition-colors"
-        >
-          保存
-        </button>
-        <button
-          @click="cancelEdit"
-          class="flex-1 bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 py-2 px-4 rounded-lg text-sm transition-colors"
-        >
-          取消
-        </button>
-      </div>
-    </div>
+            <div>
+              <label
+                class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1"
+                >网站名称</label
+              >
+              <input
+                v-model="editingSite.name"
+                type="text"
+                placeholder="输入网站名称"
+                class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label
+                class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1"
+                >网站地址</label
+              >
+              <input
+                v-model="editingSite.url"
+                type="text"
+                placeholder="https://example.com"
+                class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label
+                class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1"
+                >图标</label
+              >
+              <div class="flex gap-2">
+                <input
+                  v-model="editingSite.favicon"
+                  type="text"
+                  placeholder="mdi:web 或自动获取"
+                  class="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button
+                  @click="autoFetchFavicon"
+                  :disabled="!editingSite.url || fetchingFavicon"
+                  class="px-3 py-2 text-sm bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-lg transition-colors whitespace-nowrap"
+                >
+                  {{ fetchingFavicon ? '获取中...' : '自动获取' }}
+                </button>
+              </div>
+              <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                输入图标名称(如 mdi:github) 或点击"自动获取"通过网址获取网站图标
+              </p>
+            </div>
+
+            <div class="flex space-x-3 pt-2">
+              <button
+                @click="saveEditedSite"
+                :disabled="!editingSite.name || !editingSite.url"
+                class="flex-1 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-2 px-4 rounded-lg text-sm transition-colors"
+              >
+                保存
+              </button>
+              <button
+                @click="cancelEdit"
+                class="flex-1 bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 py-2 px-4 rounded-lg text-sm transition-colors"
+              >
+                取消
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
+
+<style scoped>
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.2s ease;
+}
+.modal-enter-active > div,
+.modal-leave-active > div {
+  transition: transform 0.2s ease;
+}
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+.modal-enter-from > div,
+.modal-leave-to > div {
+  transform: scale(0.95);
+}
+</style>
