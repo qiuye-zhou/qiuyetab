@@ -14,27 +14,39 @@ export function isFaviconUrl(favicon: string): boolean {
 }
 
 /**
+ * 通过 background service worker 代理 fetch，避免 CORS 限制
+ */
+function proxyFetch(url: string): Promise<{ ok: boolean; text?: string }> {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage({ type: 'fetch-url', url }, (res) => {
+      if (chrome.runtime.lastError) {
+        resolve({ ok: false })
+      } else {
+        resolve(res)
+      }
+    })
+  })
+}
+
+/**
  * 从网站获取 favicon URL
- * 先尝试解析页面 HTML 中的 <link rel="icon">，找不到则用 /favicon.ico
+ * 先尝试通过 background 解析页面 HTML 中的 <link rel="icon">，找不到则用 /favicon.ico
  */
 export async function fetchFavicon(url: string): Promise<string> {
   try {
     const urlObj = new URL(url)
     const origin = urlObj.origin
 
-    // 先尝试获取页面 HTML 解析 favicon 链接
     try {
-      const response = await fetch(url, { credentials: 'include' })
-      if (response.ok) {
-        const html = await response.text()
-        const faviconUrl = parseFaviconFromHtml(html, origin)
+      const res = await proxyFetch(url)
+      if (res.ok && res.text) {
+        const faviconUrl = parseFaviconFromHtml(res.text, origin)
         if (faviconUrl) return faviconUrl
       }
     } catch {
-      // 跨域失败，忽略
+      // 忽略
     }
 
-    // 回退到 /favicon.ico
     return `${origin}/favicon.ico`
   } catch {
     return ''

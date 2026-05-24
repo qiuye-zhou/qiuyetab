@@ -9,3 +9,10 @@ declare module '*.vue' {
   const component: DefineComponent<object, object, any>
   export default component
 }
+
+declare const chrome: {
+  runtime: {
+    sendMessage(message: any, callback?: (response: any) => void): void
+    lastError?: { message: string }
+  }
+}
