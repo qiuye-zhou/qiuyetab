@@ -17,6 +17,10 @@ import webExtensionPolyfill from 'webextension-polyfill'
 
 const browser = webExtensionPolyfill
 
+defineEmits<{
+  openFavoriteSettings: []
+}>()
+
 const settings = useSettingsStore()
 const { isSettingsLoaded, showTimeDisplay, searchBarPositionY } =
   storeToRefs(settings)
@@ -347,7 +351,6 @@ onUnmounted(() => {
 
         <!-- 常用网站快捷方式 -->
         <div
-          v-if="favoriteSites.length > 0"
           class="flex items-center justify-center gap-4 mt-8 flex-wrap"
         >
           <button
@@ -378,6 +381,25 @@ onUnmounted(() => {
               class="text-xs text-gray-500 dark:text-gray-400 group-hover/site:text-gray-700 dark:group-hover/site:text-gray-200 transition-colors duration-200 max-w-14 truncate"
             >
               {{ site.name }}
+            </span>
+          </button>
+          <!-- 添加快捷方式按钮 -->
+          <button
+            @click="$emit('openFavoriteSettings')"
+            class="flex flex-col items-center gap-2 group/add cursor-pointer"
+          >
+            <div
+              class="w-12 h-12 rounded-xl bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm border-2 border-dashed border-gray-300/70 dark:border-gray-600/70 flex items-center justify-center group-hover/add:border-blue-400 dark:group-hover/add:border-blue-500 group-hover/add:bg-blue-50/50 dark:group-hover/add:bg-blue-900/20 transition-all duration-200"
+            >
+              <Icon
+                icon="mdi:plus"
+                class="text-xl text-gray-400 dark:text-gray-500 group-hover/add:text-blue-500 dark:group-hover/add:text-blue-400 transition-colors duration-200"
+              />
+            </div>
+            <span
+              class="text-xs text-gray-400 dark:text-gray-500 group-hover/add:text-blue-500 dark:group-hover/add:text-blue-400 transition-colors duration-200"
+            >
+              添加
             </span>
           </button>
         </div>

@@ -17,6 +17,7 @@ const {
 
 // 设置面板状态
 const isSettingsOpen = ref(false)
+const settingsPage = ref('')
 
 // 切换设置面板
 const toggleSettings = () => {
@@ -26,6 +27,12 @@ const toggleSettings = () => {
 // 关闭设置面板
 const closeSettings = () => {
   isSettingsOpen.value = false
+}
+
+// 打开设置面板到指定页面
+const openSettingsPage = (page: string) => {
+  settingsPage.value = page
+  isSettingsOpen.value = true
 }
 
 // 计算背景样式
@@ -159,10 +166,10 @@ onUnmounted(() => {
     </button>
 
     <!-- 主要内容区域 -->
-    <MainContent></MainContent>
+    <MainContent @open-favorite-settings="openSettingsPage('favorites')"></MainContent>
 
     <!-- 设置面板 -->
-    <SettingsPanel :is-open="isSettingsOpen" @close="closeSettings" />
+    <SettingsPanel :is-open="isSettingsOpen" :default-page="settingsPage" @close="closeSettings" />
   </div>
 </template>
 
