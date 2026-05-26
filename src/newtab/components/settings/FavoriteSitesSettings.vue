@@ -13,6 +13,40 @@ const sites = ref<FavoriteSite[]>([...defaultFavoriteSites])
 const editingSite = ref<FavoriteSite | null>(null)
 const isAddingNew = ref(false)
 
+// 拖拽排序状态
+const dragIndex = ref<number | null>(null)
+const dragOverIndex = ref<number | null>(null)
+
+const onDragStart = (index: number) => {
+  dragIndex.value = index
+}
+
+const onDragOver = (e: DragEvent, index: number) => {
+  e.preventDefault()
+  if (dragIndex.value !== null && dragIndex.value !== index) {
+    dragOverIndex.value = index
+  }
+}
+
+const onDragLeave = () => {
+  dragOverIndex.value = null
+}
+
+const onDrop = async (index: number) => {
+  if (dragIndex.value !== null && dragIndex.value !== index) {
+    const item = sites.value.splice(dragIndex.value, 1)[0]
+    sites.value.splice(index, 0, item)
+    await saveSites()
+  }
+  dragIndex.value = null
+  dragOverIndex.value = null
+}
+
+const onDragEnd = () => {
+  dragIndex.value = null
+  dragOverIndex.value = null
+}
+
 // 加载常用网站
 const loadSites = async () => {
   try {
@@ -121,10 +155,26 @@ onMounted(() => {
     <!-- 网站列表 -->
     <div class="space-y-2">
       <div
-        v-for="site in sites"
+        v-for="(site, index) in sites"
         :key="site.id"
-        class="flex items-center p-3 bg-white dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600"
+        draggable="true"
+        @dragstart="onDragStart(index)"
+        @dragover="(e: DragEvent) => onDragOver(e, index)"
+        @dragleave="onDragLeave"
+        @drop="onDrop(index)"
+        @dragend="onDragEnd"
+        :class="[
+          'flex items-center p-3 bg-white dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 transition-all duration-150',
+          dragIndex === index ? 'opacity-40 scale-95' : '',
+          dragOverIndex === index && dragIndex !== index ? 'border-blue-400 dark:border-blue-500 shadow-md -translate-y-0.5' : '',
+        ]"
       >
+        <div
+          class="cursor-grab active:cursor-grabbing p-1 mr-1 text-gray-300 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-300 transition-colors"
+          title="拖动排序"
+        >
+          <Icon icon="mdi:drag-vertical" class="text-lg" />
+        </div>
         <div
           class="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-600 flex items-center justify-center flex-shrink-0 overflow-hidden"
         >
