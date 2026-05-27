@@ -128,7 +128,7 @@ const autoFetchFavicon = async () => {
   fetchingFavicon.value = true
   try {
     const faviconUrl = await fetchFavicon(editingSite.value.url)
-    if (faviconUrl) {
+    if (faviconUrl && editingSite.value) {
       editingSite.value.favicon = faviconUrl
     }
   } finally {

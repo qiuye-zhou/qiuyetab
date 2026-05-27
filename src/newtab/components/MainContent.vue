@@ -38,6 +38,48 @@ const selectedSuggestionIndex = ref(-1)
 // 常用网站
 const favoriteSites = ref<FavoriteSite[]>([...defaultFavoriteSites])
 
+// 拖拽排序状态
+const dragIndex = ref<number | null>(null)
+const dragOverIndex = ref<number | null>(null)
+
+const onDragStart = (index: number) => {
+  dragIndex.value = index
+}
+
+const onDragOver = (e: DragEvent, index: number) => {
+  e.preventDefault()
+  if (dragIndex.value !== null && dragIndex.value !== index) {
+    dragOverIndex.value = index
+  }
+}
+
+const onDragLeave = () => {
+  dragOverIndex.value = null
+}
+
+const onDrop = async (index: number) => {
+  if (dragIndex.value !== null && dragIndex.value !== index) {
+    const [item] = favoriteSites.value.splice(dragIndex.value, 1)
+    if (item) favoriteSites.value.splice(index, 0, item)
+    await saveFavoriteSites()
+  }
+  dragIndex.value = null
+  dragOverIndex.value = null
+}
+
+const onDragEnd = () => {
+  dragIndex.value = null
+  dragOverIndex.value = null
+}
+
+const saveFavoriteSites = async () => {
+  try {
+    await browser.storage.local.set({ favoriteSites: favoriteSites.value })
+  } catch (error) {
+    console.error('保存常用网站失败:', error)
+  }
+}
+
 let timeInterval: ReturnType<typeof setInterval>
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -350,17 +392,32 @@ onUnmounted(() => {
         </div>
 
         <!-- 常用网站快捷方式 -->
-        <div
-          class="flex items-center justify-center gap-4 mt-8 flex-wrap"
-        >
-          <button
-            v-for="site in favoriteSites"
+        <div class="flex items-center justify-center gap-4 mt-8 flex-wrap">
+          <div
+            v-for="(site, index) in favoriteSites"
             :key="site.id"
-            @click="openSite(site.url)"
-            class="flex flex-col items-center gap-2 group/site cursor-pointer"
+            draggable="true"
+            @dragstart="onDragStart(index)"
+            @dragover="(e: DragEvent) => onDragOver(e, index)"
+            @dragleave="onDragLeave"
+            @drop="onDrop(index)"
+            @dragend="onDragEnd"
+            class="flex flex-col items-center gap-2 group/site cursor-pointer transition-all duration-150"
+            :class="[
+              dragIndex === index ? 'opacity-40 scale-90' : '',
+              dragOverIndex === index && dragIndex !== index
+                ? 'scale-110 -translate-y-1'
+                : '',
+            ]"
           >
             <div
               class="w-12 h-12 rounded-xl bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-600/50 flex items-center justify-center shadow-md group-hover/site:shadow-lg group-hover/site:scale-110 group-hover/site:border-gray-300 dark:group-hover/site:border-gray-500 transition-all duration-200 overflow-hidden"
+              :class="[
+                dragOverIndex === index && dragIndex !== index
+                  ? 'ring-2 ring-blue-400 dark:ring-blue-500 border-blue-400 dark:border-blue-500'
+                  : '',
+              ]"
+              @click="openSite(site.url)"
             >
               <img
                 v-if="isFaviconUrl(site.favicon)"
@@ -379,10 +436,11 @@ onUnmounted(() => {
             </div>
             <span
               class="text-xs text-gray-500 dark:text-gray-400 group-hover/site:text-gray-700 dark:group-hover/site:text-gray-200 transition-colors duration-200 max-w-14 truncate"
+              @click="openSite(site.url)"
             >
               {{ site.name }}
             </span>
-          </button>
+          </div>
           <!-- 添加快捷方式按钮 -->
           <button
             @click="$emit('openFavoriteSettings')"
