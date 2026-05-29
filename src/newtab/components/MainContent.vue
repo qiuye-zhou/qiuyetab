@@ -4,7 +4,6 @@ import { Icon } from '@iconify/vue'
 import { useSettingsStore } from '../store/modules/settings'
 import { storeToRefs } from 'pinia'
 import { getSearchUrl } from '@/config/searchEngines'
-import { defaultFavoriteSites, type FavoriteSite } from '@/config/defaultSites'
 import {
   getStorageValue,
   getSearchSuggestions,
@@ -13,9 +12,8 @@ import {
   isFaviconUrl,
 } from '@/utils'
 import type { SearchSuggestion } from '@/utils'
-import webExtensionPolyfill from 'webextension-polyfill'
-
-const browser = webExtensionPolyfill
+import { useFavoriteSites } from '@/composables/useFavoriteSites'
+import { useDragSort } from '@/composables/useDragSort'
 
 defineEmits<{
   openFavoriteSettings: []
@@ -30,55 +28,29 @@ const searchQuery = ref('')
 const currentTime = ref('')
 const currentDate = ref('')
 const greeting = ref('')
-const selectedEngine = ref('baidu')
 const suggestions = ref<SearchSuggestion[]>([])
 const showSuggestions = ref(false)
 const selectedSuggestionIndex = ref(-1)
 
 // 常用网站
-const favoriteSites = ref<FavoriteSite[]>([...defaultFavoriteSites])
+const {
+  sites: favoriteSites,
+  loadSites: loadFavoriteSites,
+  saveSites: saveFavoriteSites,
+  startWatching,
+  stopWatching,
+} = useFavoriteSites({ watchChanges: true })
 
-// 拖拽排序状态
-const dragIndex = ref<number | null>(null)
-const dragOverIndex = ref<number | null>(null)
-
-const onDragStart = (index: number) => {
-  dragIndex.value = index
-}
-
-const onDragOver = (e: DragEvent, index: number) => {
-  e.preventDefault()
-  if (dragIndex.value !== null && dragIndex.value !== index) {
-    dragOverIndex.value = index
-  }
-}
-
-const onDragLeave = () => {
-  dragOverIndex.value = null
-}
-
-const onDrop = async (index: number) => {
-  if (dragIndex.value !== null && dragIndex.value !== index) {
-    const [item] = favoriteSites.value.splice(dragIndex.value, 1)
-    if (item) favoriteSites.value.splice(index, 0, item)
-    await saveFavoriteSites()
-  }
-  dragIndex.value = null
-  dragOverIndex.value = null
-}
-
-const onDragEnd = () => {
-  dragIndex.value = null
-  dragOverIndex.value = null
-}
-
-const saveFavoriteSites = async () => {
-  try {
-    await browser.storage.local.set({ favoriteSites: favoriteSites.value })
-  } catch (error) {
-    console.error('保存常用网站失败:', error)
-  }
-}
+// 拖拽排序
+const {
+  dragIndex,
+  dragOverIndex,
+  onDragStart,
+  onDragOver,
+  onDragLeave,
+  onDrop,
+  onDragEnd,
+} = useDragSort(favoriteSites, saveFavoriteSites)
 
 let timeInterval: ReturnType<typeof setInterval>
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
@@ -130,8 +102,10 @@ const handleSearch = async (query?: string) => {
   // 保存搜索历史
   await addSearchHistory(searchText)
 
-  // 检查是否是URL
-  if (searchText.includes('.') && !searchText.includes(' ')) {
+  // 检查是否是URL（需要有协议或常见 TLD 后缀）
+  const urlPattern =
+    /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w\-._~:/?#%[\]@!$&'()*+,;=]*)?$/i
+  if (urlPattern.test(searchText) && searchText.includes('.')) {
     const url = searchText.startsWith('http')
       ? searchText
       : `https://${searchText}`
@@ -212,52 +186,6 @@ const handleClickOutside = (e: MouseEvent) => {
   }
 }
 
-// 加载设置
-const loadSettings = async () => {
-  try {
-    selectedEngine.value = await getStorageValue<string>(
-      'searchEngine',
-      'baidu',
-    )
-  } catch (error) {
-    console.error('加载设置失败:', error)
-  }
-}
-
-// 加载常用网站
-const loadFavoriteSites = async () => {
-  try {
-    const result = await browser.storage.local.get(['favoriteSites'])
-    let sites = result.favoriteSites
-
-    // 如果 local 没有，尝试 sync
-    if (!sites) {
-      const syncResult = await browser.storage.sync.get(['favoriteSites'])
-      sites = syncResult.favoriteSites
-    }
-
-    if (Array.isArray(sites)) {
-      favoriteSites.value = sites.length > 0 ? sites : [...defaultFavoriteSites]
-    } else if (sites && typeof sites === 'object') {
-      // 对象格式转数组
-      const arr = Object.values(sites)
-      favoriteSites.value =
-        arr.length > 0 ? (arr as FavoriteSite[]) : [...defaultFavoriteSites]
-    }
-  } catch (error) {
-    console.error('加载常用网站失败:', error)
-  }
-}
-
-// 监听 storage 变化，实时同步设置
-const handleStorageChange = (
-  changes: Record<string, { newValue?: unknown }>,
-) => {
-  if (changes.favoriteSites) {
-    loadFavoriteSites()
-  }
-}
-
 // 打开常用网站
 const openSite = (url: string) => {
   window.open(url, '_self')
@@ -268,18 +196,28 @@ watch(searchQuery, (newQuery) => {
   fetchSuggestions(newQuery)
 })
 
-// 监听设置更新
-const unwatch = settings.$subscribe(() => {
-  loadSettings()
+// 监听时间显示设置变化，动态启停定时器
+let timeIntervalRunning = false
+watch(showTimeDisplay, (show) => {
+  if (show && !timeIntervalRunning) {
+    updateTime()
+    timeInterval = setInterval(updateTime, 1000)
+    timeIntervalRunning = true
+  } else if (!show && timeIntervalRunning) {
+    clearInterval(timeInterval)
+    timeIntervalRunning = false
+  }
 })
 
 onMounted(() => {
-  updateTime()
-  timeInterval = setInterval(updateTime, 1000)
-  loadSettings()
+  if (showTimeDisplay.value) {
+    updateTime()
+    timeInterval = setInterval(updateTime, 1000)
+    timeIntervalRunning = true
+  }
   loadFavoriteSites()
+  startWatching()
   document.addEventListener('click', handleClickOutside)
-  browser.storage.onChanged.addListener(handleStorageChange)
 })
 
 onUnmounted(() => {
@@ -289,9 +227,8 @@ onUnmounted(() => {
   if (debounceTimer) {
     clearTimeout(debounceTimer)
   }
-  unwatch()
+  stopWatching()
   document.removeEventListener('click', handleClickOutside)
-  browser.storage.onChanged.removeListener(handleStorageChange)
 })
 </script>
 <template>

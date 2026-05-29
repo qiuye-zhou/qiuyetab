@@ -20,8 +20,10 @@ export const compressImage = (
     const canvas = document.createElement('canvas')
     const ctx = canvas.getContext('2d')
     const img = new Image()
+    const objectUrl = URL.createObjectURL(file)
 
     img.onload = () => {
+      URL.revokeObjectURL(objectUrl)
       let { width, height } = img
 
       if (width > maxWidth || height > maxHeight) {
@@ -40,10 +42,11 @@ export const compressImage = (
     }
 
     img.onerror = () => {
+      URL.revokeObjectURL(objectUrl)
       reject(new Error('图片加载失败'))
     }
 
-    img.src = URL.createObjectURL(file)
+    img.src = objectUrl
   })
 }
 

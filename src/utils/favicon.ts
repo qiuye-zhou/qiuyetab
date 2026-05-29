@@ -2,6 +2,10 @@
  * 从 URL 获取网站 favicon 的工具函数
  */
 
+import webExtensionPolyfill from 'webextension-polyfill'
+
+const browser = webExtensionPolyfill
+
 /**
  * 判断 favicon 值是否为 URL（而非 Iconify 图标名）
  */
@@ -18,13 +22,10 @@ export function isFaviconUrl(favicon: string): boolean {
  */
 function proxyFetch(url: string): Promise<{ ok: boolean; text?: string }> {
   return new Promise((resolve) => {
-    chrome.runtime.sendMessage({ type: 'fetch-url', url }, (res) => {
-      if (chrome.runtime.lastError) {
-        resolve({ ok: false })
-      } else {
-        resolve(res)
-      }
-    })
+    browser.runtime.sendMessage({ type: 'fetch-url', url }).then(
+      (res) => resolve(res as { ok: boolean; text?: string }),
+      () => resolve({ ok: false }),
+    )
   })
 }
 

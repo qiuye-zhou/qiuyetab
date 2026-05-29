@@ -58,6 +58,17 @@ const handleBackgroundChange = async (
 // 处理自定义背景URL变化
 const handleCustomBgChange = async () => {
   if (backgroundType.value === 'custom' && customBgUrl.value) {
+    // 验证 URL 格式，仅允许 http/https 协议
+    try {
+      const url = new URL(customBgUrl.value)
+      if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+        alert('仅支持 http:// 或 https:// 协议的图片链接')
+        return
+      }
+    } catch {
+      alert('请输入有效的图片 URL')
+      return
+    }
     await settingsStore.setBackground('custom', customBgUrl.value)
   }
 }

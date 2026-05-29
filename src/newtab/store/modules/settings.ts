@@ -284,6 +284,8 @@ export const useSettingsStore = defineStore('settings', () => {
     const index = localBackgrounds.value.findIndex((bg) => bg.id === id)
     if (index === -1) return
 
+    // 在移除前保存被移除的元素，以便回滚
+    const removedBackground = localBackgrounds.value[index]
     localBackgrounds.value.splice(index, 1)
 
     // 保存到存储
@@ -293,7 +295,6 @@ export const useSettingsStore = defineStore('settings', () => {
       })
     } catch (error) {
       // 如果保存失败，回滚
-      const removedBackground = localBackgrounds.value[index]
       if (removedBackground) {
         localBackgrounds.value.splice(index, 0, removedBackground)
       }

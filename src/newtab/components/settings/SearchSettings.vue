@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import webExtensionPolyfill from 'webextension-polyfill'
 import { searchEngines } from '@/config/searchEngines'
 import { setStorageValue, getStorageValue } from '@/utils'
@@ -32,7 +32,9 @@ watch(selectedEngine, () => {
   saveSettings()
 })
 
-loadSettings()
+onMounted(() => {
+  loadSettings()
+})
 </script>
 
 <template>

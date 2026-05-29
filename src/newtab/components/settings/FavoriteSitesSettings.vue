@@ -1,82 +1,27 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { Icon } from '@iconify/vue'
-import webExtensionPolyfill from 'webextension-polyfill'
-import { defaultFavoriteSites, type FavoriteSite } from '@/config/defaultSites'
+import { type FavoriteSite } from '@/config/defaultSites'
 import { fetchFavicon, isFaviconUrl } from '@/utils/favicon'
+import { useFavoriteSites } from '@/composables/useFavoriteSites'
+import { useDragSort } from '@/composables/useDragSort'
 
-const browser = webExtensionPolyfill
-
-const sites = ref<FavoriteSite[]>([...defaultFavoriteSites])
+const { sites, loadSites, saveSites } = useFavoriteSites()
 
 // 编辑状态
 const editingSite = ref<FavoriteSite | null>(null)
 const isAddingNew = ref(false)
 
-// 拖拽排序状态
-const dragIndex = ref<number | null>(null)
-const dragOverIndex = ref<number | null>(null)
-
-const onDragStart = (index: number) => {
-  dragIndex.value = index
-}
-
-const onDragOver = (e: DragEvent, index: number) => {
-  e.preventDefault()
-  if (dragIndex.value !== null && dragIndex.value !== index) {
-    dragOverIndex.value = index
-  }
-}
-
-const onDragLeave = () => {
-  dragOverIndex.value = null
-}
-
-const onDrop = async (index: number) => {
-  if (dragIndex.value !== null && dragIndex.value !== index) {
-    const item = sites.value.splice(dragIndex.value, 1)[0]
-    sites.value.splice(index, 0, item)
-    await saveSites()
-  }
-  dragIndex.value = null
-  dragOverIndex.value = null
-}
-
-const onDragEnd = () => {
-  dragIndex.value = null
-  dragOverIndex.value = null
-}
-
-// 加载常用网站
-const loadSites = async () => {
-  try {
-    let result = await browser.storage.local.get(['favoriteSites'])
-    if (!result.favoriteSites) {
-      result = await browser.storage.sync.get(['favoriteSites'])
-    }
-
-    if (result.favoriteSites) {
-      let arr = result.favoriteSites
-      if (typeof arr === 'object' && !Array.isArray(arr)) {
-        arr = Object.values(arr)
-      }
-      if (Array.isArray(arr) && arr.length > 0) {
-        sites.value = arr
-      }
-    }
-  } catch (error) {
-    console.error('加载常用网站失败:', error)
-  }
-}
-
-// 保存到存储
-const saveSites = async () => {
-  try {
-    await browser.storage.local.set({ favoriteSites: sites.value })
-  } catch (error) {
-    console.error('保存常用网站失败:', error)
-  }
-}
+// 拖拽排序
+const {
+  dragIndex,
+  dragOverIndex,
+  onDragStart,
+  onDragOver,
+  onDragLeave,
+  onDrop,
+  onDragEnd,
+} = useDragSort(sites, saveSites)
 
 // 添加新网站
 const addNewSite = () => {
@@ -166,7 +111,9 @@ onMounted(() => {
         :class="[
           'flex items-center p-3 bg-white dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 transition-all duration-150',
           dragIndex === index ? 'opacity-40 scale-95' : '',
-          dragOverIndex === index && dragIndex !== index ? 'border-blue-400 dark:border-blue-500 shadow-md -translate-y-0.5' : '',
+          dragOverIndex === index && dragIndex !== index
+            ? 'border-blue-400 dark:border-blue-500 shadow-md -translate-y-0.5'
+            : '',
         ]"
       >
         <div
@@ -247,7 +194,9 @@ onMounted(() => {
             class="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 w-full max-w-md space-y-4"
             @click.stop
           >
-            <h4 class="text-base font-semibold text-gray-800 dark:text-gray-200">
+            <h4
+              class="text-base font-semibold text-gray-800 dark:text-gray-200"
+            >
               {{ isAddingNew ? '添加网站' : '编辑网站' }}
             </h4>
 

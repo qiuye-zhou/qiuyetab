@@ -64,20 +64,24 @@ async function copyPublicAssets() {
   }
 }
 
-writeManifest()
-copyPublicAssets()
-copyBackground()
-
 // 复制background脚本到extension/dist/background目录
 async function copyBackground() {
   try {
     await fs.ensureDir(r('extension/dist/background'))
-    await fs.copy(r('src/background/index.js'), r('extension/dist/background/index.js'), { overwrite: true })
+    await fs.copy(
+      r('src/background/index.js'),
+      r('extension/dist/background/index.js'),
+      { overwrite: true },
+    )
     log('PRE', 'copied background script')
   } catch (error) {
     console.error('Error copying background script:', error)
   }
 }
+
+writeManifest()
+copyPublicAssets()
+copyBackground()
 
 if (isDev) {
   stubIndexHtml()

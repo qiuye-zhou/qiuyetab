@@ -27,6 +27,7 @@ const toggleSettings = () => {
 // 关闭设置面板
 const closeSettings = () => {
   isSettingsOpen.value = false
+  settingsPage.value = ''
 }
 
 // 打开设置面板到指定页面
@@ -122,12 +123,7 @@ watch(
   { deep: true },
 )
 
-// 监听当前背景索引变化
-watch(currentBackgroundIndex, () => {
-  if (backgroundType.value === 'local') {
-    updateLocalBackground()
-  }
-})
+// 监听当前背景索引变化（由 startBackgroundRotation 的 interval 处理，此 watcher 已不再需要）
 
 // 初始化主题
 onMounted(async () => {
@@ -166,10 +162,16 @@ onUnmounted(() => {
     </button>
 
     <!-- 主要内容区域 -->
-    <MainContent @open-favorite-settings="openSettingsPage('favorites')"></MainContent>
+    <MainContent
+      @open-favorite-settings="openSettingsPage('favorites')"
+    ></MainContent>
 
     <!-- 设置面板 -->
-    <SettingsPanel :is-open="isSettingsOpen" :default-page="settingsPage" @close="closeSettings" />
+    <SettingsPanel
+      :is-open="isSettingsOpen"
+      :default-page="settingsPage"
+      @close="closeSettings"
+    />
   </div>
 </template>
 
