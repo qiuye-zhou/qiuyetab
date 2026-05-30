@@ -4,29 +4,34 @@ import webExtensionPolyfill from 'webextension-polyfill'
 
 const browser = webExtensionPolyfill
 
+// 检测是否为 Firefox
+const isFirefox = navigator.userAgent.includes('Firefox')
+
 const quickActions = [
   {
     name: '历史记录',
     icon: 'mdi:history',
-    url: 'chrome://history/',
+    url: isFirefox ? 'about:history' : 'chrome://history/',
     desc: '查看浏览历史',
   },
   {
     name: '下载',
     icon: 'mdi:download',
-    url: 'chrome://downloads/',
+    url: isFirefox ? 'about:downloads' : 'chrome://downloads/',
     desc: '查看下载记录',
   },
   {
     name: '书签',
     icon: 'mdi:bookmark',
-    url: 'chrome://bookmarks/',
+    url: isFirefox ? 'about:places' : 'chrome://bookmarks/',
     desc: '管理书签',
   },
 ]
 
 const openAction = (url: string) => {
-  browser.tabs.create({ url })
+  browser.tabs.create({ url }).catch(() => {
+    // 某些浏览器可能不支持特定的内部 URL，静默忽略
+  })
 }
 </script>
 

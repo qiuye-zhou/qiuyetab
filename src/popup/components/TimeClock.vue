@@ -23,7 +23,8 @@ const updateTime = () => {
 
 onMounted(() => {
   updateTime()
-  timeInterval = setInterval(updateTime, 1000)
+  // 只显示时分，每30秒更新一次即可
+  timeInterval = setInterval(updateTime, 30000)
 })
 
 onUnmounted(() => {

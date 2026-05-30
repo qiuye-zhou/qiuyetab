@@ -25,13 +25,16 @@ export function useDragSort<T>(list: { value: T[] }, onReorder?: () => void) {
   }
 
   const onDrop = (index: number) => {
-    if (dragIndex.value !== null && dragIndex.value !== index) {
-      const [item] = list.value.splice(dragIndex.value, 1)
-      if (item) list.value.splice(index, 0, item)
-      onReorder?.()
+    try {
+      if (dragIndex.value !== null && dragIndex.value !== index) {
+        const [item] = list.value.splice(dragIndex.value, 1)
+        if (item) list.value.splice(index, 0, item)
+        onReorder?.()
+      }
+    } finally {
+      dragIndex.value = null
+      dragOverIndex.value = null
     }
-    dragIndex.value = null
-    dragOverIndex.value = null
   }
 
   const onDragEnd = () => {

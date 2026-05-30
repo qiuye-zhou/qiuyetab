@@ -21,9 +21,26 @@ export const compressImage = (
     const ctx = canvas.getContext('2d')
     const img = new Image()
     const objectUrl = URL.createObjectURL(file)
+    let settled = false
+
+    const cleanup = () => {
+      URL.revokeObjectURL(objectUrl)
+      clearTimeout(timeoutId)
+    }
+
+    const settle = <T>(fn: (value: T) => void, value: T) => {
+      if (settled) return
+      settled = true
+      cleanup()
+      fn(value)
+    }
 
     img.onload = () => {
-      URL.revokeObjectURL(objectUrl)
+      if (!ctx) {
+        settle(reject, new Error('Canvas 上下文创建失败'))
+        return
+      }
+
       let { width, height } = img
 
       if (width > maxWidth || height > maxHeight) {
@@ -35,16 +52,21 @@ export const compressImage = (
       canvas.width = width
       canvas.height = height
 
-      ctx?.drawImage(img, 0, 0, width, height)
+      ctx.drawImage(img, 0, 0, width, height)
 
       const compressedBase64 = canvas.toDataURL('image/jpeg', quality)
-      resolve(compressedBase64)
+      settle(resolve, compressedBase64)
     }
 
     img.onerror = () => {
-      URL.revokeObjectURL(objectUrl)
-      reject(new Error('图片加载失败'))
+      settle(reject, new Error('图片加载失败'))
     }
+
+    // 超时保护：30秒后清理资源，防止内存泄漏
+    const timeoutId = setTimeout(() => {
+      img.src = ''
+      settle(reject, new Error('图片压缩超时'))
+    }, 30000)
 
     img.src = objectUrl
   })
@@ -114,11 +136,14 @@ export const getStorageInfo = async (): Promise<{
  * @returns 格式化后的字符串
  */
 export const formatBytes = (bytes: number): string => {
-  if (bytes === 0) return '0 B'
+  if (bytes <= 0) return '0 B'
 
   const k = 1024
   const sizes = ['B', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  const i = Math.min(
+    Math.floor(Math.log(bytes) / Math.log(k)),
+    sizes.length - 1,
+  )
 
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }

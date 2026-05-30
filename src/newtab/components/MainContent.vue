@@ -32,6 +32,12 @@ const suggestions = ref<SearchSuggestion[]>([])
 const showSuggestions = ref(false)
 const selectedSuggestionIndex = ref(-1)
 
+// 记录加载失败的 favicon，用于降级到图标
+const failedFavicons = ref(new Set<string>())
+const onFaviconError = (favicon: string) => {
+  failedFavicons.value.add(favicon)
+}
+
 // 常用网站
 const {
   sites: favoriteSites,
@@ -39,7 +45,7 @@ const {
   saveSites: saveFavoriteSites,
   startWatching,
   stopWatching,
-} = useFavoriteSites({ watchChanges: true })
+} = useFavoriteSites()
 
 // 拖拽排序
 const {
@@ -52,7 +58,7 @@ const {
   onDragEnd,
 } = useDragSort(favoriteSites, saveFavoriteSites)
 
-let timeInterval: ReturnType<typeof setInterval>
+let timeInterval: ReturnType<typeof setInterval> | undefined
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
 
 // 时间更新
@@ -197,15 +203,12 @@ watch(searchQuery, (newQuery) => {
 })
 
 // 监听时间显示设置变化，动态启停定时器
-let timeIntervalRunning = false
 watch(showTimeDisplay, (show) => {
-  if (show && !timeIntervalRunning) {
+  clearInterval(timeInterval)
+  timeInterval = undefined
+  if (show) {
     updateTime()
     timeInterval = setInterval(updateTime, 1000)
-    timeIntervalRunning = true
-  } else if (!show && timeIntervalRunning) {
-    clearInterval(timeInterval)
-    timeIntervalRunning = false
   }
 })
 
@@ -213,7 +216,6 @@ onMounted(() => {
   if (showTimeDisplay.value) {
     updateTime()
     timeInterval = setInterval(updateTime, 1000)
-    timeIntervalRunning = true
   }
   loadFavoriteSites()
   startWatching()
@@ -357,13 +359,11 @@ onUnmounted(() => {
               @click="openSite(site.url)"
             >
               <img
-                v-if="isFaviconUrl(site.favicon)"
+                v-if="isFaviconUrl(site.favicon) && !failedFavicons.has(site.favicon)"
                 :src="site.favicon"
                 :alt="site.name"
                 class="w-6 h-6"
-                @error="
-                  ($event.target as HTMLImageElement).style.display = 'none'
-                "
+                @error="onFaviconError(site.favicon)"
               />
               <Icon
                 v-else

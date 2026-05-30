@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue'
-import webExtensionPolyfill from 'webextension-polyfill'
 import { searchEngines } from '@/config/searchEngines'
 import { setStorageValue, getStorageValue } from '@/utils'
-
-const browser = webExtensionPolyfill
 
 const selectedEngine = ref('baidu')
 
@@ -21,8 +18,8 @@ const loadSettings = async () => {
 
 const saveSettings = async () => {
   try {
+    // 统一使用 setStorageValue 写入 local，读取时 getStorageValue 会自动从 local→sync 降级
     await setStorageValue('searchEngine', selectedEngine.value)
-    await browser.storage.sync.set({ searchEngine: selectedEngine.value })
   } catch (error) {
     console.error('保存设置失败:', error)
   }

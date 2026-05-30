@@ -52,7 +52,6 @@ onMounted(async () => {
 <template>
   <div
     class="w-80 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900"
-    style="background: linear-gradient(to bottom right, #fefefe, #f8f9fa)"
   >
     <!-- 头部区域 -->
     <HeadArea />

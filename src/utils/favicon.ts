@@ -22,9 +22,19 @@ export function isFaviconUrl(favicon: string): boolean {
  */
 function proxyFetch(url: string): Promise<{ ok: boolean; text?: string }> {
   return new Promise((resolve) => {
+    // 15秒超时，防止background无响应时永久挂起
+    const timer = setTimeout(() => resolve({ ok: false }), 15000)
+
     browser.runtime.sendMessage({ type: 'fetch-url', url }).then(
-      (res) => resolve(res as { ok: boolean; text?: string }),
-      () => resolve({ ok: false }),
+      (res) => {
+        clearTimeout(timer)
+        resolve(res as { ok: boolean; text?: string })
+      },
+      (err) => {
+        clearTimeout(timer)
+        console.warn('[favicon] proxyFetch error:', err)
+        resolve({ ok: false })
+      },
     )
   })
 }
@@ -72,7 +82,8 @@ function parseFaviconFromHtml(html: string, origin: string): string {
       if (href.startsWith('http')) return href
       if (href.startsWith('//')) return `https:${href}`
       if (href.startsWith('/')) return `${origin}${href}`
-      return `${origin}/${href}`
+      // 相对路径：避免双斜杠
+      return `${origin}/${href.replace(/^\//, '')}`
     }
   }
   return ''

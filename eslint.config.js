@@ -13,11 +13,21 @@ export default [
     files: ['**/*.{js,mjs,cjs,ts,mts,cts,vue}'],
     ...js.configs.recommended,
   },
-  // 全局变量设置
+  // 全局变量设置 - 源码仅使用浏览器全局变量
   {
-    files: ['**/*.{js,mjs,cjs,ts,mts,cts,vue}'],
+    files: ['src/**/*.{js,mjs,cjs,ts,mts,cts,vue}'],
     languageOptions: {
-      globals: { ...globals.browser, ...globals.node },
+      globals: { ...globals.browser },
+    },
+    plugins: {
+      prettier: prettier,
+    },
+  },
+  // 全局变量设置 - 构建脚本使用 Node 全局变量
+  {
+    files: ['scripts/**/*.{js,mjs,cjs,ts,mts,cts}'],
+    languageOptions: {
+      globals: { ...globals.node },
     },
     plugins: {
       prettier: prettier,

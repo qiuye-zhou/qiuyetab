@@ -5,7 +5,7 @@ import webExtensionPolyfill from 'webextension-polyfill'
 const browser = webExtensionPolyfill
 
 const isValidLocalBackground = (
-  item: any,
+  item: unknown,
 ): item is {
   id: string
   name: string
@@ -13,13 +13,14 @@ const isValidLocalBackground = (
   enabled: boolean
   createdAt: number
 } => {
+  if (typeof item !== 'object' || item === null) return false
+  const obj = item as Record<string, unknown>
   return (
-    item &&
-    typeof item.id === 'string' &&
-    typeof item.name === 'string' &&
-    typeof item.data === 'string' &&
-    typeof item.enabled === 'boolean' &&
-    typeof item.createdAt === 'number'
+    typeof obj.id === 'string' &&
+    typeof obj.name === 'string' &&
+    typeof obj.data === 'string' &&
+    typeof obj.enabled === 'boolean' &&
+    typeof obj.createdAt === 'number'
   )
 }
 
@@ -223,7 +224,7 @@ export const useSettingsStore = defineStore('settings', () => {
 
     // 保存到存储
     try {
-      const updateData: Record<string, any> = {
+      const updateData: Record<string, unknown> = {
         backgroundType: type,
       }
 
@@ -345,7 +346,7 @@ export const useSettingsStore = defineStore('settings', () => {
 
     // 保存到存储
     try {
-      const updateData: Record<string, any> = {}
+      const updateData: Record<string, unknown> = {}
       if (typeof options.showTimeDisplay === 'boolean') {
         updateData.showTimeDisplay = options.showTimeDisplay
       }
@@ -379,6 +380,14 @@ export const useSettingsStore = defineStore('settings', () => {
     searchBarPositionY.value = clampedPosition
   }
 
+  // 清理主题监听器（用于组件卸载时调用）
+  const disposeTheme = () => {
+    if (mediaQueryCleanup) {
+      mediaQueryCleanup()
+      mediaQueryCleanup = null
+    }
+  }
+
   return {
     isSettingsLoaded,
     theme,
@@ -401,5 +410,6 @@ export const useSettingsStore = defineStore('settings', () => {
     setDisplayOptions,
     setSearchBarPositionY,
     updateSearchBarPositionY,
+    disposeTheme,
   }
 })

@@ -135,9 +135,10 @@ onMounted(async () => {
   }
 })
 
-// 组件卸载时清理定时器
+// 组件卸载时清理定时器和主题监听器
 onUnmounted(() => {
   stopBackgroundRotation()
+  settingsStore.disposeTheme()
 })
 </script>
 

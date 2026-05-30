@@ -34,7 +34,7 @@ const loadTabs = async () => {
 
 // 切换标签页
 const switchToTab = (tabId: number | undefined) => {
-  if (tabId) {
+  if (tabId !== undefined) {
     browser.tabs.update(tabId, { active: true })
   }
 }
@@ -42,7 +42,7 @@ const switchToTab = (tabId: number | undefined) => {
 // 关闭标签页
 const closeTab = async (tabId: number | undefined, event: Event) => {
   event.stopPropagation()
-  if (tabId) {
+  if (tabId !== undefined) {
     try {
       await browser.tabs.remove(tabId)
     } catch (error) {

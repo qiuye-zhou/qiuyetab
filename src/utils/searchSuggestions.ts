@@ -53,13 +53,14 @@ export const getSearchSuggestions = async (
     .filter((keyword) => keyword.toLowerCase().includes(lowerQuery))
     .map((item) => ({ text: item, type: 'history' as const }))
 
-  // 合并结果，去重，保持顺序
+  // 合并结果，去重（忽略大小写），保持顺序
   const combined = [...matchedHistory, ...matchedHot]
   const unique: SearchSuggestion[] = []
   const seen = new Set<string>()
   for (const item of combined) {
-    if (!seen.has(item.text)) {
-      seen.add(item.text)
+    const key = item.text.toLowerCase()
+    if (!seen.has(key)) {
+      seen.add(key)
       unique.push(item)
     }
   }
@@ -94,8 +95,11 @@ export const addSearchHistory = async (query: string): Promise<void> => {
     }
 
     const history = await getSearchHistory()
-    // 移除重复项
-    const filtered = history.filter((item) => item !== trimmedQuery)
+    // 移除重复项（忽略大小写）
+    const lowerQuery = trimmedQuery.toLowerCase()
+    const filtered = history.filter(
+      (item) => item.toLowerCase() !== lowerQuery,
+    )
     // 添加到开头
     filtered.unshift(trimmedQuery)
     // 限制数量
@@ -112,8 +116,13 @@ export const addSearchHistory = async (query: string): Promise<void> => {
  */
 export const removeSearchHistory = async (query: string): Promise<void> => {
   try {
+    const trimmedQuery = query.trim()
     const history = await getSearchHistory()
-    const filtered = history.filter((item) => item !== query)
+    // 忽略大小写匹配删除
+    const lowerQuery = trimmedQuery.toLowerCase()
+    const filtered = history.filter(
+      (item) => item.toLowerCase() !== lowerQuery,
+    )
     await browser.storage.local.set({ [SEARCH_HISTORY_KEY]: filtered })
   } catch (error) {
     console.error('删除搜索历史失败:', error)
