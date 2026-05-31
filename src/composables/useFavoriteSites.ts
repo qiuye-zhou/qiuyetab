@@ -25,7 +25,7 @@ export function useFavoriteSites() {
         if (typeof arr === 'object' && !Array.isArray(arr)) {
           arr = Object.values(arr)
         }
-        if (Array.isArray(arr) && arr.length > 0) {
+        if (Array.isArray(arr)) {
           sites.value = arr
         }
       }

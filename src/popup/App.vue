@@ -30,9 +30,9 @@ const initializeDefaultSettings = async () => {
 
     if (
       !localResult.searchEngine &&
-      !localResult.favoriteSites &&
+      !('favoriteSites' in localResult) &&
       !syncResult.searchEngine &&
-      !syncResult.favoriteSites
+      !('favoriteSites' in syncResult)
     ) {
       await browser.storage.local.set({
         searchEngine: 'baidu',
