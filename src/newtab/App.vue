@@ -46,8 +46,6 @@ const backgroundStyle = computed(() => {
   }
 })
 
-// 当前背景索引（用于强制更新）
-const currentBackgroundIndex = ref(0)
 const currentLocalBackground = ref<string | null>(null)
 
 // 计算背景图片URL和透明度（用于CSS变量）
@@ -90,9 +88,8 @@ const startBackgroundRotation = () => {
     localBackgrounds.value.filter((bg) => bg.enabled).length > 1
   ) {
     backgroundTimer = setInterval(() => {
-      currentBackgroundIndex.value++
       updateLocalBackground()
-    }, 1000 * 60) as unknown as number // 显式断言为 number
+    }, 1000 * 60) as unknown as number
   }
 }
 
@@ -123,8 +120,6 @@ watch(
   { deep: true },
 )
 
-// 监听当前背景索引变化（由 startBackgroundRotation 的 interval 处理，此 watcher 已不再需要）
-
 // 初始化主题
 onMounted(async () => {
   await settingsStore.initTheme()
@@ -152,7 +147,6 @@ onUnmounted(() => {
       '--bg-opacity': backgroundImageOpacity,
     }"
     :data-has-bg="backgroundImageUrl ? 'true' : 'false'"
-    :key="currentBackgroundIndex"
   >
     <!-- 设置按钮 -->
     <button

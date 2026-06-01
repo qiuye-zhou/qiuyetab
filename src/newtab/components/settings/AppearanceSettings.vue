@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { Icon } from '@iconify/vue'
 import { useSettingsStore } from '../../store/modules/settings'
 import { storeToRefs } from 'pinia'
@@ -73,11 +73,19 @@ const handleCustomBgChange = async () => {
   }
 }
 
-// 处理透明度变化
-const handleOpacityChange = async (opacity: number) => {
+// 透明度滑块防抖
+let opacityDebounceTimer: ReturnType<typeof setTimeout> | null = null
+const handleOpacityChange = (opacity: number) => {
   localOpacity.value = opacity
-  await settingsStore.setBackgroundOpacity(opacity)
+  if (opacityDebounceTimer) clearTimeout(opacityDebounceTimer)
+  opacityDebounceTimer = setTimeout(() => {
+    settingsStore.setBackgroundOpacity(opacity)
+  }, 150)
 }
+
+onUnmounted(() => {
+  if (opacityDebounceTimer) clearTimeout(opacityDebounceTimer)
+})
 
 // 处理本地文件上传
 const handleLocalFileUpload = async (event: Event) => {

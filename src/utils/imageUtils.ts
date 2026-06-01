@@ -96,7 +96,7 @@ export const checkStorageSpace = async (
     }
 
     const currentUsage = await browser.storage.local.getBytesInUse()
-    const totalQuota = 5 * 1024 * 1024
+    const totalQuota = 10 * 1024 * 1024
 
     return currentUsage + requiredBytes <= totalQuota
   } catch (error) {
@@ -116,17 +116,17 @@ export const getStorageInfo = async (): Promise<{
 }> => {
   try {
     if (!browser?.storage?.local?.getBytesInUse) {
-      return { used: 0, total: 5 * 1024 * 1024, percentage: 0 }
+      return { used: 0, total: 10 * 1024 * 1024, percentage: 0 }
     }
 
     const used = await browser.storage.local.getBytesInUse()
-    const total = 5 * 1024 * 1024
+    const total = 10 * 1024 * 1024
     const percentage = Math.round((used / total) * 100)
 
     return { used, total, percentage }
   } catch (error) {
     console.error('获取存储信息失败:', error)
-    return { used: 0, total: 5 * 1024 * 1024, percentage: 0 }
+    return { used: 0, total: 10 * 1024 * 1024, percentage: 0 }
   }
 }
 

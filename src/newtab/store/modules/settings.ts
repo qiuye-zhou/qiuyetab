@@ -50,7 +50,6 @@ export const useSettingsStore = defineStore('settings', () => {
 
   // 显示设置
   const showTimeDisplay = ref(true)
-  const showSearchHints = ref(true)
 
   // 布局设置
   const searchBarPositionY = ref(50) // Y轴位置百分比 (0-100)
@@ -66,7 +65,6 @@ export const useSettingsStore = defineStore('settings', () => {
         'localBackgrounds',
         'backgroundOpacity',
         'showTimeDisplay',
-        'showSearchHints',
         'searchBarPositionY',
       ])
 
@@ -125,9 +123,6 @@ export const useSettingsStore = defineStore('settings', () => {
       }
       if (typeof result.showTimeDisplay === 'boolean') {
         showTimeDisplay.value = result.showTimeDisplay
-      }
-      if (typeof result.showSearchHints === 'boolean') {
-        showSearchHints.value = result.showSearchHints
       }
       if (
         typeof result.searchBarPositionY === 'number' &&
@@ -335,13 +330,9 @@ export const useSettingsStore = defineStore('settings', () => {
   // 设置显示选项
   const setDisplayOptions = async (options: {
     showTimeDisplay?: boolean
-    showSearchHints?: boolean
   }) => {
     if (typeof options.showTimeDisplay === 'boolean') {
       showTimeDisplay.value = options.showTimeDisplay
-    }
-    if (typeof options.showSearchHints === 'boolean') {
-      showSearchHints.value = options.showSearchHints
     }
 
     // 保存到存储
@@ -349,9 +340,6 @@ export const useSettingsStore = defineStore('settings', () => {
       const updateData: Record<string, unknown> = {}
       if (typeof options.showTimeDisplay === 'boolean') {
         updateData.showTimeDisplay = options.showTimeDisplay
-      }
-      if (typeof options.showSearchHints === 'boolean') {
-        updateData.showSearchHints = options.showSearchHints
       }
       await browser.storage.local.set(updateData)
     } catch (error) {
@@ -397,7 +385,6 @@ export const useSettingsStore = defineStore('settings', () => {
     localBackgrounds,
     backgroundOpacity,
     showTimeDisplay,
-    showSearchHints,
     searchBarPositionY,
     initTheme,
     setTheme,

@@ -6,9 +6,6 @@ import webExtensionPolyfill from 'webextension-polyfill'
 
 const browser = webExtensionPolyfill
 
-// 热门搜索词（模拟数据，实际应用中可以从API获取）
-const hotSearchKeywords: string[] = []
-
 // 搜索历史记录（存储在浏览器本地存储中）
 const SEARCH_HISTORY_KEY = 'search_history'
 const MAX_HISTORY_COUNT = 10
@@ -27,25 +24,16 @@ export const getSearchSuggestions = async (
   query: string,
 ): Promise<SearchSuggestion[]> => {
   if (!query.trim()) {
-    // 如果没有输入，返回历史记录和热门搜索
+    // 如果没有输入，返回历史记录
     const history = await getSearchHistory()
     const historyItems: SearchSuggestion[] = history.map((item) => ({
       text: item,
       type: 'history',
     }))
-    const hotItems: SearchSuggestion[] = hotSearchKeywords.map((item) => ({
-      text: item,
-      type: 'hot',
-    }))
-    return [...historyItems, ...hotItems].slice(0, 10)
+    return historyItems.slice(0, 10)
   }
 
   const lowerQuery = query.toLowerCase()
-
-  // 从热门搜索词中筛选匹配的
-  const matchedHot = hotSearchKeywords
-    .filter((keyword) => keyword.toLowerCase().includes(lowerQuery))
-    .map((item) => ({ text: item, type: 'hot' as const }))
 
   // 从历史记录中筛选匹配的
   const history = await getSearchHistory()
@@ -53,8 +41,8 @@ export const getSearchSuggestions = async (
     .filter((keyword) => keyword.toLowerCase().includes(lowerQuery))
     .map((item) => ({ text: item, type: 'history' as const }))
 
-  // 合并结果，去重（忽略大小写），保持顺序
-  const combined = [...matchedHistory, ...matchedHot]
+  // 去重（忽略大小写），保持顺序
+  const combined = [...matchedHistory]
   const unique: SearchSuggestion[] = []
   const seen = new Set<string>()
   for (const item of combined) {

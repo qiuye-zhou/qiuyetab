@@ -26,7 +26,7 @@ const {
 // 添加新网站
 const addNewSite = () => {
   isAddingNew.value = true
-  editingSite.value = { name: '', url: '', favicon: 'mdi:web' }
+  editingSite.value = { id: 0, name: '', url: '', favicon: 'mdi:web' }
 }
 
 // 编辑网站
@@ -41,13 +41,28 @@ const deleteSite = async (siteId: number) => {
   await saveSites()
 }
 
+// 校验 URL 协议，阻止 javascript: 等危险协议
+const isValidUrl = (url: string): boolean => {
+  try {
+    const parsed = new URL(url)
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
 // 保存编辑
 const saveEditedSite = async () => {
   if (!editingSite.value) return
 
+  if (!isValidUrl(editingSite.value.url)) {
+    alert('请输入有效的 http:// 或 https:// 网址')
+    return
+  }
+
   if (isAddingNew.value) {
     const newId = Math.max(...sites.value.map((s) => s.id), 0) + 1
-    sites.value.push({ ...editingSite.value, id: newId } as FavoriteSite)
+    sites.value.push({ ...editingSite.value, id: newId })
   } else {
     const index = sites.value.findIndex((s) => s.id === editingSite.value?.id)
     if (index !== -1 && editingSite.value.id) {

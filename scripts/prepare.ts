@@ -1,9 +1,8 @@
 // 为开发环境的入口生成占位 index.html 文件
-import { isDev, r } from './utils'
+import { isDev, r, port, log } from './utils'
 import fs from 'fs-extra'
-import { port, log } from './utils'
-import { execSync } from 'node:child_process'
 import chokidar from 'chokidar'
+import { writeManifest } from './manifest'
 
 // 用于开发环境中 Vite 启动的 index.html 占位文件
 async function stubIndexHtml() {
@@ -26,11 +25,6 @@ async function stubIndexHtml() {
       `${view}: dev server started at http://localhost:${port}/${view}/index.html`,
     )
   }
-}
-
-function writeManifest() {
-  // stdio: 'inherit' 表示子进程的输出会被直接输出到父进程的控制台
-  execSync('npx esno ./scripts/manifest.ts', { stdio: 'inherit' })
 }
 
 // 复制public目录下的静态资源到extension目录
@@ -79,9 +73,7 @@ async function copyBackground() {
   }
 }
 
-writeManifest()
-copyPublicAssets()
-copyBackground()
+await Promise.all([writeManifest(), copyPublicAssets(), copyBackground()])
 
 if (isDev) {
   stubIndexHtml()
@@ -89,10 +81,12 @@ if (isDev) {
   chokidar.watch(r('src/**/*.html')).on('change', () => {
     stubIndexHtml()
   })
-  // 监听manifest.ts和package.json变化, 重新生成manifest.json
-  chokidar.watch([r('src/manifest.ts'), r('package.json')]).on('change', () => {
-    writeManifest()
-  })
+  // 监听manifest.ts、package.json和scripts/utils.ts变化, 重新生成manifest.json
+  chokidar
+    .watch([r('src/manifest.ts'), r('package.json'), r('scripts/utils.ts')])
+    .on('change', () => {
+      writeManifest()
+    })
   // 监听public目录变化, 重新复制静态资源
   chokidar.watch(r('public/**/*')).on('change', () => {
     copyPublicAssets()

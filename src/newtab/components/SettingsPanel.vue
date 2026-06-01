@@ -19,7 +19,7 @@ const emit = defineEmits<{
 }>()
 
 // 设置菜单项
-const menuItems = ref([
+const menuItems = [
   { id: 'search', name: '搜索引擎', icon: 'mdi:magnify', com: SearchSettings },
   {
     id: 'appearance',
@@ -46,13 +46,13 @@ const menuItems = ref([
     icon: 'mdi:tab',
     com: TabsManagementSettings,
   },
-])
+]
 
 // 当前选中的设置页面
 const currentPage = ref('search')
 
 const currentComponent = computed(
-  () => menuItems.value.find((item) => item.id === currentPage.value)?.com,
+  () => menuItems.find((item) => item.id === currentPage.value)?.com,
 )
 
 const handleClose = () => {

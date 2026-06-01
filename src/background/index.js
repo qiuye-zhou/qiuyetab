@@ -28,7 +28,42 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     fetch(message.url, { credentials: 'omit' })
       .then(async (res) => {
-        sendResponse({ ok: res.ok, status: res.status, text: await res.text() })
+        const MAX_SIZE = 2 * 1024 * 1024 // 2MB
+        const contentLength = res.headers.get('content-length')
+        if (contentLength && Number(contentLength) > MAX_SIZE) {
+          sendResponse({ ok: false, error: '响应体过大' })
+          return
+        }
+        const reader = res.body?.getReader()
+        if (!reader) {
+          sendResponse({
+            ok: res.ok,
+            status: res.status,
+            text: await res.text(),
+          })
+          return
+        }
+        const chunks = []
+        let received = 0
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+          received += value.byteLength
+          if (received > MAX_SIZE) {
+            reader.cancel()
+            sendResponse({ ok: false, error: '响应体过大' })
+            return
+          }
+          chunks.push(value)
+        }
+        const merged = new Uint8Array(received)
+        let offset = 0
+        for (const chunk of chunks) {
+          merged.set(chunk, offset)
+          offset += chunk.byteLength
+        }
+        const text = new TextDecoder().decode(merged)
+        sendResponse({ ok: res.ok, status: res.status, text })
       })
       .catch((err) => {
         sendResponse({ ok: false, error: err.message })

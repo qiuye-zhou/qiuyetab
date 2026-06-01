@@ -4,17 +4,12 @@ import { useSettingsStore } from '../../store/modules/settings'
 import { storeToRefs } from 'pinia'
 
 const settingsStore = useSettingsStore()
-const { showTimeDisplay, showSearchHints, searchBarPositionY } =
+const { showTimeDisplay, searchBarPositionY } =
   storeToRefs(settingsStore)
 
 // 更新时间显示设置
 const updateTimeDisplay = async (value: boolean) => {
   await settingsStore.setDisplayOptions({ showTimeDisplay: value })
-}
-
-// 更新搜索提示设置
-const updateSearchHints = async (value: boolean) => {
-  await settingsStore.setDisplayOptions({ showSearchHints: value })
 }
 
 // 更新搜索栏Y轴位置设置
@@ -85,34 +80,6 @@ const updatePositionPreview = (positionY: number) => {
             </button>
           </div>
 
-          <!-- 搜索提示开关 -->
-          <div class="flex items-center justify-between">
-            <div class="flex-1">
-              <label
-                class="text-sm font-medium text-gray-700 dark:text-gray-300"
-                >显示搜索提示</label
-              >
-              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                显示搜索框下方的使用提示
-              </p>
-            </div>
-            <button
-              @click="updateSearchHints(!showSearchHints)"
-              :class="[
-                'relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
-                showSearchHints
-                  ? 'bg-blue-600'
-                  : 'bg-gray-200 dark:bg-gray-600',
-              ]"
-            >
-              <span
-                :class="[
-                  'inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out',
-                  showSearchHints ? 'translate-x-6' : 'translate-x-1',
-                ]"
-              />
-            </button>
-          </div>
         </div>
       </div>
 

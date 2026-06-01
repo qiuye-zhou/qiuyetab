@@ -1,4 +1,5 @@
 import fs from 'fs-extra'
+import { fileURLToPath } from 'node:url'
 import { getManifest } from '../src/manifest'
 import { log, r } from './utils'
 
@@ -10,4 +11,8 @@ export async function writeManifest() {
   log('PRE', 'write manifest.json')
 }
 
-writeManifest()
+// 直接运行时执行（被 import 时不执行）
+const isDirectRun = process.argv[1] === fileURLToPath(import.meta.url)
+if (isDirectRun) {
+  writeManifest()
+}
