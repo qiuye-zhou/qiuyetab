@@ -84,6 +84,67 @@ export function useTodos() {
     }
   }
 
+  const exportToMarkdown = (): string => {
+    if (todos.value.length === 0) return ''
+    return todos.value
+      .map((t) => {
+        const check = t.completed ? '[x]' : '[ ]'
+        const date = t.dueDate ? ` 📅 ${t.dueDate}` : ''
+        return `- ${check} ${t.text}${date}`
+      })
+      .join('\n')
+  }
+
+  const importFromMarkdown = async (content: string) => {
+    const lines = content
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0)
+
+    let maxId = Math.max(...todos.value.map((t) => t.id), 0)
+    const newTodos: TodoItem[] = []
+
+    for (const line of lines) {
+      let text = line
+      let completed = false
+      let dueDate: string | null = null
+
+      // 解析 markdown checkbox: - [x] text 或 - [ ] text
+      const checkboxMatch = line.match(/^-\s*\[([ xX])\]\s*(.+)$/)
+      if (checkboxMatch) {
+        completed = checkboxMatch[1] !== ' '
+        text = checkboxMatch[2]
+      } else if (line.startsWith('- ')) {
+        // 普通列表项: - text
+        text = line.slice(2)
+      }
+
+      // 解析截止日期: 📅 YYYY-MM-DD
+      const dateMatch = text.match(/\s*📅\s*(\d{4}-\d{2}-\d{2})/)
+      if (dateMatch) {
+        dueDate = dateMatch[1]
+        text = text.replace(dateMatch[0], '').trim()
+      }
+
+      if (text) {
+        newTodos.push({
+          id: ++maxId,
+          text,
+          completed,
+          dueDate,
+          createdAt: Date.now(),
+        })
+      }
+    }
+
+    if (newTodos.length > 0) {
+      todos.value = [...newTodos, ...todos.value]
+      await saveTodos()
+    }
+
+    return newTodos.length
+  }
+
   const handleStorageChange = (
     changes: Record<string, { newValue?: unknown }>,
   ) => {
@@ -121,6 +182,8 @@ export function useTodos() {
     toggleTodo,
     removeTodo,
     updateTodo,
+    exportToMarkdown,
+    importFromMarkdown,
     startWatching,
     stopWatching,
   }

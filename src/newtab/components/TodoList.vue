@@ -18,6 +18,8 @@ const {
   toggleTodo,
   removeTodo,
   updateTodo,
+  exportToMarkdown,
+  importFromMarkdown,
   startWatching,
   stopWatching,
 } = useTodos()
@@ -80,6 +82,39 @@ const cancelEdit = () => {
   editDueDate.value = ''
 }
 
+const handleExport = () => {
+  const content = exportToMarkdown()
+  if (!content) return
+  const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `todos-${new Date().toISOString().slice(0, 10)}.md`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+const importFileRef = ref<HTMLInputElement | null>(null)
+
+const handleImportClick = () => {
+  importFileRef.value?.click()
+}
+
+const handleImport = async (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (!file) return
+
+  const text = await file.text()
+  const count = await importFromMarkdown(text)
+  if (count > 0) {
+    alert(`成功导入 ${count} 条待办`)
+  } else {
+    alert('未找到可导入的待办项')
+  }
+  target.value = ''
+}
+
 const isOverdue = (todo: TodoItem) => {
   if (!todo.dueDate || todo.completed) return false
   return new Date(todo.dueDate) < new Date(new Date().toDateString())
@@ -114,6 +149,13 @@ onUnmounted(() => {
 
 <template>
   <Teleport to="body">
+    <input
+      ref="importFileRef"
+      type="file"
+      accept=".md,.txt,.markdown"
+      @change="handleImport"
+      class="hidden"
+    />
     <Transition name="modal">
       <div
         v-if="isOpen"
@@ -143,15 +185,37 @@ onUnmounted(() => {
                 {{ activeCount }} 项未完成
               </span>
             </div>
-            <button
-              @click="emit('close')"
-              class="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-pointer"
-            >
-              <Icon
-                icon="mdi:close"
-                class="text-lg text-gray-500 dark:text-gray-400"
-              />
-            </button>
+            <div class="flex items-center gap-1">
+              <button
+                @click="handleImportClick"
+                title="导入 Markdown"
+                class="p-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-pointer"
+              >
+                <Icon
+                  icon="mdi:import"
+                  class="text-base text-gray-500 dark:text-gray-400"
+                />
+              </button>
+              <button
+                @click="handleExport"
+                title="导出 Markdown"
+                class="p-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-pointer"
+              >
+                <Icon
+                  icon="mdi:export"
+                  class="text-base text-gray-500 dark:text-gray-400"
+                />
+              </button>
+              <button
+                @click="emit('close')"
+                class="p-1.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-pointer"
+              >
+                <Icon
+                  icon="mdi:close"
+                  class="text-lg text-gray-500 dark:text-gray-400"
+                />
+              </button>
+            </div>
           </div>
 
           <!-- 过滤标签 -->
