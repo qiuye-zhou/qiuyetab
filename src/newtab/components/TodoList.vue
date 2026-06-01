@@ -59,7 +59,7 @@ const filteredTodos = computed(() => {
     if (!a.dueDate) return 1
     if (!b.dueDate) return -1
     const diff = new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
-    return currentSort.value === 'newest' ? -diff : diff
+    return currentSort.value === 'newest' ? diff : -diff
   })
   return list
 })
