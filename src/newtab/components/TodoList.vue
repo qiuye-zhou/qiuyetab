@@ -37,15 +37,31 @@ const editDueDate = ref('')
 type FilterType = 'all' | 'active' | 'completed'
 const currentFilter = ref<FilterType>('all')
 
+// 排序
+type SortType = 'newest' | 'oldest'
+const currentSort = ref<SortType>('newest')
+
 const filteredTodos = computed(() => {
+  let list: TodoItem[]
   switch (currentFilter.value) {
     case 'active':
-      return todos.value.filter((t) => !t.completed)
+      list = todos.value.filter((t) => !t.completed)
+      break
     case 'completed':
-      return todos.value.filter((t) => t.completed)
+      list = todos.value.filter((t) => t.completed)
+      break
     default:
-      return todos.value
+      list = [...todos.value]
   }
+  // 按截止时间排序，无截止日期的排在最后
+  list.sort((a, b) => {
+    if (!a.dueDate && !b.dueDate) return 0
+    if (!a.dueDate) return 1
+    if (!b.dueDate) return -1
+    const diff = new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+    return currentSort.value === 'newest' ? -diff : diff
+  })
+  return list
 })
 
 const activeCount = computed(
@@ -218,8 +234,8 @@ onUnmounted(() => {
             </div>
           </div>
 
-          <!-- 过滤标签 -->
-          <div class="flex gap-1 px-5 pb-3">
+          <!-- 过滤标签 & 排序 -->
+          <div class="flex items-center gap-1 px-5 pb-3">
             <button
               v-for="filter in [
                 { key: 'all', label: '全部' },
@@ -237,6 +253,19 @@ onUnmounted(() => {
             >
               {{ filter.label }}
             </button>
+            <div class="ml-auto">
+              <button
+                @click="currentSort = currentSort === 'newest' ? 'oldest' : 'newest'"
+                class="flex items-center gap-1 px-2 py-1 text-xs rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-pointer"
+                :title="currentSort === 'newest' ? '最近截止在前' : '最远截止在前'"
+              >
+                <Icon
+                  :icon="currentSort === 'newest' ? 'mdi:sort-calendar-descending' : 'mdi:sort-calendar-ascending'"
+                  class="text-sm"
+                />
+                <span>{{ currentSort === 'newest' ? '临近' : '远期' }}</span>
+              </button>
+            </div>
           </div>
 
           <!-- 添加待办 -->
