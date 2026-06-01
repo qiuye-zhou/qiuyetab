@@ -5,6 +5,7 @@ import MainContent from './components/MainContent.vue'
 import SettingsPanel from './components/SettingsPanel.vue'
 import TodoList from './components/TodoList.vue'
 import { useSettingsStore } from './store/modules/settings'
+import { useTodos, type TodoItem } from '@/composables/useTodos'
 import { storeToRefs } from 'pinia'
 
 const settingsStore = useSettingsStore()
@@ -22,6 +23,35 @@ const settingsPage = ref('')
 
 // 待办弹窗状态
 const isTodoOpen = ref(false)
+
+// 最近七天待办
+const { todos, loadTodos, startWatching: startTodoWatching, stopWatching: stopTodoWatching } = useTodos()
+
+const upcomingTodos = computed(() => {
+  const now = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const sevenDaysLater = new Date(today)
+  sevenDaysLater.setDate(sevenDaysLater.getDate() + 7)
+
+  return todos.value
+    .filter((t) => {
+      if (t.completed || !t.dueDate) return false
+      const due = new Date(t.dueDate)
+      return due >= today && due <= sevenDaysLater
+    })
+    .sort((a, b) => new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime())
+})
+
+const formatUpcomingDate = (dateStr: string) => {
+  const date = new Date(dateStr)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const diff = Math.round((date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+  if (diff === 0) return '今天'
+  if (diff === 1) return '明天'
+  if (diff === 2) return '后天'
+  return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
+}
 
 // 切换设置面板
 const toggleSettings = () => {
@@ -127,6 +157,8 @@ watch(
 // 初始化主题
 onMounted(async () => {
   await settingsStore.initTheme()
+  await loadTodos()
+  startTodoWatching()
 
   // 如果当前是本地背景模式，启动定时切换
   if (backgroundType.value === 'local') {
@@ -137,6 +169,7 @@ onMounted(async () => {
 // 组件卸载时清理定时器和主题监听器
 onUnmounted(() => {
   stopBackgroundRotation()
+  stopTodoWatching()
   settingsStore.disposeTheme()
 })
 </script>
@@ -172,6 +205,42 @@ onUnmounted(() => {
           class="text-2xl text-gray-600 dark:text-gray-300"
         />
       </button>
+    </div>
+
+    <!-- 左上角最近七天待办 -->
+    <div
+      v-if="upcomingTodos.length > 0"
+      class="fixed top-2 left-2 z-50 max-w-xs"
+    >
+      <div
+        class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-xl shadow-lg border border-gray-200/50 dark:border-gray-600/50 p-3"
+      >
+        <div class="flex items-center gap-1.5 mb-2">
+          <Icon icon="mdi:calendar-clock" class="text-sm text-blue-500" />
+          <span class="text-xs font-medium text-gray-600 dark:text-gray-300">近七天待办</span>
+        </div>
+        <div class="space-y-1.5">
+          <div
+            v-for="todo in upcomingTodos"
+            :key="todo.id"
+            class="flex items-center gap-2 text-xs"
+          >
+            <span
+              class="shrink-0 px-1.5 py-0.5 rounded text-[10px] font-medium"
+              :class="
+                formatUpcomingDate(todo.dueDate!) === '今天'
+                  ? 'bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400'
+                  : formatUpcomingDate(todo.dueDate!) === '明天'
+                    ? 'bg-orange-100 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+              "
+            >
+              {{ formatUpcomingDate(todo.dueDate!) }}
+            </span>
+            <span class="truncate text-gray-700 dark:text-gray-300">{{ todo.text }}</span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- 主要内容区域 -->
