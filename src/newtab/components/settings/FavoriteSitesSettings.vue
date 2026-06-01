@@ -138,7 +138,7 @@ onMounted(() => {
           <Icon icon="mdi:drag-vertical" class="text-lg" />
         </div>
         <div
-          class="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-600 flex items-center justify-center flex-shrink-0 overflow-hidden"
+          class="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-600 flex items-center justify-center shrink-0 overflow-hidden"
         >
           <img
             v-if="isFaviconUrl(site.favicon)"
