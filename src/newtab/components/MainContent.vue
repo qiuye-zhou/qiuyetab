@@ -359,7 +359,10 @@ onUnmounted(() => {
               @click="openSite(site.url)"
             >
               <img
-                v-if="isFaviconUrl(site.favicon) && !failedFavicons.has(site.favicon)"
+                v-if="
+                  isFaviconUrl(site.favicon) &&
+                  !failedFavicons.has(site.favicon)
+                "
                 :src="site.favicon"
                 :alt="site.name"
                 class="w-6 h-6"

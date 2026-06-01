@@ -12,7 +12,7 @@ declare module '*.vue' {
 
 declare const chrome: {
   runtime: {
-    sendMessage(message: any, callback?: (response: any) => void): void
+    sendMessage(_message: any, _callback?: (_response: any) => void): void
     lastError?: { message: string }
   }
 }

@@ -328,9 +328,7 @@ export const useSettingsStore = defineStore('settings', () => {
   }
 
   // 设置显示选项
-  const setDisplayOptions = async (options: {
-    showTimeDisplay?: boolean
-  }) => {
+  const setDisplayOptions = async (options: { showTimeDisplay?: boolean }) => {
     if (typeof options.showTimeDisplay === 'boolean') {
       showTimeDisplay.value = options.showTimeDisplay
     }

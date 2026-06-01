@@ -4,8 +4,7 @@ import { useSettingsStore } from '../../store/modules/settings'
 import { storeToRefs } from 'pinia'
 
 const settingsStore = useSettingsStore()
-const { showTimeDisplay, searchBarPositionY } =
-  storeToRefs(settingsStore)
+const { showTimeDisplay, searchBarPositionY } = storeToRefs(settingsStore)
 
 // 更新时间显示设置
 const updateTimeDisplay = async (value: boolean) => {
@@ -79,7 +78,6 @@ const updatePositionPreview = (positionY: number) => {
               />
             </button>
           </div>
-
         </div>
       </div>
 

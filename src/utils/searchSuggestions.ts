@@ -85,9 +85,7 @@ export const addSearchHistory = async (query: string): Promise<void> => {
     const history = await getSearchHistory()
     // 移除重复项（忽略大小写）
     const lowerQuery = trimmedQuery.toLowerCase()
-    const filtered = history.filter(
-      (item) => item.toLowerCase() !== lowerQuery,
-    )
+    const filtered = history.filter((item) => item.toLowerCase() !== lowerQuery)
     // 添加到开头
     filtered.unshift(trimmedQuery)
     // 限制数量
@@ -108,9 +106,7 @@ export const removeSearchHistory = async (query: string): Promise<void> => {
     const history = await getSearchHistory()
     // 忽略大小写匹配删除
     const lowerQuery = trimmedQuery.toLowerCase()
-    const filtered = history.filter(
-      (item) => item.toLowerCase() !== lowerQuery,
-    )
+    const filtered = history.filter((item) => item.toLowerCase() !== lowerQuery)
     await browser.storage.local.set({ [SEARCH_HISTORY_KEY]: filtered })
   } catch (error) {
     console.error('删除搜索历史失败:', error)

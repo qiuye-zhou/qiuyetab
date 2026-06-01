@@ -43,7 +43,9 @@ export const getStorage = async (
  * @param data 要存储的数据
  * @returns Promise<void>
  */
-export const setStorage = async (data: Record<string, unknown>): Promise<void> => {
+export const setStorage = async (
+  data: Record<string, unknown>,
+): Promise<void> => {
   try {
     await browser.storage.local.set(data)
   } catch (error) {

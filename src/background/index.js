@@ -1,3 +1,4 @@
+/* global chrome */
 // 简单速率限制：每个 sender 每 500ms 最多一次请求
 const lastFetchTime = new Map()
 const RATE_LIMIT_MS = 500

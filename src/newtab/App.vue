@@ -3,6 +3,7 @@ import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { Icon } from '@iconify/vue'
 import MainContent from './components/MainContent.vue'
 import SettingsPanel from './components/SettingsPanel.vue'
+import TodoList from './components/TodoList.vue'
 import { useSettingsStore } from './store/modules/settings'
 import { storeToRefs } from 'pinia'
 
@@ -18,6 +19,9 @@ const {
 // 设置面板状态
 const isSettingsOpen = ref(false)
 const settingsPage = ref('')
+
+// 待办弹窗状态
+const isTodoOpen = ref(false)
 
 // 切换设置面板
 const toggleSettings = () => {
@@ -148,13 +152,27 @@ onUnmounted(() => {
     }"
     :data-has-bg="backgroundImageUrl ? 'true' : 'false'"
   >
-    <!-- 设置按钮 -->
-    <button
-      @click="toggleSettings"
-      class="fixed top-2 right-2 z-50 p-3 transition-all duration-300 hover:scale-105 cursor-pointer"
-    >
-      <Icon icon="mdi:cog" class="text-2xl text-gray-600 dark:text-gray-300" />
-    </button>
+    <!-- 右上角按钮组 -->
+    <div class="fixed top-2 right-2 z-50 flex items-center gap-1">
+      <button
+        @click="isTodoOpen = !isTodoOpen"
+        class="p-3 transition-all duration-300 hover:scale-105 cursor-pointer"
+      >
+        <Icon
+          icon="mdi:clipboard-check-outline"
+          class="text-2xl text-gray-600 dark:text-gray-300"
+        />
+      </button>
+      <button
+        @click="toggleSettings"
+        class="p-3 transition-all duration-300 hover:scale-105 cursor-pointer"
+      >
+        <Icon
+          icon="mdi:cog"
+          class="text-2xl text-gray-600 dark:text-gray-300"
+        />
+      </button>
+    </div>
 
     <!-- 主要内容区域 -->
     <MainContent
@@ -167,6 +185,9 @@ onUnmounted(() => {
       :default-page="settingsPage"
       @close="closeSettings"
     />
+
+    <!-- 待办事项弹窗 -->
+    <TodoList :is-open="isTodoOpen" @close="isTodoOpen = false" />
   </div>
 </template>
 

@@ -13,14 +13,18 @@ export default [
     files: ['**/*.{js,mjs,cjs,ts,mts,cts,vue}'],
     ...js.configs.recommended,
   },
+  // prettier 插件注册（全局）
+  {
+    files: ['**/*.{js,mjs,cjs,ts,mts,cts,vue}'],
+    plugins: {
+      prettier: prettier,
+    },
+  },
   // 全局变量设置 - 源码仅使用浏览器全局变量
   {
     files: ['src/**/*.{js,mjs,cjs,ts,mts,cts,vue}'],
     languageOptions: {
       globals: { ...globals.browser },
-    },
-    plugins: {
-      prettier: prettier,
     },
   },
   // 全局变量设置 - 构建脚本使用 Node 全局变量
@@ -28,9 +32,6 @@ export default [
     files: ['scripts/**/*.{js,mjs,cjs,ts,mts,cts}'],
     languageOptions: {
       globals: { ...globals.node },
-    },
-    plugins: {
-      prettier: prettier,
     },
   },
   // Vue 推荐规则
@@ -49,6 +50,7 @@ export default [
     rules: {
       ...prettierConfig.rules,
       'prettier/prettier': 'error',
+      'no-unused-vars': 'off', // 由 @typescript-eslint/no-unused-vars 接管
       '@typescript-eslint/no-explicit-any': 'off', // 允许使用 any
       '@typescript-eslint/no-unused-vars': [
         'error',

@@ -28,11 +28,11 @@ export const compressImage = (
       clearTimeout(timeoutId)
     }
 
-    const settle = <T>(fn: (value: T) => void, value: T) => {
+    const settle = <T>(fn: (val: T) => void, val: T) => {
       if (settled) return
       settled = true
       cleanup()
-      fn(value)
+      fn(val)
     }
 
     img.onload = () => {
