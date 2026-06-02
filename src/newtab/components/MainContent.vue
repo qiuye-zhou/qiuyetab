@@ -25,6 +25,7 @@ const { isSettingsLoaded, showTimeDisplay, searchBarPositionY } =
 
 // 响应式数据
 const searchQuery = ref('')
+const searchInputRef = ref<HTMLInputElement | null>(null)
 const currentTime = ref('')
 const currentDate = ref('')
 const greeting = ref('')
@@ -290,6 +291,62 @@ watch(searchQuery, (newQuery) => {
   fetchSuggestions(newQuery)
 })
 
+// 监听全局键盘事件，用户打字时自动聚焦搜索框并输入
+const handleGlobalKeydown = (e: KeyboardEvent) => {
+  const el = searchInputRef.value
+  if (!el) return
+  // 如果当前焦点已在输入框/文本区域/选择框中，不处理
+  const active = document.activeElement
+  if (
+    active?.tagName === 'INPUT' ||
+    active?.tagName === 'TEXTAREA' ||
+    active?.tagName === 'SELECT' ||
+    (active as HTMLElement)?.isContentEditable
+  ) {
+    return
+  }
+  // 忽略修饰键、功能键、快捷键
+  if (e.ctrlKey || e.altKey || e.metaKey) return
+  if (e.key.length > 1 && e.key !== 'Backspace') return
+  // 聚焦搜索框，如果是可输入字符则追加到搜索词
+  el.focus()
+  if (e.key === 'Backspace') {
+    searchQuery.value = searchQuery.value.slice(0, -1)
+  } else if (e.key.length === 1) {
+    searchQuery.value += e.key
+  }
+  e.preventDefault()
+}
+
+// 用户切回此标签页时，自动聚焦搜索框
+const handleWindowFocus = () => {
+  setTimeout(() => {
+    const el = searchInputRef.value
+    if (el && document.activeElement !== el) {
+      el.focus()
+    }
+  }, 100)
+}
+
+// 页面点击空白区域时，聚焦搜索框
+const handlePageClick = (e: MouseEvent) => {
+  const el = searchInputRef.value
+  if (!el) return
+  const target = e.target as HTMLElement
+  if (
+    target.closest('.search-container') ||
+    target.closest('button') ||
+    target.closest('a') ||
+    target.closest('[draggable]') ||
+    target.tagName === 'INPUT' ||
+    target.tagName === 'TEXTAREA' ||
+    target.tagName === 'SELECT'
+  ) {
+    return
+  }
+  el.focus()
+}
+
 // 监听时间显示设置变化，动态启停定时器
 watch(showTimeDisplay, (show) => {
   clearInterval(timeInterval)
@@ -308,6 +365,9 @@ onMounted(() => {
   loadFavoriteSites()
   startWatching()
   document.addEventListener('click', handleClickOutside)
+  document.addEventListener('click', handlePageClick)
+  document.addEventListener('keydown', handleGlobalKeydown)
+  window.addEventListener('focus', handleWindowFocus)
 })
 
 onUnmounted(() => {
@@ -319,14 +379,18 @@ onUnmounted(() => {
   }
   stopWatching()
   document.removeEventListener('click', handleClickOutside)
+  document.removeEventListener('click', handlePageClick)
+  document.removeEventListener('keydown', handleGlobalKeydown)
+  window.removeEventListener('focus', handleWindowFocus)
 })
 </script>
 <template>
   <main class="w-full max-w-5xl px-6">
     <!-- 搜索区域 - 使用固定定位，X轴居中，Y轴可自定义 -->
-    <Transition name="search-slide" mode="out-in">
+    <!-- 用 v-show 代替 v-if，确保 input 在 DOM 中存在，autofocus 才能生效 -->
+    <Transition name="search-slide">
       <div
-        v-if="isSettingsLoaded"
+        v-show="isSettingsLoaded"
         class="fixed left-1/2 w-full max-w-2xl px-6 z-10"
         :style="{
           top: `${searchBarPositionY}%`,
@@ -351,6 +415,7 @@ onUnmounted(() => {
 
         <div class="search-container relative group">
           <input
+            ref="searchInputRef"
             v-model="searchQuery"
             @keydown="handleKeydown"
             type="text"
