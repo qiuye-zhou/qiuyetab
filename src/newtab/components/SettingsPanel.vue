@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
 import { Icon } from '@iconify/vue'
 import SearchSettings from './settings/SearchSettings.vue'
 import AppearanceSettings from './settings/AppearanceSettings.vue'
@@ -71,9 +71,24 @@ const switchPage = (pageId: string) => {
 watch(
   () => props.defaultPage,
   (page) => {
-    if (page) currentPage.value = page
+    if (page && props.isOpen) currentPage.value = page
   },
 )
+
+// Escape 键关闭设置面板
+const handleKeydown = (e: KeyboardEvent) => {
+  if (e.key === 'Escape' && props.isOpen) {
+    handleClose()
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('keydown', handleKeydown)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleKeydown)
+})
 </script>
 
 <template>

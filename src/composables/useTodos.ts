@@ -13,11 +13,23 @@ export interface TodoItem {
 
 const STORAGE_KEY = 'todos'
 
-export function useTodos() {
-  const todos = ref<TodoItem[]>([])
-  let isWatching = false
-  let loadDebounceTimer: ReturnType<typeof setTimeout> | null = null
+// 解析 YYYY-MM-DD 日期字符串为本地时间 Date（避免时区偏移）
+export function parseLocalDate(dateStr: string): Date {
+  const parts = dateStr.split('-')
+  if (parts.length !== 3) return new Date(dateStr)
+  const y = Number(parts[0])
+  const m = Number(parts[1])
+  const d = Number(parts[2])
+  return new Date(y, m - 1, d)
+}
 
+// 单例模式：所有调用 useTodos() 的组件共享同一个响应式状态
+let todos = ref<TodoItem[]>([])
+let isWatching = false
+let loadDebounceTimer: ReturnType<typeof setTimeout> | null = null
+let watcherCount = 0
+
+export function useTodos() {
   const loadTodos = async () => {
     try {
       let result = await browser.storage.local.get([STORAGE_KEY])
@@ -103,8 +115,10 @@ export function useTodos() {
 
     let maxId = Math.max(...todos.value.map((t) => t.id), 0)
     const newTodos: TodoItem[] = []
+    const baseTime = Date.now()
 
-    for (const line of lines) {
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
       let text = line
       let completed = false
       let dueDate: string | null = null
@@ -132,7 +146,7 @@ export function useTodos() {
           text,
           completed,
           dueDate,
-          createdAt: Date.now(),
+          createdAt: baseTime + i, // 每项递增 1ms，避免全部相同
         })
       }
     }
@@ -159,13 +173,16 @@ export function useTodos() {
   }
 
   const startWatching = () => {
+    watcherCount++
     if (isWatching) return
     isWatching = true
     browser.storage.onChanged.addListener(handleStorageChange)
   }
 
   const stopWatching = () => {
-    if (!isWatching) return
+    watcherCount = Math.max(0, watcherCount - 1)
+    // 只有当没有组件在使用时才真正移除监听器
+    if (watcherCount > 0) return
     isWatching = false
     if (loadDebounceTimer) {
       clearTimeout(loadDebounceTimer)

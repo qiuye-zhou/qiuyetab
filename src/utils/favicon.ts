@@ -66,19 +66,24 @@ export async function fetchFavicon(url: string): Promise<string> {
 
 /**
  * 从 HTML 中解析 <link rel="icon" href="..."> 的 favicon 地址
+ * 支持单引号、双引号、无引号，以及属性顺序不固定的情况
  */
 function parseFaviconFromHtml(html: string, origin: string): string {
   const patterns = [
-    /<link[^>]*rel=["'](?:shortcut )?icon["'][^>]*href=["']([^"']+)["']/i,
-    /<link[^>]*href=["']([^"']+)["'][^>]*rel=["'](?:shortcut )?icon["']/i,
-    /<link[^>]*rel=["']apple-touch-icon["'][^>]*href=["']([^"']+)["']/i,
-    /<link[^>]*href=["']([^"']+)["'][^>]*rel=["']apple-touch-icon["']/i,
+    // rel 在 href 前
+    /<link[^>]*rel\s*=\s*["'](?:shortcut )?icon["'][^>]*href\s*=\s*["']([^"']+)["']/i,
+    // href 在 rel 前
+    /<link[^>]*href\s*=\s*["']([^"']+)["'][^>]*rel\s*=\s*["'](?:shortcut )?icon["']/i,
+    // apple-touch-icon
+    /<link[^>]*rel\s*=\s*["']apple-touch-icon["'][^>]*href\s*=\s*["']([^"']+)["']/i,
+    /<link[^>]*href\s*=\s*["']([^"']+)["'][^>]*rel\s*=\s*["']apple-touch-icon["']/i,
   ]
 
   for (const pattern of patterns) {
     const match = html.match(pattern)
     if (match?.[1]) {
-      const href = match[1]
+      const href = match[1].trim()
+      if (!href) continue
       if (href.startsWith('http')) return href
       if (href.startsWith('//')) return `https:${href}`
       if (href.startsWith('/')) return `${origin}${href}`

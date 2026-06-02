@@ -2,6 +2,17 @@
 // 简单速率限制：每个 sender 每 500ms 最多一次请求
 const lastFetchTime = new Map()
 const RATE_LIMIT_MS = 500
+const CLEANUP_INTERVAL = 10 * 60 * 1000 // 10 分钟清理一次过期记录
+
+// 定期清理过期的速率限制记录，防止 Map 无限增长
+setInterval(() => {
+  const now = Date.now()
+  for (const [key, time] of lastFetchTime) {
+    if (now - time > CLEANUP_INTERVAL) {
+      lastFetchTime.delete(key)
+    }
+  }
+}, CLEANUP_INTERVAL)
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'fetch-url') {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { Icon } from '@iconify/vue'
 import { useSettingsStore } from '../store/modules/settings'
 import { storeToRefs } from 'pinia'
@@ -38,7 +38,7 @@ const onFaviconError = (favicon: string) => {
   failedFavicons.value.add(favicon)
 }
 
-// 常用网站
+// 常用网站（单例 composable，与 FavoriteSitesSettings 共享同一个 ref）
 const {
   sites: favoriteSites,
   loadSites: loadFavoriteSites,
@@ -60,6 +60,65 @@ const {
 
 let timeInterval: ReturnType<typeof setInterval> | undefined
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
+
+// 常见 TLD 列表，用于区分 URL 和普通搜索文本
+const COMMON_TLDS = [
+  'com',
+  'cn',
+  'net',
+  'org',
+  'io',
+  'dev',
+  'app',
+  'me',
+  'co',
+  'cc',
+  'info',
+  'biz',
+  'xyz',
+  'top',
+  'site',
+  'online',
+  'store',
+  'tech',
+  'edu',
+  'gov',
+  'mil',
+  'int',
+  // 国家/地区
+  'uk',
+  'us',
+  'de',
+  'fr',
+  'jp',
+  'kr',
+  'ru',
+  'au',
+  'ca',
+  'in',
+  'br',
+  'it',
+  'es',
+  'nl',
+  'se',
+  'no',
+  'fi',
+  'dk',
+  'pl',
+  'cz',
+  'at',
+  'ch',
+  'be',
+  'ie',
+  'pt',
+  'gr',
+  'nz',
+  'za',
+  'sg',
+  'hk',
+  'tw',
+  'mo',
+]
 
 // 时间更新
 const updateTime = () => {
@@ -87,6 +146,9 @@ const updateTime = () => {
   }
 }
 
+// 搜索建议异步请求 ID，防止竞态条件
+let suggestionGeneration = 0
+
 // 获取搜索推荐
 const fetchSuggestions = async (query: string) => {
   if (debounceTimer) {
@@ -94,10 +156,29 @@ const fetchSuggestions = async (query: string) => {
   }
 
   debounceTimer = setTimeout(async () => {
-    suggestions.value = await getSearchSuggestions(query)
-    showSuggestions.value = suggestions.value.length > 0
-    selectedSuggestionIndex.value = -1
+    const gen = ++suggestionGeneration
+    const result = await getSearchSuggestions(query)
+    // 只有当本次请求仍然是最新请求时才更新结果
+    if (gen === suggestionGeneration) {
+      suggestions.value = result
+      showSuggestions.value = result.length > 0
+      selectedSuggestionIndex.value = -1
+    }
   }, 200)
+}
+
+// 判断输入是否是 URL（需要有协议，或最后一段 TLD 在常见列表中）
+const isLikelyUrl = (text: string): boolean => {
+  // 有协议前缀，直接判定为 URL
+  if (/^https?:\/\//i.test(text)) return true
+  // 必须包含至少一个点
+  if (!text.includes('.')) return false
+  // 提取最后一段 TLD（忽略路径和端口）
+  const hostPart = text.split('/')[0]!.split(':')[0]!
+  const parts = hostPart.split('.')
+  if (parts.length < 2) return false
+  const tld = parts[parts.length - 1]!.toLowerCase()
+  return COMMON_TLDS.includes(tld)
 }
 
 // 搜索功能
@@ -108,10 +189,7 @@ const handleSearch = async (query?: string) => {
   // 保存搜索历史
   await addSearchHistory(searchText)
 
-  // 检查是否是URL（需要有协议或常见 TLD 后缀）
-  const urlPattern =
-    /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w\-._~:/?#%[\]@!$&'()*+,;=]*)?$/i
-  if (urlPattern.test(searchText) && searchText.includes('.')) {
+  if (isLikelyUrl(searchText)) {
     const url = searchText.startsWith('http')
       ? searchText
       : `https://${searchText}`
@@ -133,6 +211,14 @@ const handleRemoveHistory = async (text: string) => {
   await removeSearchHistory(text)
   // 刷新推荐列表
   await fetchSuggestions(searchQuery.value)
+}
+
+// 滚动到当前选中的搜索建议项
+const scrollToSelectedSuggestion = async () => {
+  await nextTick()
+  document
+    .querySelector(`[data-suggestion-index="${selectedSuggestionIndex.value}"]`)
+    ?.scrollIntoView({ block: 'nearest' })
 }
 
 // 键盘导航
@@ -157,6 +243,7 @@ const handleKeydown = (e: KeyboardEvent) => {
         selectedSuggestionIndex.value < suggestions.value.length - 1
           ? selectedSuggestionIndex.value + 1
           : 0
+      scrollToSelectedSuggestion()
       break
     case 'ArrowUp':
       e.preventDefault()
@@ -164,6 +251,7 @@ const handleKeydown = (e: KeyboardEvent) => {
         selectedSuggestionIndex.value > 0
           ? selectedSuggestionIndex.value - 1
           : suggestions.value.length - 1
+      scrollToSelectedSuggestion()
       break
     case 'Enter':
       e.preventDefault()
@@ -290,6 +378,7 @@ onUnmounted(() => {
                 <button
                   v-for="(suggestion, index) in suggestions"
                   :key="suggestion.text"
+                  :data-suggestion-index="index"
                   @click="handleSearch(suggestion.text)"
                   @mouseenter="selectedSuggestionIndex = index"
                   class="w-full flex items-center px-3 py-2 rounded-xl text-left transition-all duration-200"

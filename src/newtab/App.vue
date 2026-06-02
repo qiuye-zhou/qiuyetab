@@ -5,7 +5,7 @@ import MainContent from './components/MainContent.vue'
 import SettingsPanel from './components/SettingsPanel.vue'
 import TodoList from './components/TodoList.vue'
 import { useSettingsStore } from './store/modules/settings'
-import { useTodos, type TodoItem } from '@/composables/useTodos'
+import { useTodos, parseLocalDate } from '@/composables/useTodos'
 import { storeToRefs } from 'pinia'
 
 const settingsStore = useSettingsStore()
@@ -25,7 +25,12 @@ const settingsPage = ref('')
 const isTodoOpen = ref(false)
 
 // 最近七天待办
-const { todos, loadTodos, startWatching: startTodoWatching, stopWatching: stopTodoWatching } = useTodos()
+const {
+  todos,
+  loadTodos,
+  startWatching: startTodoWatching,
+  stopWatching: stopTodoWatching,
+} = useTodos()
 
 const upcomingTodos = computed(() => {
   const now = new Date()
@@ -36,17 +41,23 @@ const upcomingTodos = computed(() => {
   return todos.value
     .filter((t) => {
       if (t.completed || !t.dueDate) return false
-      const due = new Date(t.dueDate)
+      const due = parseLocalDate(t.dueDate)
       return due >= today && due <= sevenDaysLater
     })
-    .sort((a, b) => new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime())
+    .sort(
+      (a, b) =>
+        parseLocalDate(a.dueDate!).getTime() -
+        parseLocalDate(b.dueDate!).getTime(),
+    )
 })
 
 const formatUpcomingDate = (dateStr: string) => {
-  const date = new Date(dateStr)
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const diff = Math.round((date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+  const date = parseLocalDate(dateStr)
+  const now = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const diff = Math.round(
+    (date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
+  )
   if (diff === 0) return '今天'
   if (diff === 1) return '明天'
   if (diff === 2) return '后天'
@@ -143,15 +154,14 @@ watch(backgroundType, (newType) => {
   }
 })
 
-// 监听背景列表变化
+// 监听背景列表变化 — 只在数量变化时重启定时器
 watch(
-  localBackgrounds,
-  () => {
-    if (backgroundType.value === 'local') {
+  () => localBackgrounds.value.filter((bg) => bg.enabled).length,
+  (newCount, oldCount) => {
+    if (backgroundType.value === 'local' && newCount !== oldCount) {
       startBackgroundRotation()
     }
   },
-  { deep: true },
 )
 
 // 初始化主题
@@ -217,7 +227,9 @@ onUnmounted(() => {
       >
         <div class="flex items-center gap-1.5 mb-2">
           <Icon icon="mdi:calendar-clock" class="text-sm text-blue-500" />
-          <span class="text-xs font-medium text-gray-600 dark:text-gray-300">近七天待办</span>
+          <span class="text-xs font-medium text-gray-600 dark:text-gray-300"
+            >近七天待办</span
+          >
         </div>
         <div class="space-y-1.5">
           <div
@@ -237,7 +249,9 @@ onUnmounted(() => {
             >
               {{ formatUpcomingDate(todo.dueDate!) }}
             </span>
-            <span class="truncate text-gray-700 dark:text-gray-300">{{ todo.text }}</span>
+            <span class="truncate text-gray-700 dark:text-gray-300">{{
+              todo.text
+            }}</span>
           </div>
         </div>
       </div>

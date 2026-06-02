@@ -79,7 +79,10 @@ export const compressImage = (
  */
 export const estimateBase64Size = (base64: string): number => {
   const base64Data = base64.split(',')[1]
-  return Math.floor((base64Data?.length || 0) * 0.75)
+  if (!base64Data) return 0
+  // 减去填充字符（=）的数量来得到精确的字节数
+  const padding = (base64Data.match(/=+$/) || [''])[0].length
+  return Math.floor(base64Data.length * 0.75) - padding
 }
 
 /**

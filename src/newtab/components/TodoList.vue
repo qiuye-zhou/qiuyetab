@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { Icon } from '@iconify/vue'
-import { useTodos, type TodoItem } from '@/composables/useTodos'
+import { useTodos, type TodoItem, parseLocalDate } from '@/composables/useTodos'
 
 defineProps<{
   isOpen: boolean
@@ -58,7 +58,8 @@ const filteredTodos = computed(() => {
     if (!a.dueDate && !b.dueDate) return 0
     if (!a.dueDate) return 1
     if (!b.dueDate) return -1
-    const diff = new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+    const diff =
+      parseLocalDate(a.dueDate).getTime() - parseLocalDate(b.dueDate).getTime()
     return currentSort.value === 'newest' ? diff : -diff
   })
   return list
@@ -133,11 +134,13 @@ const handleImport = async (event: Event) => {
 
 const isOverdue = (todo: TodoItem) => {
   if (!todo.dueDate || todo.completed) return false
-  return new Date(todo.dueDate) < new Date(new Date().toDateString())
+  const now = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  return parseLocalDate(todo.dueDate) < today
 }
 
 const formatDate = (dateStr: string) => {
-  const date = new Date(dateStr)
+  const date = parseLocalDate(dateStr)
   return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
 }
 
@@ -255,12 +258,20 @@ onUnmounted(() => {
             </button>
             <div class="ml-auto">
               <button
-                @click="currentSort = currentSort === 'newest' ? 'oldest' : 'newest'"
+                @click="
+                  currentSort = currentSort === 'newest' ? 'oldest' : 'newest'
+                "
                 class="flex items-center gap-1 px-2 py-1 text-xs rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-pointer"
-                :title="currentSort === 'newest' ? '最近截止在前' : '最远截止在前'"
+                :title="
+                  currentSort === 'newest' ? '最近截止在前' : '最远截止在前'
+                "
               >
                 <Icon
-                  :icon="currentSort === 'newest' ? 'mdi:sort-calendar-descending' : 'mdi:sort-calendar-ascending'"
+                  :icon="
+                    currentSort === 'newest'
+                      ? 'mdi:sort-calendar-descending'
+                      : 'mdi:sort-calendar-ascending'
+                  "
                   class="text-sm"
                 />
                 <span>{{ currentSort === 'newest' ? '临近' : '远期' }}</span>

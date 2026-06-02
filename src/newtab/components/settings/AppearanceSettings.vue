@@ -73,10 +73,9 @@ const handleCustomBgChange = async () => {
   }
 }
 
-// 透明度滑块防抖
+// 透明度滑块防抖（只负责持久化，localOpacity 由 v-model 自动更新）
 let opacityDebounceTimer: ReturnType<typeof setTimeout> | null = null
 const handleOpacityChange = (opacity: number) => {
-  localOpacity.value = opacity
   if (opacityDebounceTimer) clearTimeout(opacityDebounceTimer)
   opacityDebounceTimer = setTimeout(() => {
     settingsStore.setBackgroundOpacity(opacity)
@@ -446,7 +445,11 @@ onMounted(async () => {
           <Icon icon="mdi:eye-off" class="text-gray-400 text-sm" />
           <input
             v-model="localOpacity"
-            @input="handleOpacityChange(Number(localOpacity))"
+            @input="
+              handleOpacityChange(
+                Number(($event.target as HTMLInputElement).value),
+              )
+            "
             type="range"
             min="0"
             max="1"

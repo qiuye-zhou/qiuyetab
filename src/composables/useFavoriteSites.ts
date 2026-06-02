@@ -4,15 +4,16 @@ import webExtensionPolyfill from 'webextension-polyfill'
 
 const browser = webExtensionPolyfill
 
+// 单例模式：所有调用 useFavoriteSites() 的组件共享同一个响应式状态
+const sites = ref<FavoriteSite[]>([...defaultFavoriteSites])
+let isWatching = false
+let loadDebounceTimer: ReturnType<typeof setTimeout> | null = null
+let watcherCount = 0
+
 /**
- * 常用网站管理 composable
- * @param options 配置选项
+ * 常用网站管理 composable（单例）
  */
 export function useFavoriteSites() {
-  const sites = ref<FavoriteSite[]>([...defaultFavoriteSites])
-  let isWatching = false
-  let loadDebounceTimer: ReturnType<typeof setTimeout> | null = null
-
   const loadSites = async () => {
     try {
       let result = await browser.storage.local.get(['favoriteSites'])
@@ -57,14 +58,16 @@ export function useFavoriteSites() {
   }
 
   const startWatching = () => {
-    // 防止重复注册监听器
+    watcherCount++
     if (isWatching) return
     isWatching = true
     browser.storage.onChanged.addListener(handleStorageChange)
   }
 
   const stopWatching = () => {
-    if (!isWatching) return
+    watcherCount = Math.max(0, watcherCount - 1)
+    // 只有当没有组件在使用时才真正移除监听器
+    if (watcherCount > 0) return
     isWatching = false
     if (loadDebounceTimer) {
       clearTimeout(loadDebounceTimer)

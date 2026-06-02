@@ -28,6 +28,14 @@ export const getStorage = async (
     const missingKeys = keys.filter((key) => localResult[key] === undefined)
     if (missingKeys.length > 0) {
       const syncResult = await browser.storage.sync.get(missingKeys)
+      // 将从 sync 读取到的数据回写到 local，避免下次重复查询
+      if (Object.keys(syncResult).length > 0) {
+        try {
+          await browser.storage.local.set(syncResult)
+        } catch {
+          // 回写失败不影响返回结果
+        }
+      }
       return { ...syncResult, ...localResult }
     }
 

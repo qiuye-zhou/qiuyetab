@@ -25,5 +25,5 @@ export const searchEngines: SearchEngine[] = [
 export const getSearchUrl = (engineValue: string, query: string): string => {
   const engine = searchEngines.find((e) => e.value === engineValue)
   if (!engine) return `https://www.baidu.com/s?wd=${encodeURIComponent(query)}`
-  return engine.url.replace('{query}', encodeURIComponent(query))
+  return engine.url.replaceAll('{query}', encodeURIComponent(query))
 }
