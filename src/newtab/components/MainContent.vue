@@ -407,7 +407,7 @@ onUnmounted(() => {
         <!-- 时间显示 -->
         <div
           v-if="isSettingsLoaded && showTimeDisplay"
-          class="text-center mb-12"
+          class="text-center mb-4"
         >
           <h1 class="text-5xl font-bold text-gray-600 dark:text-gray-300 mb-4">
             {{ currentTime }}
@@ -427,7 +427,7 @@ onUnmounted(() => {
             @keydown="handleKeydown"
             type="text"
             placeholder="搜索或输入网址"
-            class="w-full pl-16 pr-16 py-5 text-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-0 rounded-3xl shadow-xl text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 transition-all duration-500 ease-out"
+            class="w-full pl-16 pr-16 py-3 text-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-0 rounded-3xl shadow-xl text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 transition-all duration-500 ease-out"
             style="box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.4)"
             autofocus
           />
