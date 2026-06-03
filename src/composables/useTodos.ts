@@ -12,6 +12,7 @@ export interface TodoItem {
 }
 
 const STORAGE_KEY = 'todos'
+const MAX_IMPORT_LINES = 1000
 
 // 解析 YYYY-MM-DD 日期字符串为本地时间 Date（避免时区偏移）
 export function parseLocalDate(dateStr: string): Date {
@@ -20,11 +21,27 @@ export function parseLocalDate(dateStr: string): Date {
   const y = Number(parts[0])
   const m = Number(parts[1])
   const d = Number(parts[2])
+  // 校验年月日范围
+  if (isNaN(y) || isNaN(m) || isNaN(d)) return new Date(dateStr)
+  if (m < 1 || m > 12 || d < 1 || d > 31) return new Date(dateStr)
   return new Date(y, m - 1, d)
 }
 
+// 校验单个 TodoItem 的基本结构
+function isValidTodoItem(item: unknown): item is TodoItem {
+  if (typeof item !== 'object' || item === null) return false
+  const obj = item as Record<string, unknown>
+  return (
+    typeof obj.id === 'number' &&
+    typeof obj.text === 'string' &&
+    typeof obj.completed === 'boolean' &&
+    (obj.dueDate === null || typeof obj.dueDate === 'string') &&
+    typeof obj.createdAt === 'number'
+  )
+}
+
 // 单例模式：所有调用 useTodos() 的组件共享同一个响应式状态
-let todos = ref<TodoItem[]>([])
+const todos = ref<TodoItem[]>([])
 let isWatching = false
 let loadDebounceTimer: ReturnType<typeof setTimeout> | null = null
 let watcherCount = 0
@@ -43,7 +60,9 @@ export function useTodos() {
           arr = Object.values(arr)
         }
         if (Array.isArray(arr)) {
-          todos.value = arr
+          // Schema 校验：过滤掉不合法的数据
+          const validItems = arr.filter(isValidTodoItem)
+          todos.value = validItems
         }
       }
     } catch (error) {
@@ -56,32 +75,50 @@ export function useTodos() {
       await browser.storage.local.set({ [STORAGE_KEY]: todos.value })
     } catch (error) {
       console.error('保存待办事项失败:', error)
+      throw error
     }
   }
 
   const addTodo = async (text: string, dueDate?: string | null) => {
-    const newId = Math.max(...todos.value.map((t) => t.id), 0) + 1
-    todos.value.unshift({
+    const newId = todos.value.reduce((max, t) => Math.max(max, t.id), 0) + 1
+    const newTodo: TodoItem = {
       id: newId,
       text: text.trim(),
       completed: false,
       dueDate: dueDate ?? null,
       createdAt: Date.now(),
-    })
-    await saveTodos()
+    }
+    // 写入前快照，失败时回滚
+    const snapshot = [...todos.value]
+    todos.value.unshift(newTodo)
+    try {
+      await saveTodos()
+    } catch {
+      todos.value = snapshot
+    }
   }
 
   const toggleTodo = async (id: number) => {
     const todo = todos.value.find((t) => t.id === id)
     if (todo) {
+      const prev = todo.completed
       todo.completed = !todo.completed
-      await saveTodos()
+      try {
+        await saveTodos()
+      } catch {
+        todo.completed = prev
+      }
     }
   }
 
   const removeTodo = async (id: number) => {
+    const snapshot = [...todos.value]
     todos.value = todos.value.filter((t) => t.id !== id)
-    await saveTodos()
+    try {
+      await saveTodos()
+    } catch {
+      todos.value = snapshot
+    }
   }
 
   const updateTodo = async (
@@ -90,9 +127,16 @@ export function useTodos() {
   ) => {
     const todo = todos.value.find((t) => t.id === id)
     if (todo) {
+      const prevText = todo.text
+      const prevDueDate = todo.dueDate
       if (updates.text !== undefined) todo.text = updates.text.trim()
       if (updates.dueDate !== undefined) todo.dueDate = updates.dueDate
-      await saveTodos()
+      try {
+        await saveTodos()
+      } catch {
+        todo.text = prevText
+        todo.dueDate = prevDueDate
+      }
     }
   }
 
@@ -113,7 +157,12 @@ export function useTodos() {
       .map((line) => line.trim())
       .filter((line) => line.length > 0)
 
-    let maxId = Math.max(...todos.value.map((t) => t.id), 0)
+    // 限制导入行数，防止性能问题
+    if (lines.length > MAX_IMPORT_LINES) {
+      throw new Error(`导入内容超过 ${MAX_IMPORT_LINES} 行限制`)
+    }
+
+    let maxId = todos.value.reduce((max, t) => Math.max(max, t.id), 0)
     const newTodos: TodoItem[] = []
     const baseTime = Date.now()
 
@@ -152,8 +201,13 @@ export function useTodos() {
     }
 
     if (newTodos.length > 0) {
+      const snapshot = [...todos.value]
       todos.value = [...newTodos, ...todos.value]
-      await saveTodos()
+      try {
+        await saveTodos()
+      } catch {
+        todos.value = snapshot
+      }
     }
 
     return newTodos.length

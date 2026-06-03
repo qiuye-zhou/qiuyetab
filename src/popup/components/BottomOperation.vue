@@ -1,10 +1,16 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { Icon } from '@iconify/vue'
 import { useGlobalStore } from '../store/modules/global'
 import { storeToRefs } from 'pinia'
 
 const global = useGlobalStore()
 const { appVersion, buildTime } = storeToRefs(global)
+
+// 缓存日期格式化，避免每次渲染重新创建 Date 对象
+const formattedBuildTime = computed(() =>
+  new Date(buildTime.value).toLocaleDateString('zh-CN'),
+)
 
 const emit = defineEmits(['openSite'])
 </script>
@@ -23,7 +29,7 @@ const emit = defineEmits(['openSite'])
       <span class="mx-2">|</span>
       <span>v{{ appVersion }}</span>
       <span class="mx-2">|</span>
-      <span>{{ new Date(buildTime).toLocaleDateString('zh-CN') }}</span>
+      <span>{{ formattedBuildTime }}</span>
     </div>
   </div>
 </template>

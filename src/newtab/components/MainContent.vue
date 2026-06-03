@@ -273,11 +273,30 @@ const handleKeydown = (e: KeyboardEvent) => {
   }
 }
 
-// 点击外部关闭推荐
-const handleClickOutside = (e: MouseEvent) => {
+// 统一的文档点击处理：关闭推荐 + 空白区域聚焦搜索框
+const handleDocumentClick = (e: MouseEvent) => {
   const target = e.target as HTMLElement
+
+  // 点击搜索区域外部时关闭推荐
   if (!target.closest('.search-container')) {
     showSuggestions.value = false
+  }
+
+  // 点击空白区域时聚焦搜索框
+  const el = searchInputRef.value
+  if (el) {
+    if (
+      target.closest('.search-container') ||
+      target.closest('button') ||
+      target.closest('a') ||
+      target.closest('[draggable]') ||
+      target.tagName === 'INPUT' ||
+      target.tagName === 'TEXTAREA' ||
+      target.tagName === 'SELECT'
+    ) {
+      return
+    }
+    el.focus()
   }
 }
 
@@ -305,6 +324,10 @@ const handleGlobalKeydown = (e: KeyboardEvent) => {
   ) {
     return
   }
+  // 如果有模态框/覆盖层打开（如 TodoList、SettingsPanel），不劫持键盘
+  if (document.querySelector('.fixed.inset-0')) {
+    return
+  }
   // 忽略修饰键、功能键、快捷键
   if (e.ctrlKey || e.altKey || e.metaKey) return
   if (e.key.length > 1 && e.key !== 'Backspace') return
@@ -319,32 +342,15 @@ const handleGlobalKeydown = (e: KeyboardEvent) => {
 }
 
 // 用户切回此标签页时，自动聚焦搜索框
+let focusTimer: ReturnType<typeof setTimeout> | null = null
 const handleWindowFocus = () => {
-  setTimeout(() => {
+  if (focusTimer) clearTimeout(focusTimer)
+  focusTimer = setTimeout(() => {
     const el = searchInputRef.value
     if (el && document.activeElement !== el) {
       el.focus()
     }
   }, 100)
-}
-
-// 页面点击空白区域时，聚焦搜索框
-const handlePageClick = (e: MouseEvent) => {
-  const el = searchInputRef.value
-  if (!el) return
-  const target = e.target as HTMLElement
-  if (
-    target.closest('.search-container') ||
-    target.closest('button') ||
-    target.closest('a') ||
-    target.closest('[draggable]') ||
-    target.tagName === 'INPUT' ||
-    target.tagName === 'TEXTAREA' ||
-    target.tagName === 'SELECT'
-  ) {
-    return
-  }
-  el.focus()
 }
 
 // 监听时间显示设置变化，动态启停定时器
@@ -364,8 +370,7 @@ onMounted(() => {
   }
   loadFavoriteSites()
   startWatching()
-  document.addEventListener('click', handleClickOutside)
-  document.addEventListener('click', handlePageClick)
+  document.addEventListener('click', handleDocumentClick)
   document.addEventListener('keydown', handleGlobalKeydown)
   window.addEventListener('focus', handleWindowFocus)
 })
@@ -377,9 +382,11 @@ onUnmounted(() => {
   if (debounceTimer) {
     clearTimeout(debounceTimer)
   }
+  if (focusTimer) {
+    clearTimeout(focusTimer)
+  }
   stopWatching()
-  document.removeEventListener('click', handleClickOutside)
-  document.removeEventListener('click', handlePageClick)
+  document.removeEventListener('click', handleDocumentClick)
   document.removeEventListener('keydown', handleGlobalKeydown)
   window.removeEventListener('focus', handleWindowFocus)
 })
@@ -590,21 +597,6 @@ onUnmounted(() => {
 
 .dark .group input:focus {
   border: 1px solid rgba(75, 85, 99, 0.6);
-}
-
-/* 键盘按键样式 */
-kbd {
-  box-shadow:
-    0 1px 1px rgba(0, 0, 0, 0.1),
-    0 2px 0 0 rgba(255, 255, 255, 0.9),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
-}
-
-.dark kbd {
-  box-shadow:
-    0 1px 1px rgba(0, 0, 0, 0.3),
-    0 2px 0 0 rgba(55, 65, 81, 0.9),
-    inset 0 1px 0 0 rgba(55, 65, 81, 0.9);
 }
 
 /* 时间数字动画 */

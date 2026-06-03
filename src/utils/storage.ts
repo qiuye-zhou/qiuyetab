@@ -41,7 +41,7 @@ export const getStorage = async (
 
     return localResult
   } catch (error) {
-    console.error('获取存储数据失败:', error)
+    console.warn('获取存储数据失败:', error)
     return {}
   }
 }

@@ -9,9 +9,27 @@ import { defaultFavoriteSites } from '@/config/defaultSites'
 // 使用 browser API
 const browser = webExtensionPolyfill
 
+// 校验 URL 协议安全性
+const isOpenableUrl = (url: string): boolean => {
+  try {
+    const parsed = new URL(url)
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
 // 打开网站
-const openSite = (url: string) => {
-  browser.tabs.create({ url })
+const openSite = async (url: string) => {
+  if (!isOpenableUrl(url)) {
+    console.warn('拒绝打开非 http/https URL:', url)
+    return
+  }
+  try {
+    await browser.tabs.create({ url })
+  } catch (err) {
+    console.error('打开标签页失败:', err)
+  }
   window.close()
 }
 
@@ -28,10 +46,11 @@ const initializeDefaultSettings = async () => {
       'favoriteSites',
     ])
 
+    // 统一使用 === undefined 判断，避免 falsy 值误判
     if (
-      !localResult.searchEngine &&
+      localResult.searchEngine === undefined &&
       !('favoriteSites' in localResult) &&
-      !syncResult.searchEngine &&
+      syncResult.searchEngine === undefined &&
       !('favoriteSites' in syncResult)
     ) {
       await browser.storage.local.set({

@@ -3,7 +3,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { Icon } from '@iconify/vue'
 import { useTodos, type TodoItem, parseLocalDate } from '@/composables/useTodos'
 
-defineProps<{
+const props = defineProps<{
   isOpen: boolean
 }>()
 
@@ -145,7 +145,7 @@ const formatDate = (dateStr: string) => {
 }
 
 const handleKeydown = (e: KeyboardEvent) => {
-  if (e.key === 'Escape') {
+  if (e.key === 'Escape' && props.isOpen) {
     if (editingId.value !== null) {
       cancelEdit()
     } else {

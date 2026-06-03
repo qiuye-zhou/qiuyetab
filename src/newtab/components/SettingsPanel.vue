@@ -1,12 +1,33 @@
 <script setup lang="ts">
-import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
+import {
+  computed,
+  ref,
+  watch,
+  onMounted,
+  onUnmounted,
+  defineAsyncComponent,
+} from 'vue'
 import { Icon } from '@iconify/vue'
-import SearchSettings from './settings/SearchSettings.vue'
-import AppearanceSettings from './settings/AppearanceSettings.vue'
-import LayoutSettings from './settings/LayoutSettings.vue'
-import FavoriteSitesSettings from './settings/FavoriteSitesSettings.vue'
-import QuickActionsSettings from './settings/QuickActionsSettings.vue'
-import TabsManagementSettings from './settings/TabsManagementSettings.vue'
+
+// 懒加载设置子组件，减少初始 bundle 大小
+const SearchSettings = defineAsyncComponent(
+  () => import('./settings/SearchSettings.vue'),
+)
+const AppearanceSettings = defineAsyncComponent(
+  () => import('./settings/AppearanceSettings.vue'),
+)
+const LayoutSettings = defineAsyncComponent(
+  () => import('./settings/LayoutSettings.vue'),
+)
+const FavoriteSitesSettings = defineAsyncComponent(
+  () => import('./settings/FavoriteSitesSettings.vue'),
+)
+const QuickActionsSettings = defineAsyncComponent(
+  () => import('./settings/QuickActionsSettings.vue'),
+)
+const TabsManagementSettings = defineAsyncComponent(
+  () => import('./settings/TabsManagementSettings.vue'),
+)
 
 interface Props {
   isOpen: boolean
@@ -72,6 +93,16 @@ watch(
   () => props.defaultPage,
   (page) => {
     if (page && props.isOpen) currentPage.value = page
+  },
+)
+
+// 面板从关闭变为打开时，重置页面为 defaultPage 或默认值
+watch(
+  () => props.isOpen,
+  (open) => {
+    if (open) {
+      currentPage.value = props.defaultPage || 'search'
+    }
   },
 )
 

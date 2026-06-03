@@ -51,7 +51,7 @@ export default [
       ...prettierConfig.rules,
       'prettier/prettier': 'error',
       'no-unused-vars': 'off', // 由 @typescript-eslint/no-unused-vars 接管
-      '@typescript-eslint/no-explicit-any': 'off', // 允许使用 any
+      '@typescript-eslint/no-explicit-any': 'warn', // 允许使用 any 但给警告
       '@typescript-eslint/no-unused-vars': [
         'error',
         {
@@ -60,7 +60,7 @@ export default [
         },
       ], // 允许以下划线开头的未使用变量
       'vue/multi-word-component-names': 'off', // 关闭组件名必须多个单词的规则
-      'vue/no-unused-vars': 'error', // 检查未使用的变量
+      'vue/no-unused-vars': 'off', // script setup 中模板使用的变量会被误报
       semi: ['error', 'never'], // 禁止使用分号
     },
   },

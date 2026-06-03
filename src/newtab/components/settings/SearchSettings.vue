@@ -25,7 +25,13 @@ const saveSettings = async () => {
   }
 }
 
+// 用标志位跳过首次 watcher 触发（由 loadSettings 引起的）
+let isInitialLoad = true
 watch(selectedEngine, () => {
+  if (isInitialLoad) {
+    isInitialLoad = false
+    return
+  }
   saveSettings()
 })
 

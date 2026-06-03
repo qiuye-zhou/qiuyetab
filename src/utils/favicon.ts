@@ -84,6 +84,8 @@ function parseFaviconFromHtml(html: string, origin: string): string {
     if (match?.[1]) {
       const href = match[1].trim()
       if (!href) continue
+      // data: URL 直接返回
+      if (href.startsWith('data:')) return href
       if (href.startsWith('http')) return href
       if (href.startsWith('//')) return `https:${href}`
       if (href.startsWith('/')) return `${origin}${href}`

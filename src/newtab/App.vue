@@ -27,10 +27,23 @@ const isTodoOpen = ref(false)
 // 最近七天待办
 const {
   todos,
-  loadTodos,
   startWatching: startTodoWatching,
   stopWatching: stopTodoWatching,
 } = useTodos()
+
+// 日期格式化缓存，避免模板中重复计算
+const formatDateLabel = (dateStr: string): string => {
+  const date = parseLocalDate(dateStr)
+  const now = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const diff = Math.round(
+    (date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
+  )
+  if (diff === 0) return '今天'
+  if (diff === 1) return '明天'
+  if (diff === 2) return '后天'
+  return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
+}
 
 const upcomingTodos = computed(() => {
   const now = new Date()
@@ -49,20 +62,11 @@ const upcomingTodos = computed(() => {
         parseLocalDate(a.dueDate!).getTime() -
         parseLocalDate(b.dueDate!).getTime(),
     )
+    .map((t) => ({
+      ...t,
+      dateLabel: formatDateLabel(t.dueDate!),
+    }))
 })
-
-const formatUpcomingDate = (dateStr: string) => {
-  const date = parseLocalDate(dateStr)
-  const now = new Date()
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const diff = Math.round(
-    (date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
-  )
-  if (diff === 0) return '今天'
-  if (diff === 1) return '明天'
-  if (diff === 2) return '后天'
-  return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
-}
 
 // 切换设置面板
 const toggleSettings = () => {
@@ -93,9 +97,21 @@ const backgroundStyle = computed(() => {
 
 const currentLocalBackground = ref<string | null>(null)
 
+// 校验 URL 协议安全性
+const isValidImageUrl = (url: string): boolean => {
+  try {
+    const parsed = new URL(url)
+    return ['http:', 'https:', 'data:', 'blob:'].includes(parsed.protocol)
+  } catch {
+    return false
+  }
+}
+
 // 计算背景图片URL和透明度（用于CSS变量）
 const backgroundImageUrl = computed(() => {
   if (backgroundType.value === 'custom' && customBackground.value) {
+    // 渲染时二次校验 URL 协议，防止存储值被篡改
+    if (!isValidImageUrl(customBackground.value)) return 'none'
     return `url(${customBackground.value})`
   }
   if (backgroundType.value === 'local' && currentLocalBackground.value) {
@@ -167,7 +183,7 @@ watch(
 // 初始化主题
 onMounted(async () => {
   await settingsStore.initTheme()
-  await loadTodos()
+  // loadTodos 由 TodoList 组件自行加载，此处不重复调用
   startTodoWatching()
 
   // 如果当前是本地背景模式，启动定时切换
@@ -240,14 +256,14 @@ onUnmounted(() => {
             <span
               class="shrink-0 px-1.5 py-0.5 rounded text-[10px] font-medium"
               :class="
-                formatUpcomingDate(todo.dueDate!) === '今天'
+                todo.dateLabel === '今天'
                   ? 'bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400'
-                  : formatUpcomingDate(todo.dueDate!) === '明天'
+                  : todo.dateLabel === '明天'
                     ? 'bg-orange-100 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400'
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
               "
             >
-              {{ formatUpcomingDate(todo.dueDate!) }}
+              {{ todo.dateLabel }}
             </span>
             <span class="truncate text-gray-700 dark:text-gray-300">{{
               todo.text

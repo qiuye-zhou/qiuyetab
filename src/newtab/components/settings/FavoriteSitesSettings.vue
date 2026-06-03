@@ -11,6 +11,7 @@ const { sites, loadSites, saveSites } = useFavoriteSites()
 // 编辑状态
 const editingSite = ref<FavoriteSite | null>(null)
 const isAddingNew = ref(false)
+const modalRef = ref<HTMLElement | null>(null)
 
 // 拖拽排序
 const {
@@ -27,12 +28,16 @@ const {
 const addNewSite = () => {
   isAddingNew.value = true
   editingSite.value = { id: 0, name: '', url: '', favicon: 'mdi:web' }
+  // 弹窗打开后自动聚焦，使 Escape 键生效
+  setTimeout(() => modalRef.value?.focus(), 50)
 }
 
 // 编辑网站
 const editSite = (site: FavoriteSite) => {
   isAddingNew.value = false
   editingSite.value = { ...site }
+  // 弹窗打开后自动聚焦，使 Escape 键生效
+  setTimeout(() => modalRef.value?.focus(), 50)
 }
 
 // 删除网站
@@ -203,7 +208,9 @@ onMounted(() => {
           v-if="editingSite"
           class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4"
           @click.self="cancelEdit"
-          @keyup.escape="cancelEdit"
+          @keydown.escape="cancelEdit"
+          tabindex="-1"
+          ref="modalRef"
         >
           <div
             class="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 w-full max-w-md space-y-4"

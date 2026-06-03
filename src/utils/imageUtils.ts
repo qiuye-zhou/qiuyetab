@@ -2,6 +2,9 @@ import webExtensionPolyfill from 'webextension-polyfill'
 
 const browser = webExtensionPolyfill
 
+// chrome.storage.local 配额常量（Chrome 为 10MB）
+const STORAGE_QUOTA_BYTES = 10 * 1024 * 1024
+
 /**
  * 压缩图片
  * @param file 原始图片文件
@@ -26,6 +29,9 @@ export const compressImage = (
     const cleanup = () => {
       URL.revokeObjectURL(objectUrl)
       clearTimeout(timeoutId)
+      // 释放 canvas 的 GPU 内存
+      canvas.width = 0
+      canvas.height = 0
     }
 
     const settle = <T>(fn: (val: T) => void, val: T) => {
@@ -99,12 +105,11 @@ export const checkStorageSpace = async (
     }
 
     const currentUsage = await browser.storage.local.getBytesInUse()
-    const totalQuota = 10 * 1024 * 1024
 
-    return currentUsage + requiredBytes <= totalQuota
+    return currentUsage + requiredBytes <= STORAGE_QUOTA_BYTES
   } catch (error) {
     console.error('检查存储空间失败:', error)
-    return true
+    return false
   }
 }
 
@@ -119,17 +124,16 @@ export const getStorageInfo = async (): Promise<{
 }> => {
   try {
     if (!browser?.storage?.local?.getBytesInUse) {
-      return { used: 0, total: 10 * 1024 * 1024, percentage: 0 }
+      return { used: 0, total: STORAGE_QUOTA_BYTES, percentage: 0 }
     }
 
     const used = await browser.storage.local.getBytesInUse()
-    const total = 10 * 1024 * 1024
-    const percentage = Math.round((used / total) * 100)
+    const percentage = Math.round((used / STORAGE_QUOTA_BYTES) * 100)
 
-    return { used, total, percentage }
+    return { used, total: STORAGE_QUOTA_BYTES, percentage }
   } catch (error) {
     console.error('获取存储信息失败:', error)
-    return { used: 0, total: 10 * 1024 * 1024, percentage: 0 }
+    return { used: 0, total: STORAGE_QUOTA_BYTES, percentage: 0 }
   }
 }
 

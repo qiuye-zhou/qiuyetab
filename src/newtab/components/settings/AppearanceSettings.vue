@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, watch, onMounted, onUnmounted } from 'vue'
 import { Icon } from '@iconify/vue'
 import { useSettingsStore } from '../../store/modules/settings'
 import { storeToRefs } from 'pinia'
@@ -19,19 +19,19 @@ const {
   backgroundOpacity,
 } = storeToRefs(settingsStore)
 
-// 主题设置
-const themes = ref([
+// 主题设置（静态数据，无需响应式）
+const themes = [
   { name: '浅色主题', value: 'light', icon: 'mdi:weather-sunny' },
   { name: '深色主题', value: 'dark', icon: 'mdi:weather-night' },
   { name: '自动', value: 'auto', icon: 'mdi:theme-light-dark' },
-])
+]
 
-// 背景设置
-const backgroundOptions = ref([
+// 背景设置（静态数据，无需响应式）
+const backgroundOptions = [
   { name: '默认背景', value: 'default' },
   { name: '自定义URL背景', value: 'custom' },
   { name: '自定义本地背景', value: 'local' },
-])
+]
 
 // 自定义背景URL输入
 const customBgUrl = ref('')
@@ -52,6 +52,19 @@ const handleThemeChange = async (newTheme: 'light' | 'dark' | 'auto') => {
 const handleBackgroundChange = async (
   newBackground: 'default' | 'custom' | 'local',
 ) => {
+  // 切换到自定义背景时，校验 URL
+  if (newBackground === 'custom' && customBgUrl.value) {
+    try {
+      const url = new URL(customBgUrl.value)
+      if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+        alert('仅支持 http:// 或 https:// 协议的图片链接')
+        return
+      }
+    } catch {
+      alert('请输入有效的图片 URL')
+      return
+    }
+  }
   await settingsStore.setBackground(newBackground, customBgUrl.value)
 }
 
@@ -164,6 +177,11 @@ const toggleBackground = async (id: string) => {
     alert('切换背景状态失败，请重试')
   }
 }
+
+// 监听外部透明度变化（如从其他标签页同步）
+watch(backgroundOpacity, (newVal) => {
+  localOpacity.value = newVal
+})
 
 // 初始化
 onMounted(async () => {

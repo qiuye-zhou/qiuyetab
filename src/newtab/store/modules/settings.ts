@@ -4,15 +4,16 @@ import webExtensionPolyfill from 'webextension-polyfill'
 
 const browser = webExtensionPolyfill
 
-const isValidLocalBackground = (
-  item: unknown,
-): item is {
+// 本地背景图片的类型定义
+interface LocalBackground {
   id: string
   name: string
-  data: string
+  data: string // base64编码
   enabled: boolean
   createdAt: number
-} => {
+}
+
+const isValidLocalBackground = (item: unknown): item is LocalBackground => {
   if (typeof item !== 'object' || item === null) return false
   const obj = item as Record<string, unknown>
   return (
@@ -22,6 +23,16 @@ const isValidLocalBackground = (
     typeof obj.enabled === 'boolean' &&
     typeof obj.createdAt === 'number'
   )
+}
+
+// 校验 URL 协议安全性
+const isValidImageUrl = (url: string): boolean => {
+  try {
+    const parsed = new URL(url)
+    return ['http:', 'https:', 'data:', 'blob:'].includes(parsed.protocol)
+  } catch {
+    return false
+  }
 }
 
 export const useSettingsStore = defineStore('settings', () => {
@@ -37,15 +48,7 @@ export const useSettingsStore = defineStore('settings', () => {
   // 背景设置
   const backgroundType = ref<'default' | 'custom' | 'local'>('default')
   const customBackground = ref('')
-  const localBackgrounds = ref<
-    Array<{
-      id: string
-      name: string
-      data: string // base64编码
-      enabled: boolean
-      createdAt: number
-    }>
-  >([]) // 多个本地背景图片
+  const localBackgrounds = ref<LocalBackground[]>([])
   const backgroundOpacity = ref(0.8)
 
   // 显示设置
@@ -89,7 +92,10 @@ export const useSettingsStore = defineStore('settings', () => {
         result.customBackground &&
         typeof result.customBackground === 'string'
       ) {
-        customBackground.value = result.customBackground
+        // 校验 URL 协议安全性，防止存储值被篡改
+        if (isValidImageUrl(result.customBackground)) {
+          customBackground.value = result.customBackground
+        }
       }
       if (result.localBackgrounds) {
         if (Array.isArray(result.localBackgrounds)) {
@@ -252,8 +258,8 @@ export const useSettingsStore = defineStore('settings', () => {
 
   // 添加本地背景
   const addLocalBackground = async (name: string, data: string) => {
-    const newBackground = {
-      id: Date.now().toString(),
+    const newBackground: LocalBackground = {
+      id: crypto.randomUUID(),
       name,
       data,
       enabled: true,

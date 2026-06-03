@@ -27,7 +27,16 @@ export function useFavoriteSites() {
           arr = Object.values(arr)
         }
         if (Array.isArray(arr)) {
-          sites.value = arr
+          // Schema 校验：确保每项都有必要的字段
+          const validItems = arr.filter(
+            (item: unknown) =>
+              typeof item === 'object' &&
+              item !== null &&
+              'id' in item &&
+              'name' in item &&
+              'url' in item,
+          )
+          sites.value = validItems as FavoriteSite[]
         }
       }
     } catch (error) {
@@ -36,10 +45,12 @@ export function useFavoriteSites() {
   }
 
   const saveSites = async () => {
+    const snapshot = [...sites.value]
     try {
       await browser.storage.local.set({ favoriteSites: sites.value })
     } catch (error) {
       console.error('保存常用网站失败:', error)
+      sites.value = snapshot
     }
   }
 

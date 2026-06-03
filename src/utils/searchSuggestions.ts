@@ -10,6 +10,9 @@ const browser = webExtensionPolyfill
 const SEARCH_HISTORY_KEY = 'search_history'
 const MAX_HISTORY_COUNT = 10
 
+// 简单的 Promise 链式锁，防止并发写入丢失数据
+let historyLock: Promise<void> = Promise.resolve()
+
 export interface SearchSuggestion {
   text: string
   type: 'history' | 'hot'
@@ -30,7 +33,7 @@ export const getSearchSuggestions = async (
       text: item,
       type: 'history',
     }))
-    return historyItems.slice(0, 10)
+    return historyItems.slice(0, MAX_HISTORY_COUNT)
   }
 
   const lowerQuery = query.toLowerCase()
@@ -75,25 +78,31 @@ export const getSearchHistory = async (): Promise<string[]> => {
  * @param query 搜索词
  */
 export const addSearchHistory = async (query: string): Promise<void> => {
-  try {
-    // 过滤空字符串和空白字符
-    const trimmedQuery = query.trim()
-    if (!trimmedQuery) {
-      return
-    }
+  // 使用 Promise 链式锁防止并发写入丢失数据
+  historyLock = historyLock.then(async () => {
+    try {
+      // 过滤空字符串和空白字符
+      const trimmedQuery = query.trim()
+      if (!trimmedQuery) {
+        return
+      }
 
-    const history = await getSearchHistory()
-    // 移除重复项（忽略大小写）
-    const lowerQuery = trimmedQuery.toLowerCase()
-    const filtered = history.filter((item) => item.toLowerCase() !== lowerQuery)
-    // 添加到开头
-    filtered.unshift(trimmedQuery)
-    // 限制数量
-    const limited = filtered.slice(0, MAX_HISTORY_COUNT)
-    await browser.storage.local.set({ [SEARCH_HISTORY_KEY]: limited })
-  } catch (error) {
-    console.error('保存搜索历史失败:', error)
-  }
+      const history = await getSearchHistory()
+      // 移除重复项（忽略大小写）
+      const lowerQuery = trimmedQuery.toLowerCase()
+      const filtered = history.filter(
+        (item) => item.toLowerCase() !== lowerQuery,
+      )
+      // 添加到开头
+      filtered.unshift(trimmedQuery)
+      // 限制数量
+      const limited = filtered.slice(0, MAX_HISTORY_COUNT)
+      await browser.storage.local.set({ [SEARCH_HISTORY_KEY]: limited })
+    } catch (error) {
+      console.error('保存搜索历史失败:', error)
+    }
+  })
+  await historyLock
 }
 
 /**

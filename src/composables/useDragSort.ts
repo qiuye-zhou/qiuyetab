@@ -27,8 +27,13 @@ export function useDragSort<T>(list: { value: T[] }, onReorder?: () => void) {
   const onDrop = (index: number) => {
     try {
       if (dragIndex.value !== null && dragIndex.value !== index) {
-        const [item] = list.value.splice(dragIndex.value, 1)
-        if (item) list.value.splice(index, 0, item)
+        const fromIndex = dragIndex.value
+        const [item] = list.value.splice(fromIndex, 1)
+        if (item) {
+          // 删除后如果目标在原位置之后，索引需要减 1
+          const toIndex = fromIndex < index ? index - 1 : index
+          list.value.splice(toIndex, 0, item)
+        }
         onReorder?.()
       }
     } finally {

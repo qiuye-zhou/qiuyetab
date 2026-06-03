@@ -35,7 +35,9 @@ const loadTabs = async () => {
 // 切换标签页
 const switchToTab = (tabId: number | undefined) => {
   if (tabId !== undefined) {
-    browser.tabs.update(tabId, { active: true })
+    browser.tabs.update(tabId, { active: true }).catch((err) => {
+      console.warn('切换标签页失败（可能已关闭）:', err)
+    })
   }
 }
 

@@ -25,21 +25,22 @@ export async function getManifest() {
       128: './assets/logo.png',
     },
     permissions: ['tabs', 'storage', 'activeTab'],
-    host_permissions: ['*://*/*'],
+    // 不使用 host_permissions：activeTab 权限已足够打开新标签页
     background: {
       service_worker: './dist/background/index.js',
       type: 'module',
     },
     content_security_policy: {
       extension_pages: isDev
-        ? // 开发模式下，允许加载未经验证的内容脚本，以方便调试
+        ? // 开发模式下，允许加载本地开发服务器脚本以方便调试
           `script-src 'self' http://localhost:${port}; object-src 'self'`
         : "script-src 'self'; object-src 'self'",
     },
     web_accessible_resources: [
       {
         resources: ['assets/*'],
-        matches: ['<all_urls>'],
+        // 仅允许扩展自身页面访问资源，防止外部网站指纹识别
+        matches: ['chrome-extension://*/*'],
       },
     ],
   }

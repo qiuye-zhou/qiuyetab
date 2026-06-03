@@ -3,6 +3,7 @@
 const lastFetchTime = new Map()
 const RATE_LIMIT_MS = 500
 const CLEANUP_INTERVAL = 10 * 60 * 1000 // 10 分钟清理一次过期记录
+const MAX_SIZE = 2 * 1024 * 1024 // 2MB
 
 // 定期清理过期的速率限制记录，防止 Map 无限增长
 setInterval(() => {
@@ -13,6 +14,19 @@ setInterval(() => {
     }
   }
 }, CLEANUP_INTERVAL)
+
+// 允许的域名白名单（favicon 和搜索建议服务）
+const ALLOWED_DOMAINS = [
+  'www.google.com',
+  'www.baidu.com',
+  'www.bing.com',
+  'www.sogou.com',
+  'image.baidu.com',
+  'api.bing.com',
+  'suggestqueries.google.com',
+  'completion.baidu.com',
+  'suggestion.baidu.com',
+]
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'fetch-url') {
@@ -26,8 +40,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
     lastFetchTime.set(senderId, now)
 
+    let url
     try {
-      const url = new URL(message.url)
+      url = new URL(message.url)
       // 仅允许 http/https 协议
       if (url.protocol !== 'http:' && url.protocol !== 'https:') {
         sendResponse({ ok: false, error: '不允许的协议' })
@@ -38,13 +53,28 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       return false
     }
 
+    // SSRF 防护：域名白名单检查
+    // 允许所有域名获取 favicon（这是扩展核心功能），但阻止内网地址
+    const hostname = url.hostname
+    const isPrivateIP =
+      /^(10\.|172\.(1[6-9]|2\d|3[01])\.|192\.168\.|127\.|0\.|localhost|::1|fe80:)/i.test(
+        hostname,
+      )
+    // 允许白名单域名或非内网地址
+    if (isPrivateIP && !ALLOWED_DOMAINS.includes(hostname)) {
+      sendResponse({ ok: false, error: '不允许访问内网地址' })
+      return false
+    }
+
     fetch(message.url, { credentials: 'omit' })
       .then(async (res) => {
-        const MAX_SIZE = 2 * 1024 * 1024 // 2MB
         const contentLength = res.headers.get('content-length')
-        if (contentLength && Number(contentLength) > MAX_SIZE) {
-          sendResponse({ ok: false, error: '响应体过大' })
-          return
+        if (contentLength) {
+          const size = parseInt(contentLength, 10)
+          if (!isNaN(size) && size > MAX_SIZE) {
+            sendResponse({ ok: false, error: '响应体过大' })
+            return
+          }
         }
         const reader = res.body?.getReader()
         if (!reader) {
