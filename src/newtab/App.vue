@@ -124,6 +124,11 @@ const backgroundImageOpacity = computed(() => {
   return backgroundOpacity.value
 })
 
+// 是否有自定义背景图片（用于 CSS 选择器，必须是布尔值）
+const hasBackground = computed(() => {
+  return backgroundImageUrl.value !== 'none'
+})
+
 // 定时切换背景
 let backgroundTimer: number | null = null
 
@@ -209,7 +214,7 @@ onUnmounted(() => {
       '--bg-image': backgroundImageUrl,
       '--bg-opacity': backgroundImageOpacity,
     }"
-    :data-has-bg="backgroundImageUrl ? 'true' : 'false'"
+    :data-has-bg="hasBackground ? 'true' : 'false'"
   >
     <!-- 右上角按钮组 -->
     <div class="fixed top-2 right-2 z-50 flex items-center gap-1">
