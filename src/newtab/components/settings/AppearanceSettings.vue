@@ -6,6 +6,7 @@ import { storeToRefs } from 'pinia'
 import {
   compressImage,
   checkStorageSpace,
+  estimateBase64Size,
   getStorageInfo,
   formatBytes,
 } from '../../../utils'
@@ -124,7 +125,9 @@ const handleLocalFileUpload = async (event: Event) => {
       const compressedBase64 = await compressImage(file, 1920, 1080, 0.8)
 
       // 检查存储空间
-      const hasSpace = await checkStorageSpace(compressedBase64.length)
+      const hasSpace = await checkStorageSpace(
+        estimateBase64Size(compressedBase64),
+      )
       if (!hasSpace) {
         alert('存储空间不足，请清除其他数据或选择更小的图片')
         return
@@ -395,7 +398,7 @@ onMounted(async () => {
             >
               <!-- 预览图 -->
               <div
-                class="w-16 h-12 rounded overflow-hidden border border-gray-300 dark:border-gray-600 flex-shrink-0"
+                class="w-16 h-12 rounded overflow-hidden border border-gray-300 dark:border-gray-600 shrink-0"
               >
                 <img
                   :src="background.data"

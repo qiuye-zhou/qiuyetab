@@ -112,7 +112,7 @@ const backgroundImageUrl = computed(() => {
   if (backgroundType.value === 'custom' && customBackground.value) {
     // 渲染时二次校验 URL 协议，防止存储值被篡改
     if (!isValidImageUrl(customBackground.value)) return 'none'
-    return `url(${customBackground.value})`
+    return `url('${customBackground.value.replace(/'/g, "\\'")}')`
   }
   if (backgroundType.value === 'local' && currentLocalBackground.value) {
     return `url(${currentLocalBackground.value})`

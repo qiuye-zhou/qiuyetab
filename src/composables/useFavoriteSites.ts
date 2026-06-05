@@ -51,6 +51,7 @@ export function useFavoriteSites() {
     } catch (error) {
       console.error('保存常用网站失败:', error)
       sites.value = snapshot
+      throw error
     }
   }
 

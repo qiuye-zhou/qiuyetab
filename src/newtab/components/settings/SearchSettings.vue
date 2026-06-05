@@ -26,10 +26,11 @@ const saveSettings = async () => {
 }
 
 // 用标志位跳过首次 watcher 触发（由 loadSettings 引起的）
-let isInitialLoad = true
+// 放在 setup 内部，避免模块级变量在组件重新加载时不会重置
+const isInitialLoad = ref(true)
 watch(selectedEngine, () => {
-  if (isInitialLoad) {
-    isInitialLoad = false
+  if (isInitialLoad.value) {
+    isInitialLoad.value = false
     return
   }
   saveSettings()

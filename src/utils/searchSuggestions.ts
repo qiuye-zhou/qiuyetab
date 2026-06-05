@@ -110,16 +110,22 @@ export const addSearchHistory = async (query: string): Promise<void> => {
  * @param query 要删除的搜索词
  */
 export const removeSearchHistory = async (query: string): Promise<void> => {
-  try {
-    const trimmedQuery = query.trim()
-    const history = await getSearchHistory()
-    // 忽略大小写匹配删除
-    const lowerQuery = trimmedQuery.toLowerCase()
-    const filtered = history.filter((item) => item.toLowerCase() !== lowerQuery)
-    await browser.storage.local.set({ [SEARCH_HISTORY_KEY]: filtered })
-  } catch (error) {
-    console.error('删除搜索历史失败:', error)
-  }
+  // 使用 Promise 链式锁防止与 addSearchHistory 并发写入丢失数据
+  historyLock = historyLock.then(async () => {
+    try {
+      const trimmedQuery = query.trim()
+      const history = await getSearchHistory()
+      // 忽略大小写匹配删除
+      const lowerQuery = trimmedQuery.toLowerCase()
+      const filtered = history.filter(
+        (item) => item.toLowerCase() !== lowerQuery,
+      )
+      await browser.storage.local.set({ [SEARCH_HISTORY_KEY]: filtered })
+    } catch (error) {
+      console.error('删除搜索历史失败:', error)
+    }
+  })
+  await historyLock
 }
 
 /**
