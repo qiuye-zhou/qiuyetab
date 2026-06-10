@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, nextTick } from 'vue'
 import { searchEngines } from '@/config/searchEngines'
 import { setStorageValue, getStorageValue } from '@/utils'
 
@@ -36,8 +36,14 @@ watch(selectedEngine, () => {
   saveSettings()
 })
 
-onMounted(() => {
-  loadSettings()
+onMounted(async () => {
+  await loadSettings()
+  // 必须在 loadSettings 完成后显式清除 isInitialLoad：
+  // 当存储值与默认值相同（都是 'baidu'）时，selectedEngine 不会变化，
+  // watcher 不会触发，isInitialLoad 就会一直为 true，
+  // 导致用户的第一次选择被跳过、永远无法保存。
+  await nextTick()
+  isInitialLoad.value = false
 })
 </script>
 
